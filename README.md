@@ -1,17 +1,17 @@
 # Haskell Data Science Kit
 
-The Haskell Data Science Kit (*HDSK*) project is an attempt to create a well-
-documented, well-tested, and performant data science library implemented in the
-Haskell language.
+The Haskell Data Science Kit (*HDSK*) project is an attempt to create a
+well-documented, well-tested, and performant data science library implemented
+in the Haskell language.
 
-Sources suggest that in spite of huge potential for performance gains [[1]] over
-current de facto methods, adoption of Haskell in the data science community
-lags for a variety of reasons, the greatest of which seems to be the
-dearth [[2]] of easy-to-use data science libraries (indeed, searching for "data
-science" on GitHub yields 14 Haskell-language repositories and **5,807**
-Python-language repositories [[3]]). This project seeks to mediate that issue by
-presenting a *unified* (though modular) library of data science utilities which
-encompass the entire life-cycle of a data science project.
+Sources suggest that in spite of huge potential for performance gains over
+current de facto methods [[1]], adoption of Haskell in the data science
+community lags for a variety of reasons, the greatest of which seems to be the
+dearth [[2]] of easy-to-use data science libraries (indeed, searching for
+"*data science*" on GitHub yields **14** Haskell-language repositories and
+**5,807** Python-language repositories [[3]]). This project seeks to mediate
+that issue by presenting a *unified* (though modular) library of data science
+utilities which support the entire life-cycle of a data science project.
 
 **Disclaimer:** At the time of writing, I am still a beginner in Haskell, and
 this project is as much about the above stated goal as it is about me learning
@@ -38,9 +38,9 @@ near-seamless manner.
 This first step will build out the core functionality of the library in a pure
 Haskell context. The key deliverable will be a packaged Haskell library
 containing (at least a minimal demonstrative set of) the target functions of
-the library. Secondary deliverables will include a comprehensive testing suite
-and benchmarks. My main learning focus will be on the Haskell language itself
-and on its software packaging and distribution ecosystem.
+the library. Secondary deliverables will include comprehensive tests and
+documentation, and benchmarks. My main learning focus will be on the Haskell
+language itself and on its software packaging and distribution ecosystem.
 
 This implies an initial research phase which will begin to identify the
 functions the library will implement. I'll be looking largely to NumPy [[4]] and
@@ -55,12 +55,12 @@ Part of the value proposition of this project (which I hope will improve
 adoption) will be compatibility with non-Haskell projects. Other than the
 (un)availability of libraries, the learning curve of the language itself is a
 hindrance to the adoption of Haskell in the data science community [[2]].
-Exposing this library to other projects in other languages, we can remove the
-language learning curve from the equation and offer a more gentle introduction
-to the applications of Haskell within data science.
+By exposing this library to other projects in other languages, we can remove
+the language learning curve from the equation and offer a more gentle
+introduction to the applications of Haskell within data science.
 
-The ultimate goal would be to export a library of bindings in a target
-language that allow for core library functions to be called as native
+The ultimate goal (i.e. primary deliverable) would be a library of bindings in
+a target language that allow for core library functions to be called as native
 functions while executing in the Haskell runtime. I don't know just yet how
 I'll go about this, but two options I've started investigating are outlined
 below:
@@ -85,12 +85,14 @@ below:
    within browser-side JavaScript [[9]], though see next section for more).
 
 To evaluate these (and any other potential approaches), I will consider 1) the
-performance (particularly in the serialization options) and the ease-of-use
+performance (particularly in the serialization options) and 2) the ease-of-use
 from the point of view of the target-language client.
 
 At this point, it will be possible to begin testing for one of the secondary
 goals of the project: to provide more performant data science utilities than
 the current de facto solutions in the target languages.
+
+In this stage, I hope to learn about how Haskell interoperates with other languages and to develop and understanding of remote procedure call frameworks and where their most appropriate applications are.
 
 [6]: https://wiki.haskell.org/Foreign_Function_Interface
 [7]: https://github.com/nh2/call-haskell-from-anything
@@ -119,8 +121,8 @@ because I'm interested in learning how to do this.
 
 By publishing the library in a container, we open the door for developers to
 (for example) deploy the generated Thrift server with a single `docker` command
-for use in their project. We really want to make the barrier to entry as low as
-possible, and I see this as a way of lowering it.
+for use in their projects. We really want to make the barrier to entry as low
+as possible, and I see this as a way of doing that.
 
 
 ## License
