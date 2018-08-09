@@ -3,39 +3,38 @@ Module:   Benchmark
 -}
 
 import Control.Monad (replicateM)
-import Data.List (sort)
+import System.Random (randomRIO)
+
 import Data.Vector (Vector)
 import qualified Data.Vector as V
-import System.Random (randomRIO)
 
 import Criterion.Main (defaultMain, env, nf, bench, bgroup)
 
-import Hdsk.Description
+import Hdsk.Description (
+  mean, genericMean,
+  var,  genericVar,
+  std,  genericStd)
 
-sampleSize :: Int
-sampleSize = 1000000
+mkEnv = do
+  xs <- sample 1000000
+  let xsVec = V.fromList xs
+  return (xs, xsVec)
 
 main = defaultMain
-  [ env (sample sampleSize) $ \xs -> bgroup "test benchmark group"
-    -- [ bench "reverse" $ nf reverse xs
-    -- , bench "sort"    $ nf sort    xs]
-    []
+  [ env mkEnv $ \ ~(xs, vec) -> bgroup "mean"
+    [ bench "generic" $ nf (genericMean::[Double]->Double) xs
+    , bench "vector"  $ nf mean vec ]
 
-  , env (sample sampleSize) $ \xs -> bgroup "numerical description"
-    [ bench "mean"         $ nf (mean::[Double]->Double) xs
-    , bench "variance"     $ nf (var::[Double]->Double)  xs
-    , bench "standard dev" $ nf (std::[Double]->Double)  xs]
+  , env mkEnv $ \ ~(xs, vec) -> bgroup "variance"
+    [ bench "generic" $ nf (genericVar::[Double]->Double) xs
+    , bench "vector"  $ nf var vec ]
 
-  , env (sampleVec sampleSize) $ \xs -> bgroup "vector methods"
-    [ bench "meanVec" $ nf meanVec xs
-    , bench "varVec"  $ nf varVec xs
-    , bench "stdVec"  $ nf stdVec xs]]
+  , env mkEnv $ \ ~(xs, vec) -> bgroup "standard deviation"
+    [ bench "generic" $ nf (genericStd::[Double]->Double) xs
+    , bench "vector"  $ nf std vec ]]
 
 
 -- Utilities
 
 sample :: Int -> IO [Double]
 sample n = replicateM n $ randomRIO (1, 6)
-
-sampleVec :: Int -> IO (Vector Double)
-sampleVec n = V.replicateM n $ randomRIO (1, 6)
