@@ -32,7 +32,7 @@ spec = do
       genericMean [6.1, 99.1, 12.3, 44] `shouldBe` 40.375
 
     it "is undefined on empty lists" $
-      evaluate (genericMean []) `shouldThrow` errorCall "Prelude.undefined"
+      shouldBeUndefined $ evaluate (genericMean [])
 
 
   -- ===== VARIANCE ===== --
@@ -42,7 +42,7 @@ spec = do
       genericVar [1, 2, 3] `shouldBe` 2 / 3
 
     it "is undefined on empty lists" $
-      evaluate (genericVar []) `shouldThrow` errorCall "Prelude.undefined"
+      shouldBeUndefined $ evaluate (genericVar [])
 
 
   -- ===== STANDARD DEVIATION ===== --
@@ -52,11 +52,13 @@ spec = do
       shouldLieBetween 0.80 0.82 (genericStd [1, 2, 3])
 
     it "is undefined on empty lists" $
-      evaluate (genericStd []) `shouldThrow` errorCall "Prelude.undefined"
-
+      shouldBeUndefined $ evaluate (genericStd [])
 
 -- Utility functions
 
 shouldLieBetween :: (Real r, Ord r, Show r) =>
   r -> r -> r -> Expectation
 shouldLieBetween n m = flip shouldSatisfy ((&&) <$> (>=n) <*> (<=m))
+
+shouldBeUndefined :: IO a -> Expectation
+shouldBeUndefined = flip shouldThrow $ errorCall  "Prelude.undefined"
