@@ -1,5 +1,7 @@
 # Haskell Data Science Kit
 
+![Build status](https://travis-ci.org/wbadart/hdsk.svg?branch=master)
+
 The Haskell Data Science Kit (*HDSK*) project is an attempt to create a
 well-documented, well-tested, and performant data science library implemented
 in the Haskell language.
