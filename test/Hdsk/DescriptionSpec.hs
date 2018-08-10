@@ -55,16 +55,16 @@ spec = do
 
 
   -- ===== PERCENTILE FAMILY ===== --
+  let uut = [1, 2, 3, 4, 5]
   let lpercentile p xs = percentile p $ V.fromList xs
   describe "percentile" $ do
 
-    let uut = [1, 2, 3, 4, 5]
     it "finds the p-percentile of the list by sorting" $ do
-      lpercentile 0   uut `shouldBe` 1.0
-      lpercentile 25  uut `shouldBe` 2.0
-      lpercentile 50  uut `shouldBe` 3.0
-      lpercentile 75  uut `shouldBe` 4.0
-      lpercentile 100 uut `shouldBe` 5.0
+      lpercentile 0   uut `shouldBe` 1
+      lpercentile 25  uut `shouldBe` 2
+      lpercentile 50  uut `shouldBe` 3
+      lpercentile 75  uut `shouldBe` 4
+      lpercentile 100 uut `shouldBe` 5
 
     it "works on all permutations of a list" $ property $
       forAll (shuffle uut) (\xs -> lpercentile 10 xs == 1.5)
@@ -78,6 +78,9 @@ spec = do
     it "handles singleton vectors" $ property $
       forAll (choose (0.0, 1.0)) (\p -> lpercentile p [0] == 0)
 
+    -- it "for any p and for any singleton, the percentile is the value"
+    -- ^ not sure how to express this just yet. Look at Gen combinators
+
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (percentile 50 V.empty)
 
@@ -86,22 +89,35 @@ spec = do
   describe "q1" $ do
 
     it "finds the first quartile of a vector of doubles" $
-      lq1 [1, 2, 3, 4, 5] `shouldBe` 2
+      lq1 uut `shouldBe` 2
 
     it "works on all permutations of a list" $ property $
-        forAll (shuffle [1, 2, 3, 4, 5]) (\xs -> lq1 xs == 2)
+        forAll (shuffle uut) (\xs -> lq1 xs == 2)
 
-    it "never exceeds q3" $ property $
+    it "is always no greater than q3" $ property $
       (\xs -> V.null xs || q1 xs <= q3 xs) . V.fromList
+
+    it "gives the singleton's value when applied to one" $ property $
+      (\xs -> V.null xs || q1 xs == V.head xs) . V.fromList
 
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (q1 V.empty)
 
 
+  let lq3 = q3 . V.fromList
   describe "q3" $ do
 
-    it "is never less than q1" $ property $
+    it "finds the third quartile of a vector of doubles" $
+      lq3 uut `shouldBe` 4
+
+    it "works on all permutations of a list" $ property $
+        forAll (shuffle uut) (\xs -> lq3 xs == 4)
+
+    it "is always at least q1" $ property $
       (\xs -> V.null xs || q3 xs >= q1 xs) . V.fromList
+
+    it "gives the singleton's value when applied to one" $ property $
+      (\xs -> V.null xs || q3 xs == V.head xs) . V.fromList
 
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (q3 V.empty)
