@@ -58,12 +58,16 @@ spec = do
   let lpercentile p xs = percentile p $ V.fromList xs
   describe "percentile" $ do
 
+    let uut = [1, 2, 3, 4, 5]
     it "finds the p-percentile of the list by sorting" $ do
-      lpercentile 10 [1, 2, 3, 4, 5] `shouldBe` 1.5
-      lpercentile 10 [2, 5, 1, 4, 3] `shouldBe` 1.5
+      lpercentile 0   uut `shouldBe` 1.0
+      lpercentile 25  uut `shouldBe` 2.0
+      lpercentile 50  uut `shouldBe` 3.0
+      lpercentile 75  uut `shouldBe` 4.0
+      lpercentile 100 uut `shouldBe` 5.0
 
     it "works on all permutations of a list" $ property $
-      forAll (shuffle [1, 2, 3, 4, 5]) (\xs -> lpercentile 10 xs == 1.5)
+      forAll (shuffle uut) (\xs -> lpercentile 10 xs == 1.5)
 
     it "gives the maximum for 100th percentile" $ property $
       \xs -> null xs || lpercentile 100 xs == maximum xs
