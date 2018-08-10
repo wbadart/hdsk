@@ -6,16 +6,12 @@ Description:  Unit tests for the Hdsk.Description exports
 module Hdsk.Description.GenericSpec (spec) where
 
 import Control.Exception (evaluate)
-
-import Test.Hspec (
-  Spec, Expectation,
-  describe, it,
-  shouldBe, shouldSatisfy, shouldThrow,
-  errorCall)
+import Test.Hspec (Spec, describe, it, shouldBe)
 
 import Hdsk.Description.Generic (genericMean, genericVar, genericStd)
 import Hdsk.Util (shouldLieBetween, shouldBeUndefined)
 
+spec :: Spec
 spec = do
 
   describe "genericMean" $ do
