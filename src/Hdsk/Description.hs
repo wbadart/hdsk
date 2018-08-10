@@ -47,7 +47,7 @@ percentile p xs | V.null xs = undefined
                 | otherwise = mean $ V.slice left 2 (vecSorted xs)
   where idx = (p / 100) * vecLen xs
         left = floor idx - if ceiling idx == vecLen xs then 1 else 0
-        whole x = x == fromIntegral (floor x) || p == 50
+        whole x = x == fromIntegral (floor x) || p `elem` [25, 50, 75]
 
 median :: Vector Double -> Double
 -- ^ /O(n log n)/ Finds the median element the vector. Undefined for empty
