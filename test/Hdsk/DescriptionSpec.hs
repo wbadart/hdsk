@@ -9,17 +9,10 @@ import Control.Exception (evaluate)
 import qualified Data.Vector as V
 
 import Test.QuickCheck (property, forAll, shuffle, choose)
-import Test.Hspec (
-  Spec, Expectation,
-  describe, it,
-  shouldBe, shouldSatisfy, shouldThrow,
-  errorCall)
+import Test.Hspec (Spec, describe, it, shouldBe)
 
-import Hdsk.Description (
-  mean, genericMean,
-  var, genericVar,
-  std, genericStd,
-  percentile, q1, q3)
+import Hdsk.Description (mean, var, std, percentile, q1, q3)
+import Hdsk.Util (shouldLieBetween, shouldBeUndefined)
 
 spec :: Spec
 spec = do
@@ -33,15 +26,6 @@ spec = do
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (mean V.empty)
 
-  describe "genericMean" $ do
-    it "averages the numbers in a list" $ do
-      genericMean [1, 2, 3] `shouldBe` 2.0
-      genericMean [10, 20, 15, 31] `shouldBe` 19.0
-    it "handles lists of floats too" $
-      genericMean [6.1, 99.1, 12.3, 44] `shouldBe` 40.375
-    it "is undefined on empty lists" $
-      shouldBeUndefined $ evaluate (genericMean [])
-
 
   -- ===== VARIANCE ===== --
   let lvar = var . V.fromList
@@ -51,12 +35,6 @@ spec = do
       lvar [10, 10, 10] `shouldBe` 0
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (var V.empty)
-
-  describe "genericVar" $ do
-    it "correctly calculates the variance of a list of numbers" $
-      genericVar [1, 2, 3] `shouldBe` 2 / 3
-    it "is undefined on empty lists" $
-      shouldBeUndefined $ evaluate (genericVar [])
 
 
   -- ===== STANDARD DEVIATION ===== --
@@ -69,11 +47,6 @@ spec = do
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (std V.empty)
 
-  describe "genericStd" $ do
-    it "correctly calculates the standard deviation of a list" $
-      shouldLieBetween 0.80 0.82 (genericStd [1, 2, 3])
-    it "is undefined on empty lists" $
-      shouldBeUndefined $ evaluate (genericStd [])
 
 
   -- ===== PERCENTILE FAMILY ===== --
@@ -109,12 +82,3 @@ spec = do
       (\xs -> V.null xs || q3 xs >= q1 xs) . V.fromList
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (q3 V.empty)
-
--- Utility functions
-
-shouldLieBetween :: (Real r, Ord r, Show r) =>
-  r -> r -> r -> Expectation
-shouldLieBetween n m = flip shouldSatisfy ((&&) <$> (>=n) <*> (<=m))
-
-shouldBeUndefined :: IO a -> Expectation
-shouldBeUndefined = flip shouldThrow $ errorCall  "Prelude.undefined"
