@@ -8,7 +8,7 @@ module Hdsk.DescriptionSpec (spec) where
 import Control.Exception (evaluate)
 import qualified Data.Vector as V
 
-import Test.QuickCheck (property, forAll, shuffle, choose)
+import Test.QuickCheck (property, forAll, shuffle, choose, vector)
 import Test.Hspec (Spec, describe, it, shouldBe)
 
 import Hdsk.Description (mean, var, std, percentile, q1, q3)
@@ -86,38 +86,38 @@ spec = do
 
 
   let lq1 = q1 . V.fromList
+  let lq3 = q3 . V.fromList
   describe "q1" $ do
 
     it "finds the first quartile of a vector of doubles" $
       lq1 uut `shouldBe` 2
 
     it "works on all permutations of a list" $ property $
-        forAll (shuffle uut) (\xs -> lq1 xs == 2)
+      forAll (shuffle uut) (\xs -> lq1 xs == 2)
 
     it "is always no greater than q3" $ property $
-      (\xs -> V.null xs || q1 xs <= q3 xs) . V.fromList
+      \xs -> null xs || lq1 xs <= lq3 xs
 
     it "gives the singleton's value when applied to one" $ property $
-      (\xs -> V.null xs || q1 xs == V.head xs) . V.fromList
+      forAll (vector 1) $ \xs -> lq1 xs == head xs
 
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (q1 V.empty)
 
 
-  let lq3 = q3 . V.fromList
   describe "q3" $ do
 
     it "finds the third quartile of a vector of doubles" $
       lq3 uut `shouldBe` 4
 
     it "works on all permutations of a list" $ property $
-        forAll (shuffle uut) (\xs -> lq3 xs == 4)
+        forAll (shuffle uut) $ \xs -> lq3 xs == 4
 
     it "is always at least q1" $ property $
-      (\xs -> V.null xs || q3 xs >= q1 xs) . V.fromList
+      \xs -> null xs || lq3 xs >= lq1 xs
 
     it "gives the singleton's value when applied to one" $ property $
-      (\xs -> V.null xs || q3 xs == V.head xs) . V.fromList
+      forAll (vector 1) $ \xs -> lq3 xs == head xs
 
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (q3 V.empty)
