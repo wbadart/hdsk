@@ -86,10 +86,10 @@ spec = do
   describe "q1" $ do
 
     it "finds the first quartile of a vector of doubles" $
-      lq1 [1, 2, 3, 4, 5] `shouldBe` 2.5
+      lq1 [1, 2, 3, 4, 5] `shouldBe` 2
 
     it "works on all permutations of a list" $ property $
-        forAll (shuffle [1, 2, 3, 4, 5]) (\xs -> lq1 xs == 2.5)
+        forAll (shuffle [1, 2, 3, 4, 5]) (\xs -> lq1 xs == 2)
 
     it "never exceeds q3" $ property $
       (\xs -> V.null xs || q1 xs <= q3 xs) . V.fromList
