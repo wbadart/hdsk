@@ -20,9 +20,11 @@ spec = do
   -- ===== MEAN ===== --
   let lmean = mean . V.fromList
   describe "mean" $ do
+
     it "averages the doubles in a vector" $ do
       lmean [1, 2, 3] `shouldBe` 2.0
       lmean [10, 20, 15, 31] `shouldBe` 19.0
+
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (mean V.empty)
 
@@ -30,9 +32,11 @@ spec = do
   -- ===== VARIANCE ===== --
   let lvar = var . V.fromList
   describe "var" $ do
+
     it "correctly calculates the variance of a vector of doubles" $ do
       lvar [1, 2, 3] `shouldBe` 1
       lvar [10, 10, 10] `shouldBe` 0
+
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (var V.empty)
 
@@ -40,45 +44,60 @@ spec = do
   -- ===== STANDARD DEVIATION ===== --
   let lstd = std . V.fromList
   describe "std" $ do
+
     it "correctly calculates the standard deviation of the vector" $ do
       lstd [1, 2, 3] `shouldBe` 1
       shouldLieBetween 1.58 1.59 (lstd [1, 2, 3, 4, 5])
       lstd [10, 10, 10] `shouldBe` 0
+
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (std V.empty)
-
 
 
   -- ===== PERCENTILE FAMILY ===== --
   let lpercentile p xs = percentile p $ V.fromList xs
   describe "percentile" $ do
+
     it "finds the p-percentile of the list by sorting" $ do
       lpercentile 10 [1, 2, 3, 4, 5] `shouldBe` 1.5
       lpercentile 10 [2, 5, 1, 4, 3] `shouldBe` 1.5
+
     it "works on all permutations of a list" $ property $
       forAll (shuffle [1, 2, 3, 4, 5]) (\xs -> lpercentile 10 xs == 1.5)
+
     it "gives the maximum for 100th percentile" $ property $
       \xs -> null xs || lpercentile 100 xs == maximum xs
+
     it "gives the minimum for 0th percentile" $ property $
       \xs -> null xs || lpercentile 0 xs == minimum xs
+
     it "handles singleton vectors" $ property $
       forAll (choose (0.0, 1.0)) (\p -> lpercentile p [0] == 0)
+
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (percentile 50 V.empty)
 
+
   let lq1 = q1 . V.fromList
   describe "q1" $ do
+
     it "finds the first quartile of a vector of doubles" $
       lq1 [1, 2, 3, 4, 5] `shouldBe` 2.5
+
     it "works on all permutations of a list" $ property $
         forAll (shuffle [1, 2, 3, 4, 5]) (\xs -> lq1 xs == 2.5)
+
     it "never exceeds q3" $ property $
       (\xs -> V.null xs || q1 xs <= q3 xs) . V.fromList
+
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (q1 V.empty)
 
+
   describe "q3" $ do
+
     it "is never less than q1" $ property $
       (\xs -> V.null xs || q3 xs >= q1 xs) . V.fromList
+
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (q3 V.empty)
