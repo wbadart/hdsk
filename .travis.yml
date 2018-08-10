@@ -3,4 +3,4 @@ ghc:
   - "8.2.2"
 
 script:
-  - cabal test --test-option=--color
+  - cabal test --show-details=always --test-option=--color
