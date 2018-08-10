@@ -28,7 +28,11 @@ test-suite spec
   main-is:              Spec.hs
   hs-source-dirs:       test
   ghc-options:          -Wall -Wno-type-defaults
-  build-depends:        base >=4.10 && <4.11, hspec==2.*, hdsk, vector
+  build-depends:        base >=4.10 && <4.11,
+                          hspec==2.*,
+                          hdsk,
+                          vector,
+                          QuickCheck
   other-modules:        Hdsk.DescriptionSpec
   default-language:     Haskell2010
   build-tool-depends:   hspec-discover:hspec-discover == 2.*
