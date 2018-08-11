@@ -5,6 +5,7 @@ cache:
     - $HOME/.local
 
 before_install:
+  - which curl && which sh
   - mkdir -p $HOME/.local/{bin,lib}
   - curl -sSL https://get.haskellstack.org/ | sh -s - -d $HOME/.local
 
