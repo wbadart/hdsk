@@ -2,5 +2,14 @@ language: haskell
 ghc:
   - "8.2.2"
 
+cache:
+  directories:
+    - $HOME/.stack
+    - $HOME/.local
+
+before_install:
+  - mkdir -p $HOME/.local/{bin,lib}
+  - travis_retry curl -sSL https://get.haskellstack.org/ | sh -s - -d $HOME/.local
+
 script:
-  - cabal test --show-details=always --test-option=--color
+  - stack build && stack test

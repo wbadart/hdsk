@@ -2,8 +2,6 @@
 Module:   GenericVsVector
 -}
 
-module GenericVsVector (benchmarks) where
-
 import Control.Monad (replicateM)
 import System.Random (randomRIO)
 
@@ -22,7 +20,7 @@ mkEnvN size = do
 
 mkEnv = mkEnvN 1000000
 
-benchmarks =
+main = defaultMain
   [ env mkEnv $ \ ~(xs, vec) -> bgroup "mean"
     [ bench "generic" $ nf (genericMean::[Double]->Double) xs
     , bench "vector"  $ nf mean vec ]
