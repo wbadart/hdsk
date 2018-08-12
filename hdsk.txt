@@ -10,6 +10,15 @@
 @version 0.1.0.0
 
 
+-- | A simple implementation of a Naive Bayes classifier for purely
+--   categorical data.
+module Hdsk.Bayesian.NaiveBayes
+
+-- | Calculate the most probable label of the given tuple given the dataset
+--   (list of tuples). The label of a data object should be the last field.
+classify :: [Tuple] -> Tuple -> String
+
+
 -- | This module contains basic numerical descriptive statistics that are
 --   applicable to a vector of doubles.
 module Hdsk.Description
