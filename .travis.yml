@@ -49,5 +49,5 @@ deploy:
   keep-history: true
   on:
     branch: master
-  local-dir: .stack-work/install/x86_64-linux-tinfo6-nopie/lts-12.5/8.4.3/doc/hdsk-0.1.0.0
+    # local-dir: .stack-work/install/x86_64-linux-tinfo6-nopie/lts-12.5/8.4.3/doc/hdsk-0.1.0.0
   target-branch: gh-pages
