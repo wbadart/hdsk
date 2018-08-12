@@ -77,7 +77,7 @@ iqr :: Vector Double -> Double
 iqr = (-) <$> q3 <*> q1
 
 noOutliers :: Vector Double -> Vector Double
--- /O(n log n)/ Gives a copy of the input vector with all of the outliers
+-- ^ /O(n log n)/ Gives a copy of the input vector with all of the outliers
 -- filtered out. Outliers are considered to be points beyond 1.5 IQR from
 -- the median
 noOutliers xs = V.filter (\x -> x >= med - 1.5*iq && x <= med + 1.5*iq) xs
