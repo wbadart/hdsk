@@ -37,11 +37,7 @@ install:
 
 script:
 # Build the package, its tests, and its docs and run the tests
-- stack --no-terminal test --haddock --no-haddock-deps
-
-before_deploy:
-  - stack haddock
-  - cp -r .stack-work/install/x86_64-linux-tinfo6-nopie/lts-12.5/8.4.3/doc/hdsk-0.1.0.0 docs
+- stack --no-terminal test --haddock --no-haddock-deps --haddock-arguments="--odir=docs"
 
 deploy:
   provider: pages
@@ -50,5 +46,5 @@ deploy:
   keep-history: true
   on:
     branch: master
-    local-dir: docs
-    target-branch: gh-pages
+  local-dir: docs
+  target-branch: gh-pages
