@@ -23,6 +23,7 @@ library:
   exposed-modules:
     - Hdsk.Description
     - Hdsk.Description.Generic
+    - Hdsk.Bayesian.NaiveBayes
   ghc-options:
     - -Wall
     - -Wno-type-defaults

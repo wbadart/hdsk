@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b3f3f617767987131561d09ba92888cee1d8863f813212678bed8cb6cf61a853
+-- hash: 66031cb758a3c95b166da662248e0e387b6b9d327be9816dc8d236bbd271a656
 
 name:           hdsk
 version:        0.1.0.0
@@ -37,6 +37,7 @@ library
   exposed-modules:
       Hdsk.Description
       Hdsk.Description.Generic
+      Hdsk.Bayesian.NaiveBayes
   other-modules:
       Paths_hdsk
   default-language: Haskell2010
@@ -54,6 +55,7 @@ test-suite hdsk-test
     , hspec ==2.*
     , vector ==0.12.*
   other-modules:
+      Hdsk.Bayesian.NaiveBayesSpec
       Hdsk.Description.GenericSpec
       Hdsk.DescriptionSpec
       Hdsk.Util
