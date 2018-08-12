@@ -39,6 +39,9 @@ script:
 # Build the package, its tests, and its docs and run the tests
 - stack --no-terminal test --haddock --no-haddock-deps
 
+before_deploy:
+  - stack haddock
+
 deploy:
   provider: pages
   skip-cleanup: true
