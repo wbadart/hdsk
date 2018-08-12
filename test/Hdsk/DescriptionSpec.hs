@@ -8,10 +8,11 @@ module Hdsk.DescriptionSpec (spec) where
 import Control.Exception (evaluate)
 import qualified Data.Vector as V
 
-import Test.QuickCheck (property, forAll, shuffle, choose, vector)
+import Test.QuickCheck (
+  Gen, arbitrary, property, forAll, listOf1, shuffle, choose, vector)
 import Test.Hspec (Spec, describe, it, shouldBe)
 
-import Hdsk.Util (shouldLieBetween, shouldBeUndefined)
+import Hdsk.Util (doubles, shouldLieBetween, shouldBeUndefined)
 import Hdsk.Description
 
 spec :: Spec
@@ -70,10 +71,10 @@ spec = do
       forAll (shuffle uut) (\xs -> lpercentile 30 xs == 2)
 
     it "gives the maximum for 100th percentile" $ property $
-      \xs -> null xs || lpercentile 100 xs == maximum xs
+      forAll (listOf1 doubles) (\xs -> lpercentile 100 xs == maximum xs)
 
     it "gives the minimum for 0th percentile" $ property $
-      \xs -> null xs || lpercentile 0 xs == minimum xs
+      forAll (listOf1 doubles) (\xs -> lpercentile 0 xs == minimum xs)
 
     it "handles singleton vectors" $ property $
       forAll (choose (0, 100)) (\p -> lpercentile p [0] == 0)
@@ -119,7 +120,7 @@ spec = do
       forAll (shuffle uut) (\xs -> lq1 xs == 1.75)
 
     it "is always no greater than q3" $ property $
-      \xs -> null xs || lq1 xs <= lq3 xs
+      forAll (listOf1 doubles) (\xs -> lq1 xs <= lq3 xs)
 
     it "gives the singleton's value when applied to one" $ property $
       forAll (vector 1) $ \xs -> lq1 xs == head xs
@@ -137,10 +138,32 @@ spec = do
         forAll (shuffle uut) $ \xs -> lq3 xs == 4.25
 
     it "is always at least q1" $ property $
-      \xs -> null xs || lq3 xs >= lq1 xs
+      forAll (listOf1 doubles) (\xs -> lq3 xs >= lq1 xs)
 
     it "gives the singleton's value when applied to one" $ property $
       forAll (vector 1) $ \xs -> lq3 xs == head xs
 
     it "is undefined on empty vectors" $
       shouldBeUndefined $ evaluate (q3 V.empty)
+
+
+  let liqr = iqr . V.fromList
+  describe "iqr" $ do
+
+    it "is equivalent to expanding the subtraction expression" $ property $
+      forAll (listOf1 doubles) (\xs -> liqr xs == lq3 xs - lq1 xs)
+
+    it "is undefined on empty vectors" $
+      shouldBeUndefined $ evaluate (iqr V.empty)
+
+
+  let lnoOutliers = noOutliers . V.fromList
+  describe "noOutliers" $ do
+
+    it "removes elements greater than 1.5 IQR from the median" $ do
+      lnoOutliers [1, 1, 1, 1, 1, 20] `shouldBe` V.fromList [1, 1, 1, 1, 1]
+      lnoOutliers [100, 93, 60, 96, 91, 99, 100, 95]
+        `shouldBe` V.fromList [100, 93, 96, 91, 99, 100, 95]
+
+    it "returns an empty vector when given one" $
+      lnoOutliers [] `shouldBe` V.fromList []
