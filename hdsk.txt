@@ -47,6 +47,10 @@ median :: Vector Double -> Double
 -- | <i>O(n log n)</i> Finds the interquartile range of a vector of
 --   doubles.
 iqr :: Vector Double -> Double
+
+-- | <i>O(n log n)</i> Gives a copy of the input vector with all of the
+--   outliers filtered out. Outliers are considered to be points beyond 1.5
+--   IQR from the median
 noOutliers :: Vector Double -> Vector Double
 
 
