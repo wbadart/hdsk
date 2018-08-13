@@ -25,6 +25,7 @@ library:
     - Hdsk.Description
     - Hdsk.Description.Generic
     - Hdsk.Bayesian.NaiveBayes
+    - Hdsk.Bayesian.Bins
   ghc-options:
     - -Wall
     - -Wno-type-defaults
