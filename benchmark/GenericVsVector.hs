@@ -43,15 +43,3 @@ main = defaultMain
 
 sample :: Int -> IO [Double]
 sample n = replicateM n $ randomRIO (1, 6)
-
-mean3 :: (Foldable f, Fractional n) => f n -> n
-mean3 xs = sum xs / fromIntegral (length xs)
-
-var3 :: (Functor f, Foldable f, Floating n) => f n -> n
--- ^ /O(n)/ Computes the unbiased variance of a vector of doubles.
-var3 xs = let avg = mean3 xs; sqDiff x = (x - avg) ** 2
-          in sum (fmap sqDiff xs) / fromIntegral (length xs - 1)
-
-std3 :: (Functor f, Foldable f, Floating n) => f n -> n
--- ^ /O(n)/ Computes the standard deviation of a vector of doubles.
-std3 = sqrt . var3

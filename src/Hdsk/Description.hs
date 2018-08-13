@@ -15,6 +15,8 @@ module Hdsk.Description
 , percentile
 , median
 , q1, q3, iqr
+, select
+, Selectable
 ) where
 
 import Data.Sequence (Seq((:<|), Empty))
@@ -26,42 +28,46 @@ import qualified Data.Vector as V
 
 mean :: (Foldable f, Fractional n) => f n -> n
 -- ^ /O(n)/ Computes the arithmetic mean of a collection of numbers.
-mean xs = sum xs / fromIntegral (length xs)
+mean xs | null xs   = error "empty list"
+        | otherwise = sum xs / fromIntegral (length xs)
 
 var :: (Foldable f, Functor f, Floating n) => f n -> n
 -- ^ /O(n)/ Computes the unbiased variance of a collection of numbers.
-var xs = sum (fmap sqDiff xs) / fromIntegral (length xs - 1)
+var xs | null xs = error "empty list"
+       | otherwise = sum (fmap sqDiff xs) / fromIntegral (length xs - 1)
   where sqDiff x = (x - avg) ** 2; avg = mean xs
 
 std :: (Foldable f, Functor f, Floating n) => f n -> n
 -- ^ /O(n)/ Computes the standard deviation of a collection of numbers.
 std = sqrt . var
 
-percentile :: (Foldable p, Selectable p, RealFrac n) => n -> p n -> n
+percentile :: (Selectable p, RealFrac n) => n -> p n -> n
 -- ^ /O(n)/ Selects the element which is greater than @p@% of the rest.
 -- When the @p@-th percentile does not land directly on a whole index,
 -- midpoint interpolation is used to average left and right side of the
 -- split.
 percentile 0   xs = minimum xs
 percentile 100 xs = maximum xs
-percentile p xs | whole idx = select k xs
-                | otherwise = mean (select k xs, select (k + 1) xs)
-  where idx = p * fromIntegral (length xs) / 100 + 0.5
+percentile p xs | null xs = error "empty list"
+                | length xs == 1 = Hdsk.Description.head xs
+                | whole idx = select k xs
+                | otherwise = mean (select (k + 1) xs, select (k + 2) xs)
+  where idx = p * fromIntegral (length xs) / 100 - 0.5
         k   = floor idx
 
-median :: (Foldable p, Selectable p, RealFrac n) => p n -> n
+median :: (Selectable p, RealFrac n) => p n -> n
 -- ^ /O(n)/ Finds the median element the collection.
 median = percentile 50
 
-q1 :: (Foldable p, Selectable p, RealFrac n) => p n -> n
+q1 :: (Selectable p, RealFrac n) => p n -> n
 -- ^ /O(n)/ Finds the first quartile of a collection of numbers.
 q1 = percentile 25
 
-q3 :: (Foldable p, Selectable p, RealFrac n) => p n -> n
+q3 :: (Selectable p, RealFrac n) => p n -> n
 -- ^ /O(n)/ Finds the third quartile of a collection of numbers.
 q3 = percentile 75
 
-iqr :: (Foldable p, Selectable p, RealFrac n) => p n -> n
+iqr :: (Selectable p, RealFrac n) => p n -> n
 -- ^ /O(n)/ Inter-quartile range. The distance between the first and third
 -- quartiles.
 iqr = (-) <$> q3 <*> q1
@@ -71,10 +77,11 @@ iqr = (-) <$> q3 <*> q1
 whole :: RealFrac a => a -> Bool
 whole x = x == fromIntegral (floor x :: Int)
 
-select :: (Foldable p, Selectable p, Ord a) => Int -> p a -> a
+select :: (Selectable p, Ord a) => Int -> p a -> a
 -- ^ /O(n)/ Simple implementation of quickselct (aka Hoare's algorithm or
 -- k-rank). Selects the @k@-smallest element from the collection.
-select k xxs | len + 1 == k = x
+select k xxs | null xxs     = error "empty list"
+             | len + 1 == k = x
              | len     >= k = select k left
              | otherwise    = select (k - len - 1) right
   where (left, right) = partition (< x) xs
@@ -82,6 +89,8 @@ select k xxs | len + 1 == k = x
         x = Hdsk.Description.head xxs; xs = Hdsk.Description.tail xxs
 
 
+-- | Defines a container which is suitable for the k-rank/ select
+-- algorithm.
 class Foldable p => Selectable p where
   partition :: (a -> Bool) -> p a -> (p a, p a)
   head      :: p a -> a

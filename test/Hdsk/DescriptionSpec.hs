@@ -9,10 +9,12 @@ import Control.Exception (evaluate)
 import qualified Data.Vector as V
 
 import Test.QuickCheck (
-  Gen, arbitrary, property, forAll, listOf1, shuffle, choose, vector)
+  Gen, arbitrary, property,
+  choose, forAll, listOf1, orderedList, shuffle, vector)
 import Test.Hspec (Spec, describe, it, shouldBe)
 
-import Hdsk.Util (doubles, shouldLieBetween, shouldBeUndefined)
+import Hdsk.Util (
+  doubles, shouldLieBetween, shouldBeUndefined, shouldBeEmpty)
 import Hdsk.Description
 
 spec :: Spec
@@ -26,7 +28,7 @@ spec = do
       mean [10, 20, 15, 31] `shouldBe` 19.0
 
     it "is undefined on empty vectors" $
-      shouldBeUndefined $ evaluate (mean V.empty)
+      shouldBeEmpty $ evaluate (mean V.empty)
 
 
   -- ===== VARIANCE ===== --
@@ -37,7 +39,7 @@ spec = do
       var [10, 10, 10] `shouldBe` 0
 
     it "is undefined on empty vectors" $
-      shouldBeUndefined $ evaluate (var V.empty)
+      shouldBeEmpty $ evaluate (var V.empty)
 
 
   -- ===== STANDARD DEVIATION ===== --
@@ -49,7 +51,32 @@ spec = do
       std [10, 10, 10] `shouldBe` 0
 
     it "is undefined on empty vectors" $
-      shouldBeUndefined $ evaluate (std V.empty)
+      shouldBeEmpty $ evaluate (std V.empty)
+
+
+  -- ===== SELECT/ K-RANK ===== --
+  describe "select" $ do
+
+    it "picks the k-smallest element from a list" $ do
+      select 2 [21, 24, 22] `shouldBe` 22
+      select 9 [6, 1, 3, 5, 2, 9, 8, 4, 7, 10] `shouldBe` 9
+
+    it "is `minumum` (non-empty) when k = 1" $ property $
+      forAll (listOf1 doubles) (\xs -> select 1 xs == minimum xs)
+
+    it "is `maximum` (non-empty) when k = len xs" $ property $
+      forAll (listOf1 doubles)
+             (\xs -> select (length xs) xs == maximum xs)
+
+    it "is equivalent to 1-indexing on sorted lists" $ property $
+      forAll orderedList
+             (\xs -> null xs || select 1 xs == (head xs :: Int))
+
+    it "is undefined on empty lists" $
+      shouldBeEmpty $ evaluate (select 1 ([]::[Int]))
+
+    it "is undefined for k = 0" $
+      shouldBeEmpty $ evaluate (select 0 [0])
 
 
   -- ===== PERCENTILE FAMILY ===== --
@@ -80,7 +107,7 @@ spec = do
     -- ^ not sure how to express this just yet. Look at Gen combinators
 
     it "is undefined on empty vectors" $
-      shouldBeUndefined $ evaluate (percentile 50 V.empty)
+      shouldBeEmpty $ evaluate (percentile 50 V.empty)
 
 
   describe "median" $ do
