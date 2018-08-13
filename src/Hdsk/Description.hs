@@ -26,26 +26,29 @@ import qualified Data.List as L
 import qualified Data.Sequence as S
 import qualified Data.Vector as V
 
+-- | /O(n)/ Computes the arithmetic mean of a collection of numbers.
 mean :: (Foldable f, Fractional n) => f n -> n
--- ^ /O(n)/ Computes the arithmetic mean of a collection of numbers.
 mean xs | null xs   = error "empty list"
         | otherwise = sum xs / fromIntegral (length xs)
 
+
+-- | /O(n)/ Computes the unbiased variance of a collection of numbers.
 var :: (Foldable f, Functor f, Floating n) => f n -> n
--- ^ /O(n)/ Computes the unbiased variance of a collection of numbers.
 var xs | null xs = error "empty list"
        | otherwise = sum (fmap sqDiff xs) / fromIntegral (length xs - 1)
   where sqDiff x = (x - avg) ** 2; avg = mean xs
 
+
+-- | /O(n)/ Computes the standard deviation of a collection of numbers.
 std :: (Foldable f, Functor f, Floating n) => f n -> n
--- ^ /O(n)/ Computes the standard deviation of a collection of numbers.
 std = sqrt . var
 
-percentile :: (Selectable p, RealFrac n) => n -> p n -> n
--- ^ /O(n)/ Selects the element which is greater than @p@% of the rest.
+
+-- | /O(n)/ Selects the element which is greater than @p@% of the rest.
 -- When the @p@-th percentile does not land directly on a whole index,
 -- midpoint interpolation is used to average left and right side of the
 -- split.
+percentile :: (Selectable p, RealFrac n) => n -> p n -> n
 percentile 0   xs = minimum xs
 percentile 100 xs = maximum xs
 percentile p xs | null xs = error "empty list"
@@ -55,31 +58,37 @@ percentile p xs | null xs = error "empty list"
   where idx = p * fromIntegral (length xs) / 100 - 0.5
         k   = floor idx
 
+
+-- | /O(n)/ Finds the median element the collection.
 median :: (Selectable p, RealFrac n) => p n -> n
--- ^ /O(n)/ Finds the median element the collection.
 median = percentile 50
 
+
+-- | /O(n)/ Finds the first quartile of a collection of numbers.
 q1 :: (Selectable p, RealFrac n) => p n -> n
--- ^ /O(n)/ Finds the first quartile of a collection of numbers.
 q1 = percentile 25
 
+
+-- | /O(n)/ Finds the third quartile of a collection of numbers.
 q3 :: (Selectable p, RealFrac n) => p n -> n
--- ^ /O(n)/ Finds the third quartile of a collection of numbers.
 q3 = percentile 75
 
-iqr :: (Selectable p, RealFrac n) => p n -> n
--- ^ /O(n)/ Inter-quartile range. The distance between the first and third
+
+-- | /O(n)/ Inter-quartile range. The distance between the first and third
 -- quartiles.
+iqr :: (Selectable p, RealFrac n) => p n -> n
 iqr = (-) <$> q3 <*> q1
 
 
 -- ===== Utilities ===== --
+
 whole :: RealFrac a => a -> Bool
 whole x = x == fromIntegral (floor x :: Int)
 
-select :: (Selectable p, Ord a) => Int -> p a -> a
--- ^ /O(n)/ Simple implementation of quickselct (aka Hoare's algorithm or
+
+-- | /O(n)/ Simple implementation of quickselct (aka Hoare's algorithm or
 -- k-rank). Selects the @k@-smallest element from the collection.
+select :: (Selectable p, Ord a) => Int -> p a -> a
 select k xxs | null xxs     = error "empty list"
              | len + 1 == k = x
              | len     >= k = select k left
@@ -96,16 +105,19 @@ class Foldable p => Selectable p where
   head      :: p a -> a
   tail      :: p a -> p a
 
+
 instance Selectable Vector where
   partition = V.partition
   head      = V.head
   tail      = V.tail
+
 instance Selectable Seq where
   partition     = S.partition
   head (x:<|_)  = x
   head Empty    = error "empty list"
   tail (_:<|xs) = xs
   tail Empty    = error "empty list"
+
 instance Selectable [] where
   partition = L.partition
   head      = L.head
