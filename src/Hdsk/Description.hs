@@ -50,8 +50,8 @@ percentile 0   xs = minimum xs
 percentile 100 xs = maximum xs
 percentile p xs | null xs = error "empty list"
                 | length xs == 1 = Hdsk.Description.head xs
-                | whole idx = select k xs
-                | otherwise = mean (select (k + 1) xs, select (k + 2) xs)
+                | whole idx = select (k + 1) xs
+                | otherwise = (select (k + 1) xs + select (k + 2) xs) / 2
   where idx = p * fromIntegral (length xs) / 100 - 0.5
         k   = floor idx
 

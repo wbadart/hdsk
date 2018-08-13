@@ -8,13 +8,13 @@ module Hdsk.DescriptionSpec (spec) where
 import Control.Exception (evaluate)
 import qualified Data.Vector as V
 
+import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (
   Gen, arbitrary, property,
   choose, forAll, listOf1, orderedList, shuffle, vector)
-import Test.Hspec (Spec, describe, it, shouldBe)
 
 import Hdsk.Util (
-  doubles, shouldLieBetween, shouldBeUndefined, shouldBeEmpty)
+  doubles, shouldLieBetween, shouldBeUndefined, shouldBeErrorEmpty)
 import Hdsk.Description
 
 spec :: Spec
@@ -28,7 +28,7 @@ spec = do
       mean [10, 20, 15, 31] `shouldBe` 19.0
 
     it "is undefined on empty vectors" $
-      shouldBeEmpty $ evaluate (mean V.empty)
+      shouldBeErrorEmpty $ evaluate (mean V.empty)
 
 
   -- ===== VARIANCE ===== --
@@ -39,7 +39,7 @@ spec = do
       var [10, 10, 10] `shouldBe` 0
 
     it "is undefined on empty vectors" $
-      shouldBeEmpty $ evaluate (var V.empty)
+      shouldBeErrorEmpty $ evaluate (var V.empty)
 
 
   -- ===== STANDARD DEVIATION ===== --
@@ -51,7 +51,7 @@ spec = do
       std [10, 10, 10] `shouldBe` 0
 
     it "is undefined on empty vectors" $
-      shouldBeEmpty $ evaluate (std V.empty)
+      shouldBeErrorEmpty $ evaluate (std V.empty)
 
 
   -- ===== SELECT/ K-RANK ===== --
@@ -73,25 +73,25 @@ spec = do
              (\xs -> null xs || select 1 xs == (head xs :: Int))
 
     it "is undefined on empty lists" $
-      shouldBeEmpty $ evaluate (select 1 ([]::[Int]))
+      shouldBeErrorEmpty $ evaluate (select 1 ([]::[Int]))
 
     it "is undefined for k = 0" $
-      shouldBeEmpty $ evaluate (select 0 [0])
+      shouldBeErrorEmpty $ evaluate (select 0 [0])
 
 
   -- ===== PERCENTILE FAMILY ===== --
   let uut = [1, 2, 3, 4, 5]
   describe "percentile" $ do
 
-    it "finds the p-percentile of the list by sorting" $ do
+    it "finds the p-percentile of the list" $ do
       percentile 0   uut `shouldBe` 1
-      percentile 30  uut `shouldBe` 2
+      percentile 25  uut `shouldBe` 1.5
       percentile 50  uut `shouldBe` 3
-      percentile 70  uut `shouldBe` 4
+      percentile 75  uut `shouldBe` 4.5
       percentile 100 uut `shouldBe` 5
 
     it "works on all permutations of a list" $ property $
-      forAll (shuffle uut) (\xs -> percentile 30 xs == 2)
+      forAll (shuffle uut) (\xs -> percentile 25 xs == 1.5)
 
     it "gives the maximum for 100th percentile" $ property $
       forAll (listOf1 doubles) (\xs -> percentile 100 xs == maximum xs)
@@ -107,7 +107,7 @@ spec = do
     -- ^ not sure how to express this just yet. Look at Gen combinators
 
     it "is undefined on empty vectors" $
-      shouldBeEmpty $ evaluate (percentile 50 V.empty)
+      shouldBeErrorEmpty $ evaluate (percentile 50 V.empty)
 
 
   describe "median" $ do
@@ -129,16 +129,16 @@ spec = do
       forAll (vector 1) $ \xs -> median xs == (head xs :: Double)
 
     it "is undefined on empty lists" $
-      shouldBeUndefined $ evaluate (median V.empty)
+      shouldBeErrorEmpty $ evaluate (median V.empty)
 
 
   describe "q1" $ do
 
     it "finds the first quartile of a vector of doubles" $
-      q1 uut `shouldBe` 1.75
+      q1 uut `shouldBe` 1.5
 
     it "works on all permutations of a list" $ property $
-      forAll (shuffle uut) (\xs -> q1 xs == 1.75)
+      forAll (shuffle uut) (\xs -> q1 xs == 1.5)
 
     it "is always no greater than q3" $ property $
       forAll (listOf1 doubles) (\xs -> q1 xs <= q3 xs)
@@ -147,16 +147,16 @@ spec = do
       forAll (vector 1) $ \xs -> q1 xs == (head xs :: Double)
 
     it "is undefined on empty vectors" $
-      shouldBeUndefined $ evaluate (q1 V.empty)
+      shouldBeErrorEmpty $ evaluate (q1 V.empty)
 
 
   describe "q3" $ do
 
     it "finds the third quartile of a vector of doubles" $
-      q3 uut `shouldBe` 4.25
+      q3 uut `shouldBe` 4.5
 
     it "works on all permutations of a list" $ property $
-        forAll (shuffle uut) $ \xs -> q3 xs == 4.25
+        forAll (shuffle uut) $ \xs -> q3 xs == 4.5
 
     it "is always at least q1" $ property $
       forAll (listOf1 doubles) (\xs -> q3 xs >= q1 xs)
@@ -165,7 +165,7 @@ spec = do
       forAll (vector 1) $ \xs -> q3 xs == (head xs :: Double)
 
     it "is undefined on empty vectors" $
-      shouldBeUndefined $ evaluate (q3 V.empty)
+      shouldBeErrorEmpty $ evaluate (q3 V.empty)
 
 
   describe "iqr" $ do
@@ -174,4 +174,4 @@ spec = do
       forAll (listOf1 doubles) (\xs -> iqr xs == q3 xs - q1 xs)
 
     it "is undefined on empty vectors" $
-      shouldBeUndefined $ evaluate (iqr V.empty)
+      shouldBeErrorEmpty $ evaluate (iqr V.empty)
