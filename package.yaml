@@ -17,18 +17,16 @@ extra-source-files:
 dependencies:
   - base >= 4.7 && < 5
   - vector == 0.12.*
-  - containers >= 0.6.0.0 && < 0.7
+  - containers < 0.6
 
 library:
   source-dirs: src
   exposed-modules:
     - Hdsk.Description
-    - Hdsk.Description.Generic
     - Hdsk.Bayesian.NaiveBayes
     - Hdsk.Bayesian.Bins
   ghc-options:
     - -Wall
-    - -Wno-type-defaults
 
 tests:
   hdsk-test:

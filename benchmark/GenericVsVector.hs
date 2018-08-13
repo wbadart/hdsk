@@ -10,8 +10,7 @@ import qualified Data.Vector as V
 
 import Criterion.Main (defaultMain, env, nf, bench, bgroup)
 
-import Hdsk.Description (mean, var, std)
-import Hdsk.Description.Generic (genericMean, genericVar, genericStd)
+import Hdsk.Description
 
 mkEnvN size = do
   xs <- sample size
@@ -21,20 +20,23 @@ mkEnvN size = do
 mkEnv = mkEnvN 1000000
 
 main = defaultMain
-  [ env mkEnv $ \ ~(xs, vec) -> bgroup "mean"
-    [ bench "generic" $ nf (genericMean::[Double]->Double) xs
-    , bench "vector"  $ nf mean vec
-    , bench "foldable" $ nf mean3 vec ]
+  [
+    -- env mkEnv $ \ ~(xs, vec) -> bgroup "mean"
+    -- [ bench "vector"  $ nf mean vec
+    -- , bench "foldable" $ nf mean3 vec ]
 
-  , env mkEnv $ \ ~(xs, vec) -> bgroup "variance"
-    [ bench "generic" $ nf (genericVar::[Double]->Double) xs
-    , bench "vector"  $ nf var vec
-    , bench "foldable" $ nf var3 vec ]
+  -- , env mkEnv $ \ ~(xs, vec) -> bgroup "variance"
+    -- [ bench "vector"  $ nf var vec
+    -- , bench "foldable" $ nf var3 vec ]
 
-  , env mkEnv $ \ ~(xs, vec) -> bgroup "standard deviation"
-    [ bench "generic" $ nf (genericStd::[Double]->Double) xs
-    , bench "vector"  $ nf std vec
-    , bench "foldable" $ nf std3 vec ]]
+  -- , env mkEnv $ \ ~(xs, vec) -> bgroup "standard deviation"
+    -- [ bench "vector"  $ nf std vec
+    -- , bench "foldable" $ nf std3 vec ]
+
+    env mkEnv $ \ ~(xs, vec) -> bgroup "percentile"
+    [ bench "vector" $ nf (percentile 50)  vec
+    , bench "seq"    $ nf (percentile' 50) vec ]
+  ]
 
 
 -- Utilities
