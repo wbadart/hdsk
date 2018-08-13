@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c37be5294bad78946b8bab4979ed0986d743131766b00a70224772c6f84a0c25
+-- hash: 590c71110db863767b8bd715758eaf97b449855f1de44f717ed01736592f67c0
 
 name:           hdsk
 version:        0.1.0.0
@@ -33,12 +33,13 @@ library
   ghc-options: -Wall -Wno-type-defaults
   build-depends:
       base >=4.7 && <5
-    , containers >=0.6.0.0 && <0.7
+    , containers >=0.5.0.0
     , vector ==0.12.*
   exposed-modules:
       Hdsk.Description
       Hdsk.Description.Generic
       Hdsk.Bayesian.NaiveBayes
+      Hdsk.Bayesian.OldNaiveBayes
   other-modules:
       Paths_hdsk
   default-language: Haskell2010
@@ -52,7 +53,7 @@ test-suite hdsk-test
   build-depends:
       QuickCheck ==2.11.*
     , base >=4.7 && <5
-    , containers >=0.6.0.0 && <0.7
+    , containers >=0.5.0.0
     , hdsk
     , hspec ==2.*
     , vector ==0.12.*
@@ -69,10 +70,23 @@ benchmark generics
   main-is: benchmark/GenericVsVector.hs
   build-depends:
       base >=4.7 && <5
-    , containers >=0.6.0.0 && <0.7
+    , containers >=0.5.0.0
     , criterion >=1.4 && <2
     , hdsk
     , random ==1.1.*
+    , vector ==0.12.*
+  other-modules:
+      Paths_hdsk
+  default-language: Haskell2010
+
+benchmark naivebayes
+  type: exitcode-stdio-1.0
+  main-is: benchmark/NaiveNBVsCPTNB.hs
+  build-depends:
+      base >=4.7 && <5
+    , containers >=0.5.0.0
+    , criterion >=1.4 && <2
+    , hdsk
     , vector ==0.12.*
   other-modules:
       Paths_hdsk

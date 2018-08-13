@@ -17,7 +17,7 @@ extra-source-files:
 dependencies:
   - base >= 4.7 && < 5
   - vector == 0.12.*
-  - containers >= 0.6.0.0 && < 0.7
+  - containers >= 0.5.0.0
 
 library:
   source-dirs: src
@@ -25,6 +25,7 @@ library:
     - Hdsk.Description
     - Hdsk.Description.Generic
     - Hdsk.Bayesian.NaiveBayes
+    - Hdsk.Bayesian.OldNaiveBayes
   ghc-options:
     - -Wall
     - -Wno-type-defaults
@@ -50,4 +51,9 @@ benchmarks:
     dependencies:
       - hdsk
       - random == 1.1.*
+      - criterion >= 1.4 && < 2
+  naivebayes:
+    main: benchmark/NaiveNBVsCPTNB.hs
+    dependencies:
+      - hdsk
       - criterion >= 1.4 && < 2
