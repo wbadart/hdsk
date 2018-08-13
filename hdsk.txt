@@ -14,9 +14,42 @@
 --   categorical data.
 module Hdsk.Bayesian.NaiveBayes
 
--- | Calculate the most probable label of the given tuple given the dataset
---   (list of tuples). The label of a data object should be the last field.
-classify :: [Tuple] -> Tuple -> String
+-- | Type alias for the conditional probability table data structure. Maps
+--   labels to lookup tables where lookup tables map from feature values to
+--   the number of times that feature value was observed with the parent
+--   label.
+type CPT = Map String (Map String Int)
+
+-- | /O(n * k * (log l + log m)) where n is the number of data points, k is
+--   the length of each data point, l is the number of labels, and m is the
+--   gretest number of feature values for any feature./ Generate the
+--   conditional probability tables over the dataset. Counts the occurences
+--   of each feature value given a class. Maps from class label to a map
+--   from feature value to count.
+mkTables :: [[String]] -> [CPT]
+
+-- | /O(l k m) where l is the number of labels, k is the length of each
+--   feature vector, and m is the number of feature values./ Given a list
+--   of conditional probability tables and an unlabeled tuple, predicts the
+--   label of the tuple.
+classify :: [CPT] -> [String] -> String
+
+-- | /O(k m) where k is the length of the feature vector and m is the
+--   number of feature values./ Given conditional probability tables, a
+--   tuple, and a label calculate the posterior probability of the label
+--   given that tuple. P(C|X)
+posterior :: [CPT] -> [String] -> String -> Double
+
+-- | <i>O(m)</i> Given a class, feature value, and conditional probability
+--   table, compute the likelihood of that configuration. P(x_i|c)
+likelihood :: String -> String -> CPT -> Double
+
+-- | <i>O(m) where m is the number of feature values.</i> Computes the
+--   frequency of the given label from the given conditional prob. table.
+labelCount :: Num n => CPT -> String -> n
+
+-- | <i>O(l m)</i> Calculate the number of training instances from a CPT.
+dataLength :: Num n => CPT -> n
 
 
 -- | This module contains basic numerical descriptive statistics that are
