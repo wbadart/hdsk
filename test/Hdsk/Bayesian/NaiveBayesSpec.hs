@@ -15,7 +15,10 @@ spec =
   describe "NaiveBayes" $
 
     it "classifies the weather data" $
-      classify sampleData ["sunny", "cool", "normal", "false"] `shouldBe` "yes"
+      classify
+        (mkTables sampleData)
+        ["sunny", "cool", "normal", "false"]
+      `shouldBe` "yes"
 
 
 sampleData :: [[String]]
