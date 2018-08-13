@@ -96,6 +96,14 @@ iqr :: Vector Double -> Double
 noOutliers :: Vector Double -> Vector Double
 
 
+module Hdsk.Bayesian.Bins
+
+-- | <i>O(k n log n) where k is # of bins.</i> Map each number in a vector
+--   of continueous data to a bin number according to its percentile (makes
+--   even-width bins).
+bin :: Int -> Vector Double -> Vector Int
+
+
 -- | This module contains basic numerical descriptive statistics that are
 --   applicable to a list of numbers.
 module Hdsk.Description.Generic
