@@ -10,6 +10,9 @@
 @version 0.1.0.0
 
 
+module Hdsk.Bayesian.Bins
+
+
 -- | A simple implementation of a Naive Bayes classifier for purely
 --   categorical data.
 module Hdsk.Bayesian.NaiveBayes
@@ -56,87 +59,43 @@ dataLength :: Num n => CPT -> n
 --   applicable to a vector of doubles.
 module Hdsk.Description
 
--- | <i>O(n)</i> Computes the arithmetic mean of a vector of doubles.
-mean :: Vector Double -> Double
+-- | <i>O(n)</i> Computes the arithmetic mean of a collection of numbers.
+mean :: (Foldable f, Fractional n) => f n -> n
 
--- | <i>O(n)</i> Computes the unbiased variance of a vector of doubles.
-var :: Vector Double -> Double
+-- | <i>O(n)</i> Computes the unbiased variance of a collection of numbers.
+var :: (Foldable f, Functor f, Floating n) => f n -> n
 
--- | <i>O(n)</i> Computes the standard deviation of a vector of doubles.
-std :: Vector Double -> Double
+-- | <i>O(n)</i> Computes the standard deviation of a collection of
+--   numbers.
+std :: (Foldable f, Functor f, Floating n) => f n -> n
 
--- | <i>O(n log n)</i> Finds the <tt>p</tt>th percentile of the vector of
---   doubles, i.e. the element which is greater than <tt>p</tt>% of the
---   other elements. Uses fractional interpolation when <tt>p</tt> does not
---   generate a whole index.
---   
---   Unfortunately, the equation for fractional interpolation breaks down
---   both at the bounds of lists and for lists shorter than 2 elements. On
---   the flip side, these special cases can be handled in <i>O(n)</i> or
---   even <i>O(1)</i> time for the singleton case.
-percentile :: Double -> Vector Double -> Double
+-- | <i>O(n)</i> Selects the element which is greater than <tt>p</tt>% of
+--   the rest. When the <tt>p</tt>-th percentile does not land directly on
+--   a whole index, midpoint interpolation is used to average left and
+--   right side of the split.
+percentile :: (Selectable p, RealFrac n) => n -> p n -> n
 
--- | <i>O(n log n)</i> Finds the first quartile of a vector of doubles.
-q1 :: Vector Double -> Double
+-- | <i>O(n)</i> Finds the median element the collection.
+median :: (Selectable p, RealFrac n) => p n -> n
 
--- | <i>O(n log n)</i> Finds the third quartile of a vector of doubles.
-q3 :: Vector Double -> Double
+-- | <i>O(n)</i> Finds the first quartile of a collection of numbers.
+q1 :: (Selectable p, RealFrac n) => p n -> n
 
--- | <i>O(n log n)</i> Finds the median element the vector. Undefined for
---   empty vectors.
-median :: Vector Double -> Double
+-- | <i>O(n)</i> Finds the third quartile of a collection of numbers.
+q3 :: (Selectable p, RealFrac n) => p n -> n
 
--- | <i>O(n log n)</i> Finds the interquartile range of a vector of
---   doubles.
-iqr :: Vector Double -> Double
+-- | <i>O(n)</i> Inter-quartile range. The distance between the first and
+--   third quartiles.
+iqr :: (Selectable p, RealFrac n) => p n -> n
 
--- | <i>O(n log n)</i> Gives a copy of the input vector with all of the
---   outliers filtered out. Outliers are considered to be points beyond 1.5
---   IQR from the median
-noOutliers :: Vector Double -> Vector Double
+-- | <i>O(n)</i> Simple implementation of quickselct (aka Hoare's algorithm
+--   or k-rank). Selects the <tt>k</tt>-smallest element from the
+--   collection.
+select :: (Selectable p, Ord a) => Int -> p a -> a
 
-
-module Hdsk.Bayesian.Bins
-
--- | <i>O(n k^2 n log n) where k is # of bins.</i> Map each number in a
---   vector of continueous data to a bin number according to its percentile
---   (makes even-width bins).
-bin :: Int -> Vector Double -> Vector Int
-
-
--- | This module contains basic numerical descriptive statistics that are
---   applicable to a list of numbers.
-module Hdsk.Description.Generic
-
--- | Computes the arithmetic mean of a list of real numbers.
---   
---   <pre>
---   &gt;&gt;&gt; mean [1, 3, 3, 4]
---   2.75
---   
---   &gt;&gt;&gt; mean [10]
---   10.0
---   </pre>
-genericMean :: (Real r, Fractional p) => [r] -> p
-
--- | Computes the variance of a list of numbers.
---   
---   <pre>
---   &gt;&gt;&gt; var [1, 2]
---   0.25
---   
---   &gt;&gt;&gt; var [10.12, 10.12]
---   0.0
---   </pre>
-genericVar :: (Real p, Floating p) => [p] -> p
-
--- | Computes the standard deviation of a list of numbers.
---   
---   <pre>
---   &gt;&gt;&gt; std [1, 1, 1]
---   0.0
---   
---   &gt;&gt;&gt; std [1, 2]
---   0.5
---   </pre>
-genericStd :: (Real p, Floating p) => [p] -> p
+-- | Defines a container which is suitable for the k-rank/ select
+--   algorithm.
+class Foldable p => Selectable p
+instance Hdsk.Description.Selectable Data.Vector.Vector
+instance Hdsk.Description.Selectable Data.Sequence.Internal.Seq
+instance Hdsk.Description.Selectable []
