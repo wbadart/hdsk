@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 65c235a29121ec10ede0352082b2d1854bcc98b8d087eb1737d63b2c51c60404
+-- hash: aff9da8144df3f159350d4d0f1686d564ae7cc44ca24ca33f6d3def9a372cf40
 
 name:           hdsk
 version:        0.1.0.0
@@ -34,16 +34,18 @@ library
   build-depends:
       base >=4.7 && <5
     , containers <0.6
+    , matrix >=0.3
     , vector ==0.12.*
   exposed-modules:
       Hdsk.Description
       Hdsk.Bayesian.NaiveBayes
       Hdsk.Bayesian.Bins
+      Hdsk.Metrics
   other-modules:
       Paths_hdsk
   default-language: Haskell2010
 
-test-suite hdsk-test
+test-suite spec
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   hs-source-dirs:
@@ -55,6 +57,7 @@ test-suite hdsk-test
     , containers <0.6
     , hdsk
     , hspec ==2.*
+    , matrix >=0.3
     , vector ==0.12.*
   other-modules:
       Hdsk.Bayesian.NaiveBayesSpec
@@ -71,6 +74,7 @@ benchmark generics
     , containers <0.6
     , criterion >=1.4 && <2
     , hdsk
+    , matrix >=0.3
     , random ==1.1.*
     , vector ==0.12.*
   other-modules:

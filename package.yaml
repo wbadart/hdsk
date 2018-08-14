@@ -18,6 +18,7 @@ dependencies:
   - base >= 4.7 && < 5
   - vector == 0.12.*
   - containers < 0.6
+  - matrix >= 0.3
 
 library:
   source-dirs: src
@@ -25,11 +26,12 @@ library:
     - Hdsk.Description
     - Hdsk.Bayesian.NaiveBayes
     - Hdsk.Bayesian.Bins
+    - Hdsk.Metrics
   ghc-options:
     - -Wall
 
 tests:
-  hdsk-test:
+  spec:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -42,6 +44,17 @@ tests:
       - vector == 0.12.*
       - hspec == 2.*
       - QuickCheck == 2.11.*
+
+  # doctest:
+  #   main:         RunDocTest.hs
+  #   source-dirs:  test
+  #   ghc-options:
+  #     - -threaded
+  #     - -rtsopts
+  #     - -with-rtsopts=-N
+  #   dependencies:
+  #     - hdsk
+  #     - doctest >= 0.2
 
 benchmarks:
   generics:
