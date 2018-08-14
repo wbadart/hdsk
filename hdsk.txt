@@ -99,3 +99,88 @@ class Foldable p => Selectable p
 instance Hdsk.Description.Selectable Data.Vector.Vector
 instance Hdsk.Description.Selectable Data.Sequence.Internal.Seq
 instance Hdsk.Description.Selectable []
+
+
+-- | A standard set of metrics for evaluating both classification and
+--   regression models. In Big-O notation, let <i>C</i> represent the
+--   number of classes and <i>n</i> the number of predictions. In general,
+--   we assume <i>n &gt;&gt; C</i>, so that <i>n</i> terms dominate
+--   <i>C</i> terms.
+module Hdsk.Metrics
+
+-- | <i>O(n)</i> Given the ground truth <tt>yTrue</tt> and predictions
+--   <tt>yPred</tt>, the expression <tt>accuracy c yTrue yPred</tt> reports
+--   the accuracy of the predictions, <i>(TP + TN) / (P + N)</i>. Here,
+--   <tt>c</tt> is the set of class labels, e.g. <tt>S.fromList ["cat",
+--   "dog"]</tt>. The proportion of classifications which were correct.
+accuracy :: (Eq a, Fractional b) => [a] -> [a] -> [a] -> b
+
+-- | <i>O(C^2)</i> where <i>C</i> is the number of classes. Calculate
+--   accuracy from a confusion matrix, rather than a list of truths and
+--   predictions.
+accuracyCM :: Fractional a => Matrix Int -> a
+
+-- | <i>O(n)</i> Compute the precision (positive predictive value) of a
+--   list of predictions, given the class list, target class label, and
+--   ground truths. The below example show how to find precision for a
+--   binary classifier.
+--   
+--   <pre>
+--   &gt;&gt;&gt; truth = ["cat", "cat", "not cat"]
+--   
+--   &gt;&gt;&gt; preds = ["cat", "not cat", "not cat"]
+--   
+--   &gt;&gt;&gt; precision ["cat", "not cat"] "cat" truth preds
+--   0.5
+--   </pre>
+--   
+--   The expression <i>TP / (TP + FP)</i> represents precision in terms of
+--   counts of true and false predictions. It is the proportion of positive
+--   predictions which are true.
+precision :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
+
+-- | <i>O(C^2)</i> Compute the precision directly from a confusion matrix.
+--   The second argument is the class index within the confusion matrix.
+--   For instance, given the class list
+--   
+--   <pre>
+--   &gt;&gt;&gt; ["dog", "cat"]
+--   </pre>
+--   
+--   The index of class <i>dog</i> is <tt>1</tt> and the index of class
+--   <i>cat</i> is <tt>2</tt> (since the matrix is 1-indexed).
+precisionCM :: Fractional a => Matrix Int -> Int -> a
+
+-- | <i>O(n)</i> Compute the recall (sensitivity, true positive/ hit rate)
+--   of a list of predictions, given ground truth, class list, and target
+--   class label. See <tt>precision</tt> for discussion of arguments.
+--   
+--   Recall, in terms of the confusion matrix, is <i>TP / (TP + FN)</i>,
+--   and represents the proportion of positive predictions which were
+--   classified as such.
+recall :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
+
+-- | <i>O(C^2)</i> Compute recall from a confusion matrix for a specified
+--   class. See <tt>precisionCM</tt> for discussion on the class index
+--   argument.
+recallCM :: Fractional a => Matrix Int -> Int -> a
+
+-- | <i>O(???)</i> Compute the specificity (true negative rate) of the
+--   predictions given a list of class labels, a target class, and ground
+--   truth. <i>TN / (FP + TN)</i>
+specificity :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
+specificityCM :: Fractional a => Matrix Int -> Int -> a
+
+-- | <i>O(???)</i> Compute the f1-score of the model for a given class.
+f1 :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
+f1CM :: Fractional a => Matrix Int -> Int -> a
+
+-- | <i>O(C^2 + n)</i> where <i>C</i> is the number of classes and <i>n</i>
+--   the number of predictions. In general, <i>n &gt;&gt; C</i>.
+--   
+--   Generates the confusion matrix for the predictions of an N-class
+--   predictor. The result will be a 1-indexed NxN matrix where rows
+--   represent the predicted class and columns the actual class. Classes
+--   are encoded as indices, where the index of a class within the matrix
+--   corresponds to its index within the set of classes.
+confusionMatrix :: Eq a => [a] -> [a] -> [a] -> Matrix Int
