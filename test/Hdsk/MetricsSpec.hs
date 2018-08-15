@@ -194,8 +194,10 @@ spec = do
       it "correctly calculates the r^2 score of the regression" $
         r2score yObs yEst `shouldBe` 0.969
 
-      it "is always in the range [0, 1]" $ property $
-        forAll genReg1 (\ ~(yt, yp) -> between (r2score yt yp) 0 1)
+      -- Can be negative for arbitrarily poor models (i.e. worse than
+      -- horizontal hyperplane)
+      it "is always no more than 1" $ property $
+        forAll genReg1 (\ ~(yt, yp) -> r2score yt yp <= 1)
 
       it "is undefined over 0 predictions" $
         shouldBeErrorEmpty $ evaluate (r2score [] [])

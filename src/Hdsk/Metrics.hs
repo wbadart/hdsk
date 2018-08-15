@@ -210,13 +210,19 @@ mkMeanErrorFunc f = ((mean . map f) .) . zipWith (-)
 explainedVariance :: (Eq a, Floating a) => [a] -> [a] -> a
 explainedVariance yObs yEst
     | var yObs == 0 = 1
-    | otherwise     = 1 - var (zipWith (-) yObs yEst) / var yObs
+    | otherwise     = 1 - var (residuals yObs yEst) / var yObs
 
 
--- | /O(???)/ Find the coefficient of determination (R^2 value) of a
+-- | /O(n)/ Find the coefficient of determination (R^2 value) of a
 -- regression. Aka goodness of fit.
-r2score :: Fractional a => [a] -> [a] -> a
-r2score yObs yEst = 0
+r2score :: (Eq a, Floating a) => [a] -> [a] -> a
+r2score [] _ = error "empty list"
+r2score _ [] = error "empty list"
+r2score yObs yEst
+  | var yObs == 0 = 1
+  | otherwise = 1 - sum (map (**2) $ residuals yObs yEst)
+                  / sum (map (**2) $ residuals yObs (repeat avg))
+  where avg = mean yObs
 
 
 -- ===== Utilities ===== --
@@ -231,3 +237,6 @@ mkCMFunc f classes c yTrue yPred =
              Just i  -> i + 1
              Nothing -> error "unknown class name"
   where cm = confusionMatrix classes yTrue yPred
+
+residuals :: Num a => [a] -> [a] -> [a]
+residuals = zipWith (-)
