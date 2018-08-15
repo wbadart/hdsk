@@ -169,14 +169,25 @@ recall :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
 --   argument.
 recallCM :: Fractional a => Matrix Int -> Int -> a
 
--- | <i>O(???)</i> Compute the specificity (true negative rate) of the
+-- | <i>O(n)</i> Compute the specificity (true negative rate) of the
 --   predictions given a list of class labels, a target class, and ground
---   truth. <i>TN / (FP + TN)</i>
+--   truth. <i>TN / (FP + TN)</i>, the proportion of negative objects
+--   correctly labeled.
+--   
+--   Specificity is undefined when there are no negative truths.
 specificity :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
+
+-- | <i>O(C^2)</i> Compute specificity from a confusion matrix for a
+--   specified class. See <tt>precisionCM</tt> for discussion on the class
+--   index argument.
 specificityCM :: Fractional a => Matrix Int -> Int -> a
 
--- | <i>O(???)</i> Compute the f1-score of the model for a given class.
+-- | <i>O(n)</i> Compute the balanced f1-score of the model for a given
+--   class.
 f1 :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
+
+-- | <i>O(C^2)</i> Compute the f1-score from a confusion matrix. See
+--   <tt>precisionCM</tt> for a discussion of the class index argument.
 f1CM :: Fractional a => Matrix Int -> Int -> a
 
 -- | <i>O(C^2 + n)</i> where <i>C</i> is the number of classes and <i>n</i>
@@ -189,14 +200,18 @@ f1CM :: Fractional a => Matrix Int -> Int -> a
 --   corresponds to its index within the set of classes.
 confusionMatrix :: Eq a => [a] -> [a] -> [a] -> Matrix Int
 
--- | <i>O(1)</i>
+-- | <i>O(1)</i> Count the true positives for a class in a given confusion
+--   matrix.
 tp :: Num a => Matrix Int -> Int -> a
 
--- | <i>O(C)</i>
+-- | <i>O(C)</i> Count the false positives for a class in a given confusion
+--   matrix.
 fp :: Num a => Matrix Int -> Int -> a
 
--- | <i>O(C^2)</i>
+-- | <i>O(C^2)</i> Count the true negatives for a class in a given
+--   confusion matrix.
 tn :: Num a => Matrix Int -> Int -> a
 
--- | <i>O(C)</i>
+-- | <i>O(C)</i> Count the false negatives for a class in a given confusion
+--   matrix.
 fn :: Num a => Matrix Int -> Int -> a
