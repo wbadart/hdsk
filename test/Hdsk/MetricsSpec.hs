@@ -96,12 +96,25 @@ spec = do
       recallCM cm 1 `shouldBe` 5 / 8
 
     it "is undefined when no instances are truly positive" $
-      shouldBeUndefined $ evaluate
-                          (recall classes "cat" ["dog"] ["cat"])
+      shouldBeUndefined $ evaluate (recall classes "cat" ["dog"] ["cat"])
 
     it "is always in the range [0, 1]" $ property $
       forAll genCM (\ ~(cm, i) ->
         tp cm i + fn cm i == 0 || between (recallCM cm i) 0 1)
+
+
+  describe "specificity" $ do
+
+    it "is the proportion of negative instances correctly labeled" $
+      specificityCM cm 1 `shouldBe` 17 / 19
+
+    it "is undefined when no instances are truly negative" $
+      shouldBeUndefined $ evaluate
+                        (specificity classes "cat" ["cat"] ["cat"])
+
+    it "is always in the range [0, 1]" $ property $
+      forAll genCM (\ ~(cm, i) ->
+        tn cm i + fp cm i == 0 || between (specificityCM cm i) 0 1)
 
 
 

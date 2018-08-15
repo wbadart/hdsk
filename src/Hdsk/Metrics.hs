@@ -63,7 +63,7 @@ accuracyCM cm | sum cm == 0 = 0
 --
 -- Precision is undefined when no positive predictions are made.
 precision :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
-precision = mkListFunc precisionCM
+precision = mkCMFunc precisionCM
 
 -- | /O(C^2)/ Compute the precision directly from a confusion matrix.
 -- The second argument is the class index within the confusion matrix.
@@ -74,7 +74,7 @@ precision = mkListFunc precisionCM
 -- The index of class /dog/ is @1@ and the index of class /cat/ is @2@
 -- (since the matrix is 1-indexed).
 precisionCM :: Fractional a => Matrix Int -> Int -> a
-precisionCM cm i | tp cm i + fp cm i == 0 = undefined
+precisionCM cm i | tp cm i + fp cm i == (0::Int) = undefined
                  | otherwise = tp cm i / (tp cm i + fp cm i)
 
 
@@ -90,36 +90,46 @@ precisionCM cm i | tp cm i + fp cm i == 0 = undefined
 --
 -- Recall is undefined when there are no positive observations.
 recall :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
-recall = mkListFunc recallCM
+recall = mkCMFunc recallCM
 
 -- | /O(C^2)/ Compute recall from a confusion matrix for a specified
 -- class. See @precisionCM@ for discussion on the class index argument.
 recallCM :: Fractional a => Matrix Int -> Int -> a
-recallCM cm i | tp cm i + fn cm i == 0 = undefined
+recallCM cm i | tp cm i + fn cm i == (0::Int) = undefined
               | otherwise = tp cm i / (tp cm i + fn cm i)
 
 
 -- ===== SPECIFICITY ===== --
 
--- | /O(???)/ Compute the specificity (true negative rate) of the
+-- | /O(n)/ Compute the specificity (true negative rate) of the
 -- predictions given a list of class labels, a target class, and ground
--- truth. /TN \/ (FP + TN)/
+-- truth. /TN \/ (FP + TN)/, the proportion of negative objects
+-- correctly labeled.
+--
+-- Specificity is undefined when there are no negative truths.
 specificity :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
-specificity = mkListFunc specificityCM
+specificity = mkCMFunc specificityCM
 
+-- | /O(C^2)/ Compute specificity from a confusion matrix for a
+-- specified class. See @precisionCM@ for discussion on the class index
+-- argument.
 specificityCM :: Fractional a => Matrix Int -> Int -> a
-specificityCM = checkNotEmpty (\cm i -> tn cm i / (fp cm i + tn cm i))
+specificityCM cm i | fp cm i + tn cm i == (0::Int) = undefined
+                   | otherwise = tn cm i / (fp cm i + tn cm i)
 
 
 -- ===== F!-SCORE ===== --
 
--- | /O(???)/ Compute the f1-score of the model for a given class.
+-- | /O(n)/ Compute the balanced f1-score of the model for a given
+-- class.
 f1 :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
-f1 = mkListFunc f1CM
+f1 = mkCMFunc f1CM
 
+-- | /O(C^2)/ Compute the f1-score from a confusion matrix. See
+-- @precisionCM@ for a discussion of the class index argument.
 f1CM :: Fractional a => Matrix Int -> Int -> a
-f1CM = checkNotEmpty
-    (\cm i -> 2 * tp cm i / (2 * tp cm i + fp cm i + fn cm i))
+f1CM cm i | tp cm i + fp cm i + fn cm i == (0::Int) = undefined
+          | otherwise = 2 * tp cm i / (2 * tp cm i + fp cm i + fn cm i)
 
 
 
@@ -143,38 +153,38 @@ confusionMatrix classes yTrue yPred =
         getIdx e xs = fromMaybe 0 $ L.elemIndex e xs
 
 
--- ===== Utilities ===== -
+-- | /O(1)/ Count the true positives for a class in a given confusion
+-- matrix.
+tp :: Num a => Matrix Int -> Int -> a
+tp cm i = fromIntegral $ cm M.! (i, i)
+
+-- | /O(C)/ Count the false negatives for a class in a given confusion
+-- matrix.
+fn :: Num a => Matrix Int -> Int -> a
+fn cm i = fromIntegral $ sum (M.getCol i cm) - tp cm i
+
+-- | /O(C)/ Count the false positives for a class in a given confusion
+-- matrix.
+fp :: Num a => Matrix Int -> Int -> a
+fp cm i = fromIntegral $ sum (M.getRow i cm) - tp cm i
+
+-- | /O(C^2)/ Count the true negatives for a class in a given confusion
+-- matrix.
+tn :: Num a => Matrix Int -> Int -> a
+tn cm i = fromIntegral $
+    sum cm - sum (M.getRow i cm) - sum (M.getCol i cm) + tp cm i
+    -- Add TP cell back in since it was subtracted twice
+
+
+-- ===== Utilities ===== --
 
 divInt :: (Integral n, Fractional m) => n -> n -> m
 x `divInt` y = fromIntegral x / fromIntegral y
 
-mkListFunc :: (Eq a, Fractional b) =>
+mkCMFunc :: (Eq a, Fractional b) =>
   (Matrix Int -> Int -> b) -> [a] -> a -> [a] -> [a] -> b
-mkListFunc f classes c yTrue yPred =
+mkCMFunc f classes c yTrue yPred =
     f cm $ case L.elemIndex c classes of
              Just i  -> i + 1
              Nothing -> error "unknown class name"
-
   where cm = confusionMatrix classes yTrue yPred
-
-checkNotEmpty :: (Matrix Int -> Int -> a) -> Matrix Int -> Int -> a
-checkNotEmpty f cm i | sum cm == 0 = error "empty list"
-                     | otherwise   = f cm i
-
--- | /O(1)/
-tp :: Num a => Matrix Int -> Int -> a
-tp cm i = fromIntegral $ cm M.! (i, i)
-
--- | /O(C)/
-fn :: Num a => Matrix Int -> Int -> a
-fn cm i = fromIntegral $ sum (M.getCol i cm) - tp cm i
-
--- | /O(C)/
-fp :: Num a => Matrix Int -> Int -> a
-fp cm i = fromIntegral $ sum (M.getRow i cm) - tp cm i
-
--- | /O(C^2)/
-tn :: Num a => Matrix Int -> Int -> a
-tn cm i = fromIntegral $
-    sum cm - sum (M.getRow i cm) - sum (M.getCol i cm) + tp cm i
--- Add TP cell back in since it was subtracted twice
