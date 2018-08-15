@@ -38,6 +38,7 @@ tests:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
+      - -Wall
     dependencies:
       - hdsk
       - base >= 4.7 && < 5

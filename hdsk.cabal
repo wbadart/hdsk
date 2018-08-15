@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 79d967c33860bf5d52741d07319b6ce1057b1c8aaa4ef544eda83b543bea55d5
+-- hash: 9297f44eb0bef2dbfafc43f318da5a3ecae05d3c6d9a0143c3b5684d5d4f2014
 
 name:           hdsk
 version:        0.1.0.0
@@ -50,7 +50,7 @@ test-suite spec
   main-is: Spec.hs
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:
       QuickCheck ==2.11.*
     , base >=4.7 && <5

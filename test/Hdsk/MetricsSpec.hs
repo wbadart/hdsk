@@ -117,6 +117,30 @@ spec = do
         tn cm i + fp cm i == 0 || between (specificityCM cm i) 0 1)
 
 
+  describe "f1" $ do
+
+    it "is the harmonic mean of precision and recall" $ do
+      let p = precisionCM cm 1
+          r = recallCM cm 1
+      f1CM cm 1 `shouldBe` 2 / (1 / p + 1 / r)
+
+    it ("is undefined when there are no "
+          ++ "positive predictions and no positive observations") $
+      shouldBeUndefined $ evaluate (f1 classes "cat" ["dog"] ["dog"])
+
+    it "is always in the range [0, 1]" $ property $
+      forAll genCM (\ ~(cm, i) ->
+        tp cm i + fp cm i + fn cm i == 0 || between (f1CM cm i) 0 1)
+
+    it "is always between precision and recall" $ property $
+      forAll genCM (\ ~(cm, i) ->
+        let p = precisionCM cm i
+            r = recallCM cm i
+            left = min p r
+            right = max p r
+        in tp cm i + fp cm i + fn cm i == 0
+        || between (f1CM cm i) left right)
+
 
 genPreds :: Gen ([Int], Int, [Int], [Int])
 genPreds = do
