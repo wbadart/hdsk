@@ -17,6 +17,7 @@ module Hdsk.Metrics
 , specificity, specificityCM
 , f1,          f1CM
 , confusionMatrix
+, tp, fp, tn, fn
 ) where
 
 import Data.Matrix (Matrix)
@@ -39,7 +40,9 @@ accuracy = ((accuracyCM .) .) . confusionMatrix
 -- from a confusion matrix, rather than a list of truths and
 -- predictions.
 accuracyCM :: Fractional a => Matrix Int -> a
-accuracyCM cm = M.trace cm `divInt` sum cm
+-- accuracyCM = checkNotEmpty (\cm _ -> M.trace cm `divInt` sum cm)
+accuracyCM cm | sum cm == 0 = 0
+              | otherwise   = M.trace cm `divInt` sum cm
 
 
 -- ===== PRECISION ===== --
@@ -57,6 +60,8 @@ accuracyCM cm = M.trace cm `divInt` sum cm
 -- The expression /TP \/ (TP + FP)/ represents precision in terms of
 -- counts of true and false predictions. It is the proportion of
 -- positive predictions which are true.
+--
+-- Precision is undefined when no positive predictions are made.
 precision :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
 precision = mkListFunc precisionCM
 
@@ -69,7 +74,8 @@ precision = mkListFunc precisionCM
 -- The index of class /dog/ is @1@ and the index of class /cat/ is @2@
 -- (since the matrix is 1-indexed).
 precisionCM :: Fractional a => Matrix Int -> Int -> a
-precisionCM cm i = tp cm i / (tp cm i + fp cm i)
+precisionCM cm i | tp cm i + fp cm i == 0 = undefined
+                 | otherwise = tp cm i / (tp cm i + fp cm i)
 
 
 -- ===== RECALL ===== --
@@ -81,13 +87,16 @@ precisionCM cm i = tp cm i / (tp cm i + fp cm i)
 -- Recall, in terms of the confusion matrix, is /TP \/ (TP + FN)/, and
 -- represents the proportion of positive predictions which were
 -- classified as such.
+--
+-- Recall is undefined when there are no positive observations.
 recall :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
 recall = mkListFunc recallCM
 
 -- | /O(C^2)/ Compute recall from a confusion matrix for a specified
 -- class. See @precisionCM@ for discussion on the class index argument.
 recallCM :: Fractional a => Matrix Int -> Int -> a
-recallCM cm i = tp cm i / (tp cm i + fn cm i)
+recallCM cm i | tp cm i + fn cm i == 0 = undefined
+              | otherwise = tp cm i / (tp cm i + fn cm i)
 
 
 -- ===== SPECIFICITY ===== --
@@ -99,7 +108,7 @@ specificity :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
 specificity = mkListFunc specificityCM
 
 specificityCM :: Fractional a => Matrix Int -> Int -> a
-specificityCM cm i = tn cm i / (fp cm i + tn cm i)
+specificityCM = checkNotEmpty (\cm i -> tn cm i / (fp cm i + tn cm i))
 
 
 -- ===== F!-SCORE ===== --
@@ -109,7 +118,8 @@ f1 :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
 f1 = mkListFunc f1CM
 
 f1CM :: Fractional a => Matrix Int -> Int -> a
-f1CM cm i = 2 * tp cm i / (2 * tp cm i + fp cm i + fn cm i)
+f1CM = checkNotEmpty
+    (\cm i -> 2 * tp cm i / (2 * tp cm i + fp cm i + fn cm i))
 
 
 
@@ -146,6 +156,10 @@ mkListFunc f classes c yTrue yPred =
              Nothing -> error "unknown class name"
 
   where cm = confusionMatrix classes yTrue yPred
+
+checkNotEmpty :: (Matrix Int -> Int -> a) -> Matrix Int -> Int -> a
+checkNotEmpty f cm i | sum cm == 0 = error "empty list"
+                     | otherwise   = f cm i
 
 -- | /O(1)/
 tp :: Num a => Matrix Int -> Int -> a

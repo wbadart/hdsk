@@ -8,6 +8,7 @@ module Hdsk.Util
 , shouldBeUndefined
 , shouldBeErrorEmpty
 , doubles
+, ints
 ) where
 
 import Test.Hspec (
@@ -26,3 +27,6 @@ shouldBeErrorEmpty = flip shouldThrow $ errorCall "empty list"
 
 doubles :: Gen Double
 doubles = choose (-999999999, 999999999)
+
+ints :: Gen Int
+ints = choose (0, 999999)
