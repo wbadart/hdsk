@@ -35,6 +35,7 @@ mean xs | null xs   = error "empty list"
 -- | /O(n)/ Computes the unbiased variance of a collection of numbers.
 var :: (Foldable f, Functor f, Floating n) => f n -> n
 var xs | null xs = error "empty list"
+       | length xs == 1 = 0
        | otherwise = sum (fmap sqDiff xs) / fromIntegral (length xs - 1)
   where sqDiff x = (x - avg) ** 2; avg = mean xs
 

@@ -29,7 +29,7 @@ import Data.Maybe (fromMaybe)
 import qualified Data.List as L
 import qualified Data.Matrix as M
 
-import Hdsk.Description (mean)
+import Hdsk.Description (mean, var)
 
 
 -- ===== ACCURACY ===== --
@@ -204,11 +204,13 @@ mkMeanErrorFunc :: Fractional a => (a -> a) -> [a] -> [a] -> a
 mkMeanErrorFunc f = ((mean . map f) .) . zipWith (-)
 
 
--- | /O(???)/ Find the explained variance of a regression. Explained
+-- | /O(n)/ Find the explained variance of a regression. Explained
 -- variance measures the proportion of the observations is accounted for
 -- by the regression.
-explainedVariance :: Fractional a => [a] -> [a] -> a
-explainedVariance yObs yEst = 0
+explainedVariance :: (Eq a, Floating a) => [a] -> [a] -> a
+explainedVariance yObs yEst
+    | var yObs == 0 = 1
+    | otherwise     = 1 - var (zipWith (-) yObs yEst) / var yObs
 
 
 -- | /O(???)/ Find the coefficient of determination (R^2 value) of a

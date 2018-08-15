@@ -147,8 +147,8 @@ spec = do
 
   describe "regression metrics" $ do
 
-    let yObs  = [1, 2, 3, 4, 5]
-        yEst = [1.3, 2.4, 2.9, 3.8, 5.1]
+    let yObs  = [1,   2,   3,   4,   5]
+        yEst  = [1.3, 2.4, 2.9, 3.8, 5.1]
 
     -- ===== REGRESSION METRICS ===== --
 
@@ -183,7 +183,7 @@ spec = do
         explainedVariance yObs yEst `shouldBe` 0.974
 
       it "is no greater than 1" $ property $
-        forAll genReg (\ ~(yt, yp) -> explainedVariance yt yp <= 1)
+        forAll genReg1 (\ ~(yt, yp) -> explainedVariance yt yp <= 1)
 
       it "is undefined over 0 predictions" $
         shouldBeErrorEmpty $ evaluate (explainedVariance [] [])
