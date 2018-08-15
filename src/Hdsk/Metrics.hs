@@ -18,6 +18,10 @@ module Hdsk.Metrics
 , f1,          f1CM
 , confusionMatrix
 , tp, fp, tn, fn
+, meanSqError
+, meanAbsError
+, explainedVariance
+, r2score
 ) where
 
 import Data.Matrix (Matrix)

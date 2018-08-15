@@ -148,7 +148,7 @@ spec = do
   describe "regression metrics" $ do
 
     let yObs  = [1, 2, 3, 4, 5]
-        yEst = [1.3, 2.4, 2.9, 3.8 5.1]
+        yEst = [1.3, 2.4, 2.9, 3.8, 5.1]
 
     -- ===== REGRESSION METRICS ===== --
 
@@ -156,7 +156,7 @@ spec = do
 
       it ("is the mean of the sqared differences "
             ++ "between prediction and observation") $
-        meanSqError yObs yEst `shouldBe` 0.062
+        meanSqError yObs yEst `shouldBe` (0.062::Double)
 
       it "is always positive" $ property $
         forAll genReg1 (\ ~(yt, yp) -> meanSqError yt yp >= 0)
@@ -168,7 +168,7 @@ spec = do
     describe "mean absolute error" $ do
 
       it "is the mean of the absolutes of the errors" $
-        shouldLieBetween 0.21 0.22 (meanAbsError yObs yEst)
+        shouldLieBetween (0.21::Double) 0.22 (meanAbsError yObs yEst)
 
       it "is always positive" $ property $
         forAll genReg1 (\ ~(yt, yp) -> meanAbsError yt yp >= 0)
@@ -177,7 +177,7 @@ spec = do
         shouldBeUndefined $ evaluate (meanAbsError [] [])
 
 
-    describe "explained variance score" $
+    describe "explained variance score" $ do
 
       it "correctly calculates the explained variance regression score" $
         explainedVariance yObs yEst `shouldBe` 0.974
