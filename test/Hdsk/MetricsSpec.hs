@@ -24,122 +24,181 @@ import Hdsk.Metrics
 spec :: Spec
 spec = do
 
-  let classes = ["cat", "dog", "rabbit"]
-      -- 8 cats, 6 dogs, 13 rabbit
-      truth   = [ "cat", "cat", "cat", "cat", "cat", "cat", "cat", "cat"
-                , "dog", "dog", "dog", "dog", "dog", "dog"
-                , "rabbit" , "rabbit" , "rabbit" , "rabbit" , "rabbit"
-                , "rabbit" , "rabbit" , "rabbit" , "rabbit" , "rabbit"
-                , "rabbit" , "rabbit" , "rabbit" ]
+  describe "classification metrics" $ do
 
-      preds   = [ "cat", "cat", "cat", "cat", "cat", "dog", "dog", "dog"
-                , "cat", "cat", "dog", "dog", "dog", "rabbit"
-                , "dog", "dog", "rabbit", "rabbit", "rabbit", "rabbit"
-                , "rabbit" , "rabbit" , "rabbit" , "rabbit" , "rabbit"
-                , "rabbit" , "rabbit" ]
+    let classes = ["cat", "dog", "rabbit"]
+        -- 8 cats, 6 dogs, 13 rabbit
+        truth   = [ "cat", "cat", "cat", "cat", "cat", "cat", "cat", "cat"
+                  , "dog", "dog", "dog", "dog", "dog", "dog"
+                  , "rabbit" , "rabbit" , "rabbit" , "rabbit" , "rabbit"
+                  , "rabbit" , "rabbit" , "rabbit" , "rabbit" , "rabbit"
+                  , "rabbit" , "rabbit" , "rabbit" ]
 
-      cm      = confusionMatrix classes truth preds
+        preds   = [ "cat", "cat", "cat", "cat", "cat", "dog", "dog", "dog"
+                  , "cat", "cat", "dog", "dog", "dog", "rabbit"
+                  , "dog", "dog", "rabbit", "rabbit", "rabbit", "rabbit"
+                  , "rabbit" , "rabbit" , "rabbit" , "rabbit" , "rabbit"
+                  , "rabbit" , "rabbit" ]
 
-
-  describe "confusion matrix" $ do
-
-    it "tabulates the hits and misses" $
-      cm `shouldBe` M.fromList 3 3
-        [ 5, 2, 0
-        , 3, 3, 2
-        , 0, 1, 11 ]
-
-    it "is a matrix of zeros when no predictions given" $ property $
-      forAll genPreds (\ ~(cs, _, _, _) ->
-                      confusionMatrix cs [] []
-                      == M.zero (length cs) (length cs))
-
-    it "sums to the total number of predictions" $ property $
-      forAll genPreds (\ ~(cs, _, yt, yp) ->
-                      sum (confusionMatrix cs yt yp) == length yp)
+        cm      = confusionMatrix classes truth preds
 
 
-  -- ===== METRICS ===== --
+    describe "confusion matrix" $ do
 
-  describe "accuracy" $ do
+      it "tabulates the hits and misses" $
+        cm `shouldBe` M.fromList 3 3
+          [ 5, 2, 0
+          , 3, 3, 2
+          , 0, 1, 11 ]
 
-    it "is the proportion of predictions which are correct" $
-      accuracyCM cm `shouldBe` 19 / 27
+      it "is a matrix of zeros when no predictions given" $ property $
+        forAll genPreds (\ ~(cs, _, _, _) ->
+                        confusionMatrix cs [] []
+                        == M.zero (length cs) (length cs))
 
-    -- you miss 100% of the shots you don't take
-    it "is always 0 when no predictions are made" $ property $
-      forAll genPreds (\ ~(cs, _, _, _) -> accuracy cs [] [] == 0)
-
-    it "is always in the range [0, 1]" $ property $
-      forAll genPreds1 (\ ~(cs, _, yt, yp) ->
-                       between (accuracy cs yt yp) 0 1)
-
-
-
-  describe "precision" $ do
-
-    it "is the proportion of positive predictions which are true" $
-      precisionCM cm 1 `shouldBe` 5 / 7
-
-    it "is undefined when no positive predicions are made" $
-      shouldBeUndefined $ evaluate
-                          (precision classes "cat" ["cat"] ["dog"])
-
-    it "is always in the range [0, 1]" $ property $
-      forAll genCM (\ ~(cm, i) ->
-        tp cm i + fp cm i == 0 || between (precisionCM cm i) 0 1)
+      it "sums to the total number of predictions" $ property $
+        forAll genPreds (\ ~(cs, _, yt, yp) ->
+                        sum (confusionMatrix cs yt yp) == length yp)
 
 
-  describe "recall" $ do
+    -- ===== CLASSIFICATION METRICS ===== --
 
-    it "is the proportion of positive instances correctly labeled" $
-      recallCM cm 1 `shouldBe` 5 / 8
+    describe "accuracy" $ do
 
-    it "is undefined when no instances are truly positive" $
-      shouldBeUndefined $ evaluate (recall classes "cat" ["dog"] ["cat"])
+      it "is the proportion of predictions which are correct" $
+        accuracyCM cm `shouldBe` 19 / 27
 
-    it "is always in the range [0, 1]" $ property $
-      forAll genCM (\ ~(cm, i) ->
-        tp cm i + fn cm i == 0 || between (recallCM cm i) 0 1)
+      -- you miss 100% of the shots you don't take
+      it "is always 0 when no predictions are made" $ property $
+        forAll genPreds (\ ~(cs, _, _, _) -> accuracy cs [] [] == 0)
 
-
-  describe "specificity" $ do
-
-    it "is the proportion of negative instances correctly labeled" $
-      specificityCM cm 1 `shouldBe` 17 / 19
-
-    it "is undefined when no instances are truly negative" $
-      shouldBeUndefined $ evaluate
-                        (specificity classes "cat" ["cat"] ["cat"])
-
-    it "is always in the range [0, 1]" $ property $
-      forAll genCM (\ ~(cm, i) ->
-        tn cm i + fp cm i == 0 || between (specificityCM cm i) 0 1)
+      it "is always in the range [0, 1]" $ property $
+        forAll genPreds1 (\ ~(cs, _, yt, yp) ->
+                         between (accuracy cs yt yp) 0 1)
 
 
-  describe "f1" $ do
 
-    it "is the harmonic mean of precision and recall" $ do
-      let p = precisionCM cm 1
-          r = recallCM cm 1
-      f1CM cm 1 `shouldBe` 2 / (1 / p + 1 / r)
+    describe "precision" $ do
 
-    it ("is undefined when there are no "
-          ++ "positive predictions and no positive observations") $
-      shouldBeUndefined $ evaluate (f1 classes "cat" ["dog"] ["dog"])
+      it "is the proportion of positive predictions which are true" $
+        precisionCM cm 1 `shouldBe` 5 / 7
 
-    it "is always in the range [0, 1]" $ property $
-      forAll genCM (\ ~(cm, i) ->
-        tp cm i + fp cm i + fn cm i == 0 || between (f1CM cm i) 0 1)
+      it "is undefined when no positive predicions are made" $
+        shouldBeUndefined $ evaluate
+                            (precision classes "cat" ["cat"] ["dog"])
 
-    it "is always between precision and recall" $ property $
-      forAll genCM (\ ~(cm, i) ->
-        let p = precisionCM cm i
-            r = recallCM cm i
-            left = min p r
-            right = max p r
-        in tp cm i + fp cm i + fn cm i == 0
-        || between (f1CM cm i) left right)
+      it "is always in the range [0, 1]" $ property $
+        forAll genCM (\ ~(cm, i) ->
+          tp cm i + fp cm i == 0 || between (precisionCM cm i) 0 1)
+
+
+    describe "recall" $ do
+
+      it "is the proportion of positive instances correctly labeled" $
+        recallCM cm 1 `shouldBe` 5 / 8
+
+      it "is undefined when no instances are truly positive" $
+        shouldBeUndefined $ evaluate
+                            (recall classes "cat" ["dog"] ["cat"])
+
+      it "is always in the range [0, 1]" $ property $
+        forAll genCM (\ ~(cm, i) ->
+          tp cm i + fn cm i == 0 || between (recallCM cm i) 0 1)
+
+
+    describe "specificity" $ do
+
+      it "is the proportion of negative instances correctly labeled" $
+        specificityCM cm 1 `shouldBe` 17 / 19
+
+      it "is undefined when no instances are truly negative" $
+        shouldBeUndefined $ evaluate
+                          (specificity classes "cat" ["cat"] ["cat"])
+
+      it "is always in the range [0, 1]" $ property $
+        forAll genCM (\ ~(cm, i) ->
+          tn cm i + fp cm i == 0 || between (specificityCM cm i) 0 1)
+
+
+    describe "f1" $ do
+
+      it "is the harmonic mean of precision and recall" $ do
+        let p = precisionCM cm 1
+            r = recallCM cm 1
+        f1CM cm 1 `shouldBe` 2 / (1 / p + 1 / r)
+
+      it ("is undefined when there are no "
+            ++ "positive predictions and no positive observations") $
+        shouldBeUndefined $ evaluate (f1 classes "cat" ["dog"] ["dog"])
+
+      it "is always in the range [0, 1]" $ property $
+        forAll genCM (\ ~(cm, i) ->
+          tp cm i + fp cm i + fn cm i == 0 || between (f1CM cm i) 0 1)
+
+      it "is always between precision and recall" $ property $
+        forAll genCM (\ ~(cm, i) ->
+          let p = precisionCM cm i
+              r = recallCM cm i
+              left = min p r
+              right = max p r
+          in tp cm i + fp cm i + fn cm i == 0
+          || between (f1CM cm i) left right)
+
+
+  describe "regression metrics" $ do
+
+    let yObs  = [1, 2, 3, 4, 5]
+        yEst = [1.3, 2.4, 2.9, 3.8 5.1]
+
+    -- ===== REGRESSION METRICS ===== --
+
+    describe "mean squared error" $ do
+
+      it ("is the mean of the sqared differences "
+            ++ "between prediction and observation") $
+        meanSqError yObs yEst `shouldBe` 0.062
+
+      it "is always positive" $ property $
+        forAll genReg1 (\ ~(yt, yp) -> meanSqError yt yp >= 0)
+
+      it "is undefined over 0 predictions" $
+        shouldBeUndefined $ evaluate (meanSqError [] [])
+
+
+    describe "mean absolute error" $ do
+
+      it "is the mean of the absolutes of the errors" $
+        shouldLieBetween 0.21 0.22 (meanAbsError yObs yEst)
+
+      it "is always positive" $ property $
+        forAll genReg1 (\ ~(yt, yp) -> meanAbsError yt yp >= 0)
+
+      it "is undefined for 0 predictions" $
+        shouldBeUndefined $ evaluate (meanAbsError [] [])
+
+
+    describe "explained variance score" $
+
+      it "correctly calculates the explained variance regression score" $
+        explainedVariance yObs yEst `shouldBe` 0.974
+
+      it "is no greater than 1" $ property $
+        forAll genReg (\ ~(yt, yp) -> explainedVariance yt yp <= 1)
+
+      it "is undefined over 0 predictions" $
+        shouldBeUndefined $ evaluate (explainedVariance [] [])
+
+
+    describe "R^2 score" $ do
+
+      it "correctly calculates the r^2 score of the regression" $
+        r2score yObs yEst `shouldBe` 0.969
+
+      it "is always in the range [0, 1]" $ property $
+        forAll genReg1 (\ ~(yt, yp) -> between (r2score yt yp) 0 1)
+
+      it "is undefined over 0 predictions" $
+        shouldBeUndefined $ evaluate (r2score [] [])
 
 
 genPreds :: Gen ([Int], Int, [Int], [Int])
@@ -164,5 +223,17 @@ genCM = do
   let cm = confusionMatrix cs yt yp
       i  = fromMaybe (-1) (elemIndex c cs) + 1
   return (cm, i)
+
+genReg :: Gen ([Double], [Double])
+genReg = do
+  yt <- listOf doubles
+  yp <- shuffle yt
+  return (yt, yp)
+
+genReg1 :: Gen ([Double], [Double])
+genReg1 = do
+  yt <- listOf1 doubles
+  yp <- shuffle yt
+  return (yt, yp)
 
 between x i j = x >= i && x <= j

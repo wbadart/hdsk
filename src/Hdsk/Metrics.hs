@@ -176,6 +176,37 @@ tn cm i = fromIntegral $
     -- Add TP cell back in since it was subtracted twice
 
 
+-- ===== REGRESSION METRICS ===== --
+
+-- | /O(???)/ Find the mean squared error of the regression. The squared
+-- error of an estimation is the square of its difference with the
+-- corresponding observation. The first argument is the list of
+-- observations, and the second is the list of corresponding
+-- estimations.
+meanSqError :: Fractional a => [a] -> [a] -> a
+meanSqError yObs yEst = 0
+
+
+-- | /O(???)/ Find the mean absolute error of the regression. The
+-- absolute error of an estimate is the absolute value of its difference
+-- with the corresponding observation.
+meanAbsError :: Fractional a => [a] -> [a] -> a
+meanAbsError yObs yEst = 0
+
+
+-- | /O(???)/ Find the explained variance of a regression. Explained
+-- variance measures the proportion of the observations is accounted for
+-- by the regression.
+explainedVariance :: Fractional a => [a] -> [a] -> a
+explainedVariance yObs yEst = 0
+
+
+-- | /O(???)/ Find the coefficient of determination (R^2 value) of a
+-- regression. Aka goodness of fit.
+r2score :: Fractional a => [a] -> [a] -> a
+r2score yObs yEst = 0
+
+
 -- ===== Utilities ===== --
 
 divInt :: (Integral n, Fractional m) => n -> n -> m
