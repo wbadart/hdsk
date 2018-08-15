@@ -137,6 +137,8 @@ accuracyCM :: Fractional a => Matrix Int -> a
 --   The expression <i>TP / (TP + FP)</i> represents precision in terms of
 --   counts of true and false predictions. It is the proportion of positive
 --   predictions which are true.
+--   
+--   Precision is undefined when no positive predictions are made.
 precision :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
 
 -- | <i>O(C^2)</i> Compute the precision directly from a confusion matrix.
@@ -158,6 +160,8 @@ precisionCM :: Fractional a => Matrix Int -> Int -> a
 --   Recall, in terms of the confusion matrix, is <i>TP / (TP + FN)</i>,
 --   and represents the proportion of positive predictions which were
 --   classified as such.
+--   
+--   Recall is undefined when there are no positive observations.
 recall :: (Eq a, Fractional b) => [a] -> a -> [a] -> [a] -> b
 
 -- | <i>O(C^2)</i> Compute recall from a confusion matrix for a specified
@@ -184,3 +188,15 @@ f1CM :: Fractional a => Matrix Int -> Int -> a
 --   are encoded as indices, where the index of a class within the matrix
 --   corresponds to its index within the set of classes.
 confusionMatrix :: Eq a => [a] -> [a] -> [a] -> Matrix Int
+
+-- | <i>O(1)</i>
+tp :: Num a => Matrix Int -> Int -> a
+
+-- | <i>O(C)</i>
+fp :: Num a => Matrix Int -> Int -> a
+
+-- | <i>O(C^2)</i>
+tn :: Num a => Matrix Int -> Int -> a
+
+-- | <i>O(C)</i>
+fn :: Num a => Matrix Int -> Int -> a
