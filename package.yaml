@@ -24,9 +24,9 @@ library:
   source-dirs: src
   exposed-modules:
     - Hdsk.Description
+    - Hdsk.Metrics
     - Hdsk.Bayesian.NaiveBayes
     - Hdsk.Bayesian.Bins
-    - Hdsk.Metrics
   ghc-options:
     - -Wall
 
