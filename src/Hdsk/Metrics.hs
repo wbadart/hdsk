@@ -29,6 +29,8 @@ import Data.Maybe (fromMaybe)
 import qualified Data.List as L
 import qualified Data.Matrix as M
 
+import Hdsk.Description (mean)
+
 
 -- ===== ACCURACY ===== --
 
@@ -182,20 +184,24 @@ tn cm i = fromIntegral $
 
 -- ===== REGRESSION METRICS ===== --
 
--- | /O(???)/ Find the mean squared error of the regression. The squared
+-- | /O(n)/ Find the mean squared error of the regression. The squared
 -- error of an estimation is the square of its difference with the
 -- corresponding observation. The first argument is the list of
 -- observations, and the second is the list of corresponding
 -- estimations.
-meanSqError :: Fractional a => [a] -> [a] -> a
-meanSqError yObs yEst = 0
+meanSqError :: Floating a => [a] -> [a] -> a
+meanSqError = mkMeanErrorFunc (**2)
 
 
--- | /O(???)/ Find the mean absolute error of the regression. The
+-- | /O(n)/ Find the mean absolute error of the regression. The
 -- absolute error of an estimate is the absolute value of its difference
 -- with the corresponding observation.
 meanAbsError :: Fractional a => [a] -> [a] -> a
-meanAbsError yObs yEst = 0
+meanAbsError = mkMeanErrorFunc abs
+
+
+mkMeanErrorFunc :: Fractional a => (a -> a) -> [a] -> [a] -> a
+mkMeanErrorFunc f = ((mean . map f) .) . zipWith (-)
 
 
 -- | /O(???)/ Find the explained variance of a regression. Explained

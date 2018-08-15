@@ -162,7 +162,7 @@ spec = do
         forAll genReg1 (\ ~(yt, yp) -> meanSqError yt yp >= 0)
 
       it "is undefined over 0 predictions" $
-        shouldBeUndefined $ evaluate (meanSqError [] [])
+        shouldBeErrorEmpty $ evaluate (meanSqError [] [])
 
 
     describe "mean absolute error" $ do
@@ -174,7 +174,7 @@ spec = do
         forAll genReg1 (\ ~(yt, yp) -> meanAbsError yt yp >= 0)
 
       it "is undefined for 0 predictions" $
-        shouldBeUndefined $ evaluate (meanAbsError [] [])
+        shouldBeErrorEmpty $ evaluate (meanAbsError [] [])
 
 
     describe "explained variance score" $ do
@@ -186,7 +186,7 @@ spec = do
         forAll genReg (\ ~(yt, yp) -> explainedVariance yt yp <= 1)
 
       it "is undefined over 0 predictions" $
-        shouldBeUndefined $ evaluate (explainedVariance [] [])
+        shouldBeErrorEmpty $ evaluate (explainedVariance [] [])
 
 
     describe "R^2 score" $ do
@@ -198,7 +198,7 @@ spec = do
         forAll genReg1 (\ ~(yt, yp) -> between (r2score yt yp) 0 1)
 
       it "is undefined over 0 predictions" $
-        shouldBeUndefined $ evaluate (r2score [] [])
+        shouldBeErrorEmpty $ evaluate (r2score [] [])
 
 
 genPreds :: Gen ([Int], Int, [Int], [Int])
