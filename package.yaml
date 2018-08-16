@@ -58,9 +58,9 @@ tests:
   #     - doctest >= 0.2
 
 benchmarks:
-  generics:
-    main: benchmark/GenericVsVector.hs
+  metrics:
+    main: benchmark/Metrics.hs
     dependencies:
       - hdsk
-      - random == 1.1.*
+      - matrix >= 0.3
       - criterion >= 1.4 && < 2
