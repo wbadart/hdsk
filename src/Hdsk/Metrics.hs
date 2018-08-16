@@ -38,8 +38,8 @@ import Hdsk.Description (mean, var)
 
 -- | /O(n)/ Given the ground truth @yTrue@ and predictions @yPred@,
 -- the expression @accuracy c yTrue yPred@ reports the accuracy of the
--- predictions, /(TP + TN) \/ (P + N)/. Here, @c@ is the set of class
--- labels, e.g. @S.fromList ["cat", "dog"]@. The proportion of
+-- predictions, /(TP + TN) \/ (P + N)/. Here, @c@ is the list of class
+-- labels, e.g. @["cat", "dog"]@. Accuracy represents the proportion of
 -- classifications which were correct.
 accuracy :: (Zippable z, Eq a, Fractional b) => [a] -> z a -> z a -> b
 accuracy = ((accuracyCM .) .) . confusionMatrix
