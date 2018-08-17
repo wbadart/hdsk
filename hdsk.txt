@@ -236,5 +236,8 @@ explainedVariance :: (Eq a, Floating a) => [a] -> [a] -> a
 -- | <i>O(n)</i> Find the coefficient of determination (R^2 value) of a
 --   regression. Aka goodness of fit.
 r2score :: (Eq a, Floating a) => [a] -> [a] -> a
+
+-- | Class of types which support the zip and zipWith operations.
+class Foldable z => Zippable z
 instance Hdsk.Metrics.Zippable Data.Vector.Vector
 instance Hdsk.Metrics.Zippable []
