@@ -22,16 +22,22 @@ module Hdsk.Metrics
 , meanAbsError
 , explainedVariance
 , r2score
+, Zippable
 ) where
 
+import Control.Monad (foldM)
+import Control.Monad.ST (ST)
 import Data.Matrix (Matrix)
 import Data.Maybe (fromMaybe)
 import Data.Vector (Vector)
+import qualified Data.HashTable.ST.Cuckoo as H
 import qualified Data.List as L
 import qualified Data.Matrix as M
 import qualified Data.Vector as V
 
 import Hdsk.Description (mean, var)
+
+type HashTable s k v = H.HashTable s k v
 
 
 -- ===== ACCURACY ===== --
@@ -162,6 +168,12 @@ confusionMatrix classes yTrue yPred =
                           in M.setElem (old + 1) (predIdx, trueIdx) cm
         getIdx e xs = fromMaybe 0 $ L.elemIndex e xs
 
+-- confusionHash :: Zippable z =>
+--     z a -> z a -> ST s (HashTable s k (HashTable s k Int))
+-- confusionHash = (foldM hit H.new .) . Hdsk.Metrics.zip
+--   where hit ht (yt, yp) = ht
+
+-- | Class of types which support the zip and zipWith operations.
 class Foldable z => Zippable z where
   zip     :: z a -> z b -> z (a, b)
   zipWith :: (a -> b -> c) -> z a -> z b -> z c

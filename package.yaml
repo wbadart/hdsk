@@ -19,6 +19,7 @@ dependencies:
   - vector == 0.12.*
   - containers < 0.6
   - matrix >= 0.3
+  - hashtables >= 1.2
 
 library:
   source-dirs: src

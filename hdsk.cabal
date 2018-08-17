@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2ba1edf9c3a47ad6a53499de457ae01f8c7b754167eb149385a409835d9aeb38
+-- hash: 4e42f7c2a411400d020fb22f5dcf6d7180c230b341c6d98573e6064c0591c5cc
 
 name:           hdsk
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
   build-depends:
       base >=4.7 && <5
     , containers <0.6
+    , hashtables >=1.2
     , matrix >=0.3
     , vector ==0.12.*
   exposed-modules:
@@ -55,6 +56,7 @@ test-suite spec
       QuickCheck ==2.11.*
     , base >=4.7 && <5
     , containers <0.6
+    , hashtables >=1.2
     , hdsk
     , hspec ==2.*
     , matrix >=0.3
@@ -74,6 +76,7 @@ benchmark metrics
       base >=4.7 && <5
     , containers <0.6
     , criterion >=1.4 && <2
+    , hashtables >=1.2
     , hdsk
     , matrix >=0.3
     , vector ==0.12.*
