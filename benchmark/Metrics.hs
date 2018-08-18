@@ -7,7 +7,6 @@ import Data.Matrix (Matrix)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 
-import Hdsk.Util (ints)
 import Hdsk.Metrics
 
 -- Matrix function, list function, vector function
@@ -16,7 +15,15 @@ type MF = Matrix Int -> Double
 type VF = Vector Int -> Double
 
 main = defaultMain
-  [ env mkPreds $ \ ~(c, yt, yp) -> bgroup "list"
+  [ env mkPreds $ \ ~(c, yt, yp) -> bgroup "confusionMatrix"
+    [ bench "creation" $ nf (confusionMatrix c yt) yp
+    ]
+
+  , env mkZipped $ \ ~(c, ys) -> bgroup "confusionPreZipped"
+    [ bench "creation" $ nf (confusionZipped c) ys
+    ]
+
+  , env mkPreds $ \ ~(c, yt, yp) -> bgroup "list"
     [ bench "accuracy"    $ nf (accuracy    c   yt :: LF) yp
     , bench "precision"   $ nf (precision   c 0 yt :: LF) yp
     , bench "recall"      $ nf (recall      c 0 yt :: LF) yp
@@ -47,6 +54,12 @@ mkPreds =
     (,,) <$> return [0, 1]
          <*> readVec "benchmark/yTest.csv"
          <*> readVec "benchmark/yPred.csv"
+
+
+mkZipped :: IO ([Int], Vector (Int, Int))
+mkZipped = do
+  (c, yt, yp) <- mkPreds
+  return (c, V.zip (V.fromList yt) (V.fromList yp))
 
 
 mkCM :: IO (Matrix Int)
