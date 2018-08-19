@@ -24,6 +24,7 @@ dependencies:
 library:
   source-dirs: src
   exposed-modules:
+    - Hdsk.Cluster.KMeans
     - Hdsk.Description
     - Hdsk.Metrics
     - Hdsk.Bayesian.NaiveBayes
