@@ -19,7 +19,9 @@ import Data.Function (on)
 import Data.List (elemIndex, minimumBy)
 import Data.Maybe (fromMaybe)
 
-type DistFunc a = [a] -> [a] -> a
+-- | A metric which rates, on a continuous scale, how far apart its two
+-- arguments are.
+type DistFunc a = [a] -> [a] -> Double
 
 
 -- | /O(nkD)/ where /n/ is the number of data points, /k/ is the number
