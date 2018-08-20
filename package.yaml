@@ -41,6 +41,7 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
       - -Wall
+      - -Wno-type-defaults
     dependencies:
       - hdsk
       - base >= 4.7 && < 5
