@@ -10,7 +10,8 @@ clusters is known and fixed (it is a parameter to the algorithm).
 -}
 
 module Hdsk.Cluster.KMeans
-( kmeans
+( DistFunc
+, kmeans
 , closestTo
 , minkowski
 ) where
@@ -23,9 +24,8 @@ import Data.Maybe (fromMaybe)
 -- arguments are.
 type DistFunc a = [a] -> [a] -> Double
 
-
 -- | /O(nkD)/ where /n/ is the number of data points, /k/ is the number
--- of clusters, and D is the dimensionality of the data. Run one
+-- of clusters, and /D/ is the dimensionality of the data. Run one
 -- iteration of the k-means algorithm. The parameter /k/, number of
 -- clusters, is implied by the length of the list of initial centroids.
 -- Returns a list of cluster labels (encoded as integers) which
