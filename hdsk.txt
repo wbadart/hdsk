@@ -55,6 +55,39 @@ labelCount :: Num n => CPT -> String -> n
 dataLength :: Num n => CPT -> n
 
 
+-- | This module provides an implementation of the k-means clustering
+--   algorithm. K-means is well suited to problems where the number of
+--   clusters is known and fixed (it is a parameter to the algorithm).
+module Hdsk.Cluster.KMeans
+
+-- | <i>O(nkD)</i> where <i>n</i> is the number of data points, <i>k</i> is
+--   the number of clusters, and D is the dimensionality of the data. Run
+--   one iteration of the k-means algorithm. The parameter <i>k</i>, number
+--   of clusters, is implied by the length of the list of initial
+--   centroids. Returns a list of cluster labels (encoded as integers)
+--   which correspond 1-1 with the given list of data points.
+kmeans :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
+
+-- | <i>O(kD)</i> where <i>k</i> is the number of points to consider and
+--   <i>D</i> is the dimensionality of the data. Select from a list of
+--   points that which is closest to a given point <i>x</i> according to a
+--   given distance metric. For instance, in one dimension:
+--   
+--   <pre>
+--   &gt;&gt;&gt; closestTo (\x y -&gt; abs $ sum (zipWith (-) x y)) [0] [[1], [2]]
+--   
+--   &gt;&gt;&gt; [1.0]
+--   </pre>
+closestTo :: (Ord a, Floating a) => DistFunc a -> [a] -> [[a]] -> [a]
+
+-- | <i>O(D)</i> where <i>D</i> is the dimensionality of the vectors.
+--   General distance metric between two vectors/ data points in the same
+--   vector space. The first parameter <tt>p</tt> corresponds to the
+--   <i>L^p</i> space to compute the norm (e.g. <tt>p = 2</tt> is Euclidean
+--   distance).
+minkowski :: Floating a => a -> [a] -> [a] -> a
+
+
 -- | This module contains basic numerical descriptive statistics that are
 --   applicable to a vector of doubles.
 module Hdsk.Description
