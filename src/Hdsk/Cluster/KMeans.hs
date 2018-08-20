@@ -42,17 +42,24 @@ type CenterFunc a = [[a]] -> [a]
 -- Returns a list of cluster labels (encoded as integers) which
 -- correspond 1-1 with the given list of data points.
 kmeans :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
-kmeans dist centroids = map $ toIdx . flip (closestTo dist) centroids
-  where toIdx c = fromMaybe (-1) $ elemIndex c centroids
+kmeans dist cs = map $ toIdx . flip (closestTo dist) cs
+  where toIdx c = fromMaybe (-1) $ elemIndex c cs
 
 -- | /O(inkD)/ where /n/ is the number of data points, /k/ is the number
 -- of clusters, /D/ is the dimensionality of the data, and /i/ is the
 -- number of iterations. Improve the quality of the clustering.
 -- Generates an infinite list of clusterings.
-improve :: Fractional a => DistFunc a -> CenterFunc a -> [[a]] -> [[Int]]
+improve :: (Ord a, Floating a) =>
+    DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> [[Int]]
 improve dist metric dat = iterate (mkClustering . mkCentroids)
   where mkClustering = flip (kmeans dist) dat
         mkCentroids  = flip (centroids metric) dat
+
+-- | /O(???)/ Truncate a stream of clusterings when the change in some
+-- measure of quality /delta/ fails to improve by more than the
+-- parameter /eta/; ultimately returns the final clustering.
+-- terminate :: ???
+-- terminate eta quality dat clusters = undefined
 
 -- | /O(nD)/ where /n/ is the number of data points and /D/ is the
 -- dimensionality of the data. Calculate the centroids of clusters
