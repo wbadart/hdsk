@@ -110,6 +110,10 @@ module Hdsk.Cluster.KMeans
 --   arguments are.
 type DistFunc a = [a] -> [a] -> Double
 
+-- | A metric which calculates the center of a list of points, e.g.
+--   <tt>meanPoint</tt> or <i>medoid</i>.
+type CenterFunc a = [[a]] -> [a]
+
 -- | <i>O(nkD)</i> where <i>n</i> is the number of data points, <i>k</i> is
 --   the number of clusters, and <i>D</i> is the dimensionality of the
 --   data. Run one iteration of the k-means algorithm. The parameter
@@ -118,15 +122,26 @@ type DistFunc a = [a] -> [a] -> Double
 --   integers) which correspond 1-1 with the given list of data points.
 kmeans :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
 
--- | <i>O(nD)</i> where <i>n</i> is the number of data points and <i>D</i>
+-- | <i>O(inkD)</i> where <i>n</i> is the number of data points, <i>k</i>
+--   is the number of clusters, <i>D</i> is the dimensionality of the data,
+--   and <i>i</i> is the number of iterations. Improve the quality of the
+--   clustering. Generates an infinite list of clusterings.
+improve :: (Ord a, Floating a) => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> [[Int]]
+
+-- | <i>O(???)</i> Truncate a stream of clusterings when the change in some
+--   measure of quality <i>delta</i> fails to improve by more than the
+--   parameter <i>eta</i>; ultimately returns the final clustering.
+--   terminate :: ??? terminate eta quality dat clusters = undefined
+--   
+--   <i>O(nD)</i> where <i>n</i> is the number of data points and <i>D</i>
 --   is the dimensionality of the data. Calculate the centroids of clusters
 --   according to a metric (<tt>meanPoint</tt>, for instance).
-centroids :: Floating a => ([[a]] -> [a]) -> [Int] -> [[a]] -> [[a]]
+centroids :: Floating a => CenterFunc a -> [Int] -> [[a]] -> [[a]]
 
 -- | <i>O(nD)</i> where <i>n</i> is the number of points and <i>D</i> is
 --   the dimensionality of each point. Compute the mean of a list of
 --   D-dimensional points.
-meanPoint :: Fractional a => [[a]] -> [a]
+meanPoint :: Fractional a => CenterFunc a
 
 -- | <i>O(kD)</i> where <i>k</i> is the number of points to consider and
 --   <i>D</i> is the dimensionality of the data. Select from a list of
