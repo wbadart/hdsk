@@ -11,7 +11,9 @@ clusters is known and fixed (it is a parameter to the algorithm).
 
 module Hdsk.Cluster.KMeans
 ( DistFunc
+, CenterFunc
 , kmeans
+, improve
 , centroids
 , meanPoint
 , closestTo
@@ -29,6 +31,10 @@ import Hdsk.Description (mean)
 -- arguments are.
 type DistFunc a = [a] -> [a] -> Double
 
+-- | A metric which calculates the center of a list of points, e.g.
+-- @meanPoint@ or /medoid/.
+type CenterFunc a = [[a]] -> [a]
+
 -- | /O(nkD)/ where /n/ is the number of data points, /k/ is the number
 -- of clusters, and /D/ is the dimensionality of the data. Run one
 -- iteration of the k-means algorithm. The parameter /k/, number of
@@ -39,10 +45,19 @@ kmeans :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
 kmeans dist centroids = map $ toIdx . flip (closestTo dist) centroids
   where toIdx c = fromMaybe (-1) $ elemIndex c centroids
 
+-- | /O(inkD)/ where /n/ is the number of data points, /k/ is the number
+-- of clusters, /D/ is the dimensionality of the data, and /i/ is the
+-- number of iterations. Improve the quality of the clustering.
+-- Generates an infinite list of clusterings.
+improve :: Fractional a => DistFunc a -> CenterFunc a -> [[a]] -> [[Int]]
+improve dist metric dat = iterate (mkClustering . mkCentroids)
+  where mkClustering = flip (kmeans dist) dat
+        mkCentroids  = flip (centroids metric) dat
+
 -- | /O(nD)/ where /n/ is the number of data points and /D/ is the
 -- dimensionality of the data. Calculate the centroids of clusters
 -- according to a metric (@meanPoint@, for instance).
-centroids :: Floating a => ([[a]] -> [a]) -> [Int] -> [[a]]-> [[a]]
+centroids :: Floating a => CenterFunc a -> [Int] -> [[a]]-> [[a]]
 centroids metric clusters = mkPts . V.accum (flip (:)) initial . zip clusters
   where initial = V.generate (maximum clusters + 1) $ const []
         mkPts = V.toList . V.map metric
@@ -50,7 +65,7 @@ centroids metric clusters = mkPts . V.accum (flip (:)) initial . zip clusters
 -- | /O(nD)/ where /n/ is the number of points and /D/ is the
 -- dimensionality of each point. Compute the mean of a list of
 -- D-dimensional points.
-meanPoint :: Fractional a => [[a]] -> [a]
+meanPoint :: Fractional a => CenterFunc a
 meanPoint = map mean . transpose
   where transpose ([]:_) = []
         transpose x = map head x : transpose (map tail x)
