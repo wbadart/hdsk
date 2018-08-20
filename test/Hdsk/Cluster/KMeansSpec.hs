@@ -26,6 +26,19 @@ spec = do
       (\dat -> (-1) `notElem` kmeans euclidean [[0, 0], [10, 10]] dat)
 
 
+  describe "centroids" $
+
+    it "finds the mean point of each cluster" $
+      centroids meanPoint [0, 0, 1] [[0, 0], [0, 1], [9, 8]]
+      `shouldBe` [[0, 0.5], [9, 8]]
+
+
+  describe "meanPoint" $
+
+    it "finds the mean point in n dimensions of a list of points" $
+      meanPoint [[1, 1], [2, 2], [4, 0]] `shouldBe` [7/3, 1]
+
+
   describe "closestTo" $
 
     it "for point x, selects the point from a list closest to x by `dist`" $
