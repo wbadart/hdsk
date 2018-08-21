@@ -315,3 +315,14 @@ r2score :: (Eq a, Floating a) => [a] -> [a] -> a
 class Foldable z => Zippable z
 instance Hdsk.Metrics.Zippable Data.Vector.Vector
 instance Hdsk.Metrics.Zippable []
+
+
+-- | This module contains functions which support efficient numerical
+--   methods, e.g. approximating derivatives.
+module Hdsk.Numerical
+
+-- | Consume a stream of sequentially improving estimations until some
+--   measure of error fails to improve by <i>eta</i>. Requires at least two
+--   estimates to be produced by the stream. Assumes that error decreases
+--   with each estimate.
+terminate :: Double -> (a -> Double) -> [a] -> a
