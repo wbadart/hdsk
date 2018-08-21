@@ -297,9 +297,9 @@ improve :: (Ord a, Floating a) => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -
 meanSqDist :: Floating a => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
 
 -- | <i>O(nD)</i> where <i>n</i> is the number of data points and <i>D</i>
---   is the dimensionality of the data. Calculate the centroids of clusters
+--   is the dimensionality of the data. Calculate the midpoints of clusters
 --   according to a metric (<tt>meanPoint</tt>, for instance).
-centroids :: Floating a => CenterFunc a -> [Int] -> [[a]] -> [[a]]
+midpoints :: Floating a => CenterFunc a -> [Int] -> [[a]] -> [[a]]
 
 -- | <i>O(nD)</i> where <i>n</i> is the number of points and <i>D</i> is
 --   the dimensionality of each point. Compute the mean of a list of
