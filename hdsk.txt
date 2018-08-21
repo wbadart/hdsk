@@ -120,7 +120,7 @@ type CenterFunc a = [[a]] -> [a]
 --   <i>k</i>, number of clusters, is implied by the length of the list of
 --   initial centroids. Returns a list of cluster labels (encoded as
 --   integers) which correspond 1-1 with the given list of data points.
-kmeans :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
+cluster :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
 
 -- | <i>O(inkD)</i> where <i>n</i> is the number of data points, <i>k</i>
 --   is the number of clusters, <i>D</i> is the dimensionality of the data,
@@ -131,9 +131,13 @@ improve :: (Ord a, Floating a) => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -
 -- | <i>O(???)</i> Truncate a stream of clusterings when the change in some
 --   measure of quality <i>delta</i> fails to improve by more than the
 --   parameter <i>eta</i>; ultimately returns the final clustering.
---   terminate :: ??? terminate eta quality dat clusters = undefined
+--   terminate :: ???
 --   
---   <i>O(nD)</i> where <i>n</i> is the number of data points and <i>D</i>
+--   <i>O(nD)</i> Calculate the mean squared distance from each point in a
+--   cluster to the centroid.
+meanSqDist :: Floating a => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
+
+-- | <i>O(nD)</i> where <i>n</i> is the number of data points and <i>D</i>
 --   is the dimensionality of the data. Calculate the centroids of clusters
 --   according to a metric (<tt>meanPoint</tt>, for instance).
 centroids :: Floating a => CenterFunc a -> [Int] -> [[a]] -> [[a]]
