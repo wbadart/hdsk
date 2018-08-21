@@ -30,6 +30,7 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Vector as V
 
 import Hdsk.Description (mean)
+import Hdsk.Numerical (terminate)
 
 -- | A metric which rates, on a continuous scale, how far apart its two
 -- arguments are.
@@ -47,16 +48,18 @@ kmeans = kclusterer 0.01 distEuclidean meanPoint
 
 -- | Convenience function for creating clustering function. For
 -- instance, @kmeans@, as defined in this module, is a @kclusterer@ with
--- euclidean distance function, and mean center measure.
+-- euclidean distance function, mean center measure, and /eta = 0.01/.
 kclusterer :: Double              -- ^ Parameter /eta/. Minimum improvement
            -> DistFunc Double     -- ^ Distance metric between points
            -> CenterFunc Double   -- ^ Measure of center of cluster
            -> Int                 -- ^ The parameter /k/
            -> [[Double]]          -- ^ The list of data points
            -> [Int]               -- ^ Final clustering
-kclusterer eta dist center k dat = continue eta dist center dat
+kclusterer eta dist center k dat = terminate eta err
                                  $ improve dist center dat initial
   where initial = take (length dat) $ cycle [0..k-1]
+        err     = meanSqDist distEuclidean meanPoint dat
+
 
 -- | /O(inkD)/ where /n/ is the number of data points, /k/ is the number
 -- of clusters, /D/ is the dimensionality of the data, and /i/ is the
@@ -67,22 +70,6 @@ improve :: (Ord a, Floating a) =>
 improve dist metric dat = iterate (mkClustering . mkCentroids)
   where mkClustering = flip (cluster dist) dat
         mkCentroids  = flip (centroids metric) dat
-
--- | Generate continually improving clusterings until the reduction in
--- error of subsequent clusterings fails to exceed /eta/.
-continue :: Double              -- ^ Parameter /eta/. Minimum improvement
-         -> DistFunc Double     -- ^ Distance metric between points
-         -> CenterFunc Double   -- ^ Measure of center of cluster
-         -> [[Double]]          -- ^ Dataset (list of points)
-         -> [[Int]]             -- ^ Sequence of clusterings
-         -> [Int]               -- ^ Final clustering
-continue _ _ _ _ []  = undefined
-continue _ _ _ _ [_] = undefined
-continue eta dist center dat (c:c':cs) =
-  if quality c' - quality c <= eta
-     then c'
-     else continue eta dist center dat (c':cs)
-  where quality = meanSqDist distEuclidean meanPoint dat
 
 -- | /O(nkD)/ where /n/ is the number of data points, /k/ is the number
 -- of clusters, and /D/ is the dimensionality of the data. Run one
