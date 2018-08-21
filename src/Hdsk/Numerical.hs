@@ -22,5 +22,5 @@ terminate _   _   []     = undefined
 terminate eta err (x:xs) = terminate' (err x) xs
   where terminate' ePrev (x':xs') =
           let eCurr = err x'
-          in if ePrev - eCurr < eta then x' else terminate' eCurr xs'
+          in if ePrev - eCurr <= eta then x' else terminate' eCurr xs'
         terminate' _ [] = undefined
