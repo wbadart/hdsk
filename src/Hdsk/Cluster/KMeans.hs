@@ -17,7 +17,7 @@ module Hdsk.Cluster.KMeans
 , cluster
 , improve
 , meanSqDist
-, centroids
+, midpoints
 , meanPoint
 , closestTo
 , minkowski
@@ -59,7 +59,7 @@ kclusterer :: Double              -- ^ Parameter /eta/. Minimum improvement
 kclusterer eta dist center k dat = terminate eta err
                                  $ improve dist center dat initial
   where initial = take (length dat) $ cycle [0..k-1]
-        err     = meanSqDist distEuclidean meanPoint dat
+        err     = meanSqDist dist center dat
 
 
 -- | /O(inkD)/ where /n/ is the number of data points, /k/ is the number
@@ -70,7 +70,7 @@ improve :: (Ord a, Floating a) =>
     DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> [[Int]]
 improve dist metric dat = iterate (mkClustering . mkCentroids)
   where mkClustering = flip (cluster dist) dat
-        mkCentroids  = flip (centroids metric) dat
+        mkCentroids  = flip (midpoints metric) dat
 
 -- | /O(nkD)/ where /n/ is the number of data points, /k/ is the number
 -- of clusters, and /D/ is the dimensionality of the data. Run one
@@ -87,13 +87,13 @@ cluster dist cs = map $ toIdx . flip (closestTo dist) cs
 meanSqDist :: Floating a =>
     DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
 meanSqDist dist c dat cIdxs = mean $ zipWith (((**2) .) . dist) dat cents
-  where cents  = map (centroids c cIdxs dat !!) cIdxs
+  where cents  = map (midpoints c cIdxs dat !!) cIdxs
 
 -- | /O(nD)/ where /n/ is the number of data points and /D/ is the
--- dimensionality of the data. Calculate the centroids of clusters
+-- dimensionality of the data. Calculate the midpoints of clusters
 -- according to a metric (@meanPoint@, for instance).
-centroids :: Floating a => CenterFunc a -> [Int] -> [[a]]-> [[a]]
-centroids metric clusters = mkPts . V.accum (flip (:)) initial . zip clusters
+midpoints :: Floating a => CenterFunc a -> [Int] -> [[a]]-> [[a]]
+midpoints metric clusters = mkPts . V.accum (flip (:)) initial . zip clusters
   where initial = V.generate (maximum clusters + 1) $ const []
         mkPts = V.toList . V.map metric
 

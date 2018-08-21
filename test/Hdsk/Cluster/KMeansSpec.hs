@@ -41,9 +41,9 @@ spec = do
       shouldLieBetween 0.329 0.334 $ meanSqDist euclidean center dat [0, 0, 1]
 
 
-  describe "centroids" $
+  describe "midpoints" $
     it "finds the mean point of each cluster" $
-      centroids meanPoint [0, 0, 1] [[0, 0], [0, 1], [9, 8]]
+      midpoints meanPoint [0, 0, 1] [[0, 0], [0, 1], [9, 8]]
       `shouldBe` [[0, 0.5], [9, 8]]
 
 
