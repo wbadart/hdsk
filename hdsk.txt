@@ -101,80 +101,6 @@ instance Hdsk.Description.Selectable Data.Sequence.Internal.Seq
 instance Hdsk.Description.Selectable []
 
 
--- | This module provides an implementation of the k-means clustering
---   algorithm. K-means is well suited to problems where the number of
---   clusters is known and fixed (it is a parameter to the algorithm).
-module Hdsk.Cluster.KMeans
-
--- | A metric which rates, on a continuous scale, how far apart its two
---   arguments are.
-type DistFunc a = [a] -> [a] -> Double
-
--- | A metric which calculates the center of a list of points, e.g.
---   <tt>meanPoint</tt> or <i>medoid</i>.
-type CenterFunc a = [[a]] -> [a]
-
--- | <i>O(inkD)</i> Run the kmeans clustering algorithm over the given
---   dataset. Returns a list of cluster labels which corresponds 1-1 with
---   the input list of data points.
-kmeans :: Int -> [[Double]] -> [Int]
-
--- | <i>O(nkD)</i> where <i>n</i> is the number of data points, <i>k</i> is
---   the number of clusters, and <i>D</i> is the dimensionality of the
---   data. Run one iteration of the k-means algorithm. The parameter
---   <i>k</i>, number of clusters, is implied by the length of the list of
---   initial centroids. Returns a list of cluster labels (encoded as
---   integers) which correspond 1-1 with the given list of data points.
-cluster :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
-
--- | <i>O(inkD)</i> where <i>n</i> is the number of data points, <i>k</i>
---   is the number of clusters, <i>D</i> is the dimensionality of the data,
---   and <i>i</i> is the number of iterations. Improve the quality of the
---   clustering. Generates an infinite list of clusterings.
-improve :: (Ord a, Floating a) => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> [[Int]]
-
--- | <i>O(nD)</i> Calculate the mean squared distance from each point in a
---   cluster to the centroid.
-meanSqDist :: Floating a => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
-
--- | <i>O(nD)</i> where <i>n</i> is the number of data points and <i>D</i>
---   is the dimensionality of the data. Calculate the centroids of clusters
---   according to a metric (<tt>meanPoint</tt>, for instance).
-centroids :: Floating a => CenterFunc a -> [Int] -> [[a]] -> [[a]]
-
--- | <i>O(nD)</i> where <i>n</i> is the number of points and <i>D</i> is
---   the dimensionality of each point. Compute the mean of a list of
---   D-dimensional points.
-meanPoint :: Fractional a => CenterFunc a
-
--- | <i>O(kD)</i> where <i>k</i> is the number of points to consider and
---   <i>D</i> is the dimensionality of the data. Select from a list of
---   points that which is closest to a given point <i>x</i> according to a
---   given distance metric. For instance, in one dimension:
---   
---   <pre>
---   &gt;&gt;&gt; closestTo (\x y -&gt; abs $ sum (zipWith (-) x y)) [0] [[1], [2]]
---   
---   &gt;&gt;&gt; [1.0]
---   </pre>
-closestTo :: (Ord a, Floating a) => DistFunc a -> [a] -> [[a]] -> [a]
-
--- | <i>O(D)</i> where <i>D</i> is the dimensionality of the vectors.
---   General distance metric between two vectors/ data points in the same
---   vector space. The first parameter <tt>p</tt> corresponds to the
---   <i>L^p</i> space to compute the norm (e.g. <tt>p = 2</tt> is Euclidean
---   distance).
-minkowski :: Floating a => a -> [a] -> [a] -> a
-
--- | Common case of <tt>minkowski</tt> is with <i>p = 1</i> for Manhattan
---   distance.
-distManhattan :: Floating a => [a] -> [a] -> a
-
--- | Common case of <tt>minkowski</tt> is with <i>p = 2</i> for Euclidean
---   distance.
-distEuclidean :: Floating a => [a] -> [a] -> a
-
-
 -- | A standard set of metrics for evaluating both classification and
 --   regression models. In Big-O notation, let <i>C</i> represent the
 --   number of classes and <i>n</i> the number of predictions. In general,
@@ -326,3 +252,77 @@ module Hdsk.Numerical
 --   estimates to be produced by the stream. Assumes that error decreases
 --   with each estimate.
 terminate :: Double -> (a -> Double) -> [a] -> a
+
+
+-- | This module provides an implementation of the k-means clustering
+--   algorithm. K-means is well suited to problems where the number of
+--   clusters is known and fixed (it is a parameter to the algorithm).
+module Hdsk.Cluster.KMeans
+
+-- | A metric which rates, on a continuous scale, how far apart its two
+--   arguments are.
+type DistFunc a = [a] -> [a] -> Double
+
+-- | A metric which calculates the center of a list of points, e.g.
+--   <tt>meanPoint</tt> or <i>medoid</i>.
+type CenterFunc a = [[a]] -> [a]
+
+-- | <i>O(inkD)</i> Run the kmeans clustering algorithm over the given
+--   dataset. Returns a list of cluster labels which corresponds 1-1 with
+--   the input list of data points.
+kmeans :: Int -> [[Double]] -> [Int]
+
+-- | <i>O(nkD)</i> where <i>n</i> is the number of data points, <i>k</i> is
+--   the number of clusters, and <i>D</i> is the dimensionality of the
+--   data. Run one iteration of the k-means algorithm. The parameter
+--   <i>k</i>, number of clusters, is implied by the length of the list of
+--   initial centroids. Returns a list of cluster labels (encoded as
+--   integers) which correspond 1-1 with the given list of data points.
+cluster :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
+
+-- | <i>O(inkD)</i> where <i>n</i> is the number of data points, <i>k</i>
+--   is the number of clusters, <i>D</i> is the dimensionality of the data,
+--   and <i>i</i> is the number of iterations. Improve the quality of the
+--   clustering. Generates an infinite list of clusterings.
+improve :: (Ord a, Floating a) => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> [[Int]]
+
+-- | <i>O(nD)</i> Calculate the mean squared distance from each point in a
+--   cluster to the centroid.
+meanSqDist :: Floating a => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
+
+-- | <i>O(nD)</i> where <i>n</i> is the number of data points and <i>D</i>
+--   is the dimensionality of the data. Calculate the centroids of clusters
+--   according to a metric (<tt>meanPoint</tt>, for instance).
+centroids :: Floating a => CenterFunc a -> [Int] -> [[a]] -> [[a]]
+
+-- | <i>O(nD)</i> where <i>n</i> is the number of points and <i>D</i> is
+--   the dimensionality of each point. Compute the mean of a list of
+--   D-dimensional points.
+meanPoint :: Fractional a => CenterFunc a
+
+-- | <i>O(kD)</i> where <i>k</i> is the number of points to consider and
+--   <i>D</i> is the dimensionality of the data. Select from a list of
+--   points that which is closest to a given point <i>x</i> according to a
+--   given distance metric. For instance, in one dimension:
+--   
+--   <pre>
+--   &gt;&gt;&gt; closestTo (\x y -&gt; abs $ sum (zipWith (-) x y)) [0] [[1], [2]]
+--   
+--   &gt;&gt;&gt; [1.0]
+--   </pre>
+closestTo :: (Ord a, Floating a) => DistFunc a -> [a] -> [[a]] -> [a]
+
+-- | <i>O(D)</i> where <i>D</i> is the dimensionality of the vectors.
+--   General distance metric between two vectors/ data points in the same
+--   vector space. The first parameter <tt>p</tt> corresponds to the
+--   <i>L^p</i> space to compute the norm (e.g. <tt>p = 2</tt> is Euclidean
+--   distance).
+minkowski :: Floating a => a -> [a] -> [a] -> a
+
+-- | Common case of <tt>minkowski</tt> is with <i>p = 1</i> for Manhattan
+--   distance.
+distManhattan :: Floating a => [a] -> [a] -> a
+
+-- | Common case of <tt>minkowski</tt> is with <i>p = 2</i> for Euclidean
+--   distance.
+distEuclidean :: Floating a => [a] -> [a] -> a
