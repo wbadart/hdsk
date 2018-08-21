@@ -13,6 +13,7 @@ module Hdsk.Cluster.KMeans
 ( DistFunc
 , CenterFunc
 , kmeans
+, kclusterer
 , cluster
 , improve
 , meanSqDist
