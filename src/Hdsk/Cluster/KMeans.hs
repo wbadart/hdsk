@@ -13,12 +13,14 @@ module Hdsk.Cluster.KMeans
 ( DistFunc
 , CenterFunc
 , kmeans
+, kmedoids
 , kclusterer
 , cluster
 , improve
 , meanSqDist
 , midpoints
-, meanPoint
+, centroid
+, medoid
 , closestTo
 , minkowski
 , distManhattan
@@ -38,19 +40,24 @@ import Hdsk.Numerical (terminate)
 type DistFunc a = [a] -> [a] -> Double
 
 -- | A metric which calculates the center of a list of points, e.g.
--- @meanPoint@ or /medoid/.
+-- @centroid@ or /medoid/.
 type CenterFunc a = [[a]] -> [a]
 
 -- | /O(inkD)/ Run the kmeans clustering algorithm over the given
 -- dataset. Returns a list of cluster labels which corresponds 1-1 with
 -- the input list of data points.
 kmeans :: Int -> [[Double]] -> [Int]
-kmeans = kclusterer 0.01 distEuclidean meanPoint
+kmeans = kclusterer 0.01 distEuclidean centroid
+
+-- | O(ikD*n^2)/ Run the kmedoids clustering algorithm over the given
+-- dataset.
+kmedoids :: Int -> [[Double]] -> [Int]
+kmedoids = kclusterer 0.01 distEuclidean (medoid distEuclidean)
 
 -- | Convenience function for creating clustering function. For
 -- instance, @kmeans@, as defined in this module, is a @kclusterer@ with
 -- euclidean distance function, mean center measure, and /eta = 0.01/.
-kclusterer :: Double              -- ^ Parameter /eta/. Minimum improvement
+kclusterer :: Double              -- ^ Minimum improvement
            -> DistFunc Double     -- ^ Distance metric between points
            -> CenterFunc Double   -- ^ Measure of center of cluster
            -> Int                 -- ^ The parameter /k/
@@ -91,17 +98,23 @@ meanSqDist dist c dat cIdxs = mean $ zipWith (((**2) .) . dist) dat cents
 
 -- | /O(nD)/ where /n/ is the number of data points and /D/ is the
 -- dimensionality of the data. Calculate the midpoints of clusters
--- according to a metric (@meanPoint@, for instance).
+-- according to a metric (@centroid@, for instance).
 midpoints :: Floating a => CenterFunc a -> [Int] -> [[a]]-> [[a]]
-midpoints metric clusters = mkPts . V.accum (flip (:)) initial . zip clusters
+midpoints center clusters =
+    mkPts . V.accum (flip (:)) initial . zip clusters
   where initial = V.generate (maximum clusters + 1) $ const []
-        mkPts = V.toList . V.map metric
+        mkPts = V.toList . V.map center
 
 -- | /O(nD)/ where /n/ is the number of points and /D/ is the
 -- dimensionality of each point. Compute the mean of a list of
 -- D-dimensional points.
-meanPoint :: Fractional a => CenterFunc a
-meanPoint = map mean . transpose
+centroid :: Fractional a => CenterFunc a
+centroid = map mean . transpose
+
+-- | /O(n^2)/ Compute the medoid of a list of points.
+medoid :: Fractional a => DistFunc a -> CenterFunc a
+medoid dist xs = minimumBy (compare `on` avgDistToOthers) xs
+  where avgDistToOthers x = mean $ map (dist x) xs
 
 -- | /O(kD)/ where /k/ is the number of points to consider and /D/ is
 -- the dimensionality of the data. Select from a list of points that
