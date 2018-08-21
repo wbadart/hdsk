@@ -114,6 +114,11 @@ type DistFunc a = [a] -> [a] -> Double
 --   <tt>meanPoint</tt> or <i>medoid</i>.
 type CenterFunc a = [[a]] -> [a]
 
+-- | <i>O(inkD)</i> Run the kmeans clustering algorithm over the given
+--   dataset. Returns a list of cluster labels which corresponds 1-1 with
+--   the input list of data points.
+kmeans :: Int -> [[Double]] -> [Int]
+
 -- | <i>O(nkD)</i> where <i>n</i> is the number of data points, <i>k</i> is
 --   the number of clusters, and <i>D</i> is the dimensionality of the
 --   data. Run one iteration of the k-means algorithm. The parameter
@@ -128,12 +133,7 @@ cluster :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
 --   clustering. Generates an infinite list of clusterings.
 improve :: (Ord a, Floating a) => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> [[Int]]
 
--- | <i>O(???)</i> Truncate a stream of clusterings when the change in some
---   measure of quality <i>delta</i> fails to improve by more than the
---   parameter <i>eta</i>; ultimately returns the final clustering.
---   terminate :: ???
---   
---   <i>O(nD)</i> Calculate the mean squared distance from each point in a
+-- | <i>O(nD)</i> Calculate the mean squared distance from each point in a
 --   cluster to the centroid.
 meanSqDist :: Floating a => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
 
@@ -165,6 +165,14 @@ closestTo :: (Ord a, Floating a) => DistFunc a -> [a] -> [[a]] -> [a]
 --   <i>L^p</i> space to compute the norm (e.g. <tt>p = 2</tt> is Euclidean
 --   distance).
 minkowski :: Floating a => a -> [a] -> [a] -> a
+
+-- | Common case of <tt>minkowski</tt> is with <i>p = 1</i> for Manhattan
+--   distance.
+distManhattan :: Floating a => [a] -> [a] -> a
+
+-- | Common case of <tt>minkowski</tt> is with <i>p = 2</i> for Euclidean
+--   distance.
+distEuclidean :: Floating a => [a] -> [a] -> a
 
 
 -- | A standard set of metrics for evaluating both classification and
