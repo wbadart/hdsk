@@ -272,6 +272,12 @@ type CenterFunc a = [[a]] -> [a]
 --   the input list of data points.
 kmeans :: Int -> [[Double]] -> [Int]
 
+-- | Convenience function for creating clustering function. For instance,
+--   <tt>kmeans</tt>, as defined in this module, is a <tt>kclusterer</tt>
+--   with euclidean distance function, mean center measure, and <i>eta =
+--   0.01</i>.
+kclusterer :: Double -> DistFunc Double -> CenterFunc Double -> Int -> [[Double]] -> [Int]
+
 -- | <i>O(nkD)</i> where <i>n</i> is the number of data points, <i>k</i> is
 --   the number of clusters, and <i>D</i> is the dimensionality of the
 --   data. Run one iteration of the k-means algorithm. The parameter
