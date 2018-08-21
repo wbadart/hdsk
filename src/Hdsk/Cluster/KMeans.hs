@@ -12,6 +12,7 @@ clusters is known and fixed (it is a parameter to the algorithm).
 module Hdsk.Cluster.KMeans
 ( DistFunc
 , CenterFunc
+, kmeans
 , cluster
 , improve
 , meanSqDist
@@ -19,6 +20,8 @@ module Hdsk.Cluster.KMeans
 , meanPoint
 , closestTo
 , minkowski
+, distManhattan
+, distEuclidean
 ) where
 
 import Data.Function (on)
@@ -36,15 +39,24 @@ type DistFunc a = [a] -> [a] -> Double
 -- @meanPoint@ or /medoid/.
 type CenterFunc a = [[a]] -> [a]
 
--- | /O(nkD)/ where /n/ is the number of data points, /k/ is the number
--- of clusters, and /D/ is the dimensionality of the data. Run one
--- iteration of the k-means algorithm. The parameter /k/, number of
--- clusters, is implied by the length of the list of initial centroids.
--- Returns a list of cluster labels (encoded as integers) which
--- correspond 1-1 with the given list of data points.
-cluster :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
-cluster dist cs = map $ toIdx . flip (closestTo dist) cs
-  where toIdx c = fromMaybe (-1) $ elemIndex c cs
+-- | /O(inkD)/ Run the kmeans clustering algorithm over the given
+-- dataset. Returns a list of cluster labels which corresponds 1-1 with
+-- the input list of data points.
+kmeans :: Int -> [[Double]] -> [Int]
+kmeans = kclusterer 0.01 distEuclidean meanPoint
+
+-- | Convenience function for creating clustering function. For
+-- instance, @kmeans@, as defined in this module, is a @kclusterer@ with
+-- euclidean distance function, and mean center measure.
+kclusterer :: Double              -- ^ Parameter /eta/. Minimum improvement
+           -> DistFunc Double     -- ^ Distance metric between points
+           -> CenterFunc Double   -- ^ Measure of center of cluster
+           -> Int                 -- ^ The parameter /k/
+           -> [[Double]]          -- ^ The list of data points
+           -> [Int]               -- ^ Final clustering
+kclusterer eta dist center k dat = continue eta dist center dat
+                                 $ improve dist center dat initial
+  where initial = take (length dat) $ cycle [0..k-1]
 
 -- | /O(inkD)/ where /n/ is the number of data points, /k/ is the number
 -- of clusters, /D/ is the dimensionality of the data, and /i/ is the
@@ -56,10 +68,31 @@ improve dist metric dat = iterate (mkClustering . mkCentroids)
   where mkClustering = flip (cluster dist) dat
         mkCentroids  = flip (centroids metric) dat
 
--- | /O(???)/ Truncate a stream of clusterings when the change in some
--- measure of quality /delta/ fails to improve by more than the
--- parameter /eta/; ultimately returns the final clustering.
--- terminate :: ???
+-- | Generate continually improving clusterings until the reduction in
+-- error of subsequent clusterings fails to exceed /eta/.
+continue :: Double              -- ^ Parameter /eta/. Minimum improvement
+         -> DistFunc Double     -- ^ Distance metric between points
+         -> CenterFunc Double   -- ^ Measure of center of cluster
+         -> [[Double]]          -- ^ Dataset (list of points)
+         -> [[Int]]             -- ^ Sequence of clusterings
+         -> [Int]               -- ^ Final clustering
+continue _ _ _ _ []  = undefined
+continue _ _ _ _ [_] = undefined
+continue eta dist center dat (c:c':cs) =
+  if quality c' - quality c <= eta
+     then c'
+     else continue eta dist center dat (c':cs)
+  where quality = meanSqDist distEuclidean meanPoint dat
+
+-- | /O(nkD)/ where /n/ is the number of data points, /k/ is the number
+-- of clusters, and /D/ is the dimensionality of the data. Run one
+-- iteration of the k-means algorithm. The parameter /k/, number of
+-- clusters, is implied by the length of the list of initial centroids.
+-- Returns a list of cluster labels (encoded as integers) which
+-- correspond 1-1 with the given list of data points.
+cluster :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
+cluster dist cs = map $ toIdx . flip (closestTo dist) cs
+  where toIdx c = fromMaybe (-1) $ elemIndex c cs
 
 -- | /O(nD)/ Calculate the mean squared distance from each point in a
 -- cluster to the centroid.
@@ -81,8 +114,6 @@ centroids metric clusters = mkPts . V.accum (flip (:)) initial . zip clusters
 -- D-dimensional points.
 meanPoint :: Fractional a => CenterFunc a
 meanPoint = map mean . transpose
-  where transpose ([]:_) = []
-        transpose x = map head x : transpose (map tail x)
 
 -- | /O(kD)/ where /k/ is the number of points to consider and /D/ is
 -- the dimensionality of the data. Select from a list of points that
@@ -101,3 +132,16 @@ closestTo dist x = minimumBy (compare `on` dist x)
 minkowski :: Floating a => a -> [a] -> [a] -> a
 minkowski p x y = sum (zipWith absDistP x y) ** (1 / p)
   where absDistP xi yi = abs (xi - yi) ** p
+
+-- | Common case of @minkowski@ is with /p = 1/ for Manhattan distance.
+distManhattan :: Floating a => [a] -> [a] -> a
+distManhattan = minkowski 1
+
+-- | Common case of @minkowski@ is with /p = 2/ for Euclidean distance.
+distEuclidean :: Floating a => [a] -> [a] -> a
+distEuclidean = minkowski 2
+
+-- | Transpose a 2D array.
+transpose :: [[a]] -> [[a]]
+transpose ([]:_) = []
+transpose x = map head x : transpose (map tail x)

@@ -20,6 +20,12 @@ spec = do
       dat       = [[1, 0], [0, 1], [9, 8]]
       cents     = [[0, 0], [10, 10]]
 
+
+  describe "kmeans" $
+    it "correctly improves clustering" $
+      kmeans 2 dat `shouldBe` [1, 1, 0]
+
+
   describe "cluster" $ do
 
     it "correctly groups close points" $
