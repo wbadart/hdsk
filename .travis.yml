@@ -37,7 +37,7 @@ install:
 
 script:
 # Build the package, its tests, and its docs and run the tests
-- stack --no-terminal test --haddock --no-haddock-deps --haddock-arguments="--odir=docs"
+- stack --no-terminal test --haddock --no-haddock-deps --haddock-arguments="--odir=docs" --test-arguments='--color'
 
 deploy:
   provider: pages
