@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0a4f7ca1bff1727da685063eff06cdbb7672610a06ea66f02d7c6da0b17cdade
+-- hash: 3bc53b245333266893a55f2dfb7e6f04c4cfd869efef6254d0ad772550e2d1a5
 
 name:           hdsk
 version:        0.1.0.0
@@ -41,6 +41,7 @@ library
       Hdsk.Cluster.KMeans
       Hdsk.Description
       Hdsk.Metrics
+      Hdsk.Numerical
       Hdsk.Bayesian.NaiveBayes
       Hdsk.Bayesian.Bins
   other-modules:
@@ -67,6 +68,7 @@ test-suite spec
       Hdsk.Cluster.KMeansSpec
       Hdsk.DescriptionSpec
       Hdsk.MetricsSpec
+      Hdsk.NumericalSpec
       Hdsk.Util
       Paths_hdsk
   default-language: Haskell2010

@@ -27,6 +27,7 @@ library:
     - Hdsk.Cluster.KMeans
     - Hdsk.Description
     - Hdsk.Metrics
+    - Hdsk.Numerical
     - Hdsk.Bayesian.NaiveBayes
     - Hdsk.Bayesian.Bins
   ghc-options:
