@@ -8,22 +8,31 @@ module Hdsk.Cluster.KMeansSpec (spec) where
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (property)
 
+import Hdsk.Util (shouldLieBetween)
+
 import Hdsk.Cluster.KMeans
 
 spec :: Spec
 spec = do
 
   let euclidean = minkowski (2 :: Double)
+      center    = meanPoint
+      dat       = [[1, 0], [0, 1], [9, 8]]
+      cents     = [[0, 0], [10, 10]]
 
-  describe "kmeans" $ do
+  describe "cluster" $ do
 
     it "correctly groups close points" $
-      kmeans euclidean [[0, 0], [10, 10]]
-                       [[1, 0], [0, 1], [9, 8]]
-        `shouldBe` [0, 0, 1]
+      cluster euclidean cents dat `shouldBe` [0, 0, 1]
 
     it "should always give a cluster index" $ property
-      (\dat -> (-1) `notElem` kmeans euclidean [[0, 0], [10, 10]] dat)
+      (\dat' -> (-1) `notElem` cluster euclidean [[0, 0], [10, 10]] dat')
+
+
+  describe "meanSqDist" $
+    it ("averages the square distance from each " ++
+        "point to its cluster's computed centroid") $
+      shouldLieBetween 0.329 0.334 $ meanSqDist euclidean center dat [0, 0, 1]
 
 
   describe "centroids" $

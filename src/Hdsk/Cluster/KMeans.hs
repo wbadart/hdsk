@@ -12,8 +12,9 @@ clusters is known and fixed (it is a parameter to the algorithm).
 module Hdsk.Cluster.KMeans
 ( DistFunc
 , CenterFunc
-, kmeans
+, cluster
 , improve
+, meanSqDist
 , centroids
 , meanPoint
 , closestTo
@@ -41,8 +42,8 @@ type CenterFunc a = [[a]] -> [a]
 -- clusters, is implied by the length of the list of initial centroids.
 -- Returns a list of cluster labels (encoded as integers) which
 -- correspond 1-1 with the given list of data points.
-kmeans :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
-kmeans dist cs = map $ toIdx . flip (closestTo dist) cs
+cluster :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
+cluster dist cs = map $ toIdx . flip (closestTo dist) cs
   where toIdx c = fromMaybe (-1) $ elemIndex c cs
 
 -- | /O(inkD)/ where /n/ is the number of data points, /k/ is the number
@@ -52,14 +53,20 @@ kmeans dist cs = map $ toIdx . flip (closestTo dist) cs
 improve :: (Ord a, Floating a) =>
     DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> [[Int]]
 improve dist metric dat = iterate (mkClustering . mkCentroids)
-  where mkClustering = flip (kmeans dist) dat
+  where mkClustering = flip (cluster dist) dat
         mkCentroids  = flip (centroids metric) dat
 
 -- | /O(???)/ Truncate a stream of clusterings when the change in some
 -- measure of quality /delta/ fails to improve by more than the
 -- parameter /eta/; ultimately returns the final clustering.
 -- terminate :: ???
--- terminate eta quality dat clusters = undefined
+
+-- | /O(nD)/ Calculate the mean squared distance from each point in a
+-- cluster to the centroid.
+meanSqDist :: Floating a =>
+    DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
+meanSqDist dist c dat cIdxs = mean $ zipWith (((**2) .) . dist) dat cents
+  where cents  = map (centroids c cIdxs dat !!) cIdxs
 
 -- | /O(nD)/ where /n/ is the number of data points and /D/ is the
 -- dimensionality of the data. Calculate the centroids of clusters
