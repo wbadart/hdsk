@@ -12,8 +12,7 @@ import Data.Matrix as M
 
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (
-  Gen, property,
-  choose, elements, forAll, listOf, listOf1, shuffle)
+  Gen, property, elements, forAll, listOf, listOf1, shuffle)
 
 import Hdsk.Util (
   doubles, ints,
@@ -88,8 +87,8 @@ spec = do
                             (precision classes "cat" ["cat"] ["dog"])
 
       it "is always in the range [0, 1]" $ property $
-        forAll genCM (\ ~(cm, i) ->
-          tp cm i + fp cm i == 0 || between (precisionCM cm i) 0 1)
+        forAll genCM (\ ~(cm', i) ->
+          tp cm' i + fp cm' i == 0 || between (precisionCM cm' i) 0 1)
 
 
     describe "recall" $ do
@@ -102,8 +101,8 @@ spec = do
                             (recall classes "cat" ["dog"] ["cat"])
 
       it "is always in the range [0, 1]" $ property $
-        forAll genCM (\ ~(cm, i) ->
-          tp cm i + fn cm i == 0 || between (recallCM cm i) 0 1)
+        forAll genCM (\ ~(cm', i) ->
+          tp cm' i + fn cm' i == 0 || between (recallCM cm' i) 0 1)
 
 
     describe "specificity" $ do
@@ -116,8 +115,8 @@ spec = do
                           (specificity classes "cat" ["cat"] ["cat"])
 
       it "is always in the range [0, 1]" $ property $
-        forAll genCM (\ ~(cm, i) ->
-          tn cm i + fp cm i == 0 || between (specificityCM cm i) 0 1)
+        forAll genCM (\ ~(cm', i) ->
+          tn cm' i + fp cm' i == 0 || between (specificityCM cm' i) 0 1)
 
 
     describe "f1" $ do
@@ -132,17 +131,17 @@ spec = do
         shouldBeUndefined $ evaluate (f1 classes "cat" ["dog"] ["dog"])
 
       it "is always in the range [0, 1]" $ property $
-        forAll genCM (\ ~(cm, i) ->
-          tp cm i + fp cm i + fn cm i == 0 || between (f1CM cm i) 0 1)
+        forAll genCM (\ ~(cm', i) ->
+          tp cm' i + fp cm' i + fn cm' i == 0 || between (f1CM cm' i) 0 1)
 
       it "is always between precision and recall" $ property $
-        forAll genCM (\ ~(cm, i) ->
-          let p = precisionCM cm i
-              r = recallCM cm i
+        forAll genCM (\ ~(cm', i) ->
+          let p = precisionCM cm' i
+              r = recallCM cm' i
               left = min p r
               right = max p r
-          in tp cm i + fp cm i + fn cm i == 0
-          || between (f1CM cm i) left right)
+          in tp cm' i + fp cm' i + fn cm' i == 0
+          || between (f1CM cm' i) left right)
 
 
   describe "regression metrics" $ do
@@ -226,16 +225,11 @@ genCM = do
       i  = fromMaybe (-1) (elemIndex c cs) + 1
   return (cm, i)
 
-genReg :: Gen ([Double], [Double])
-genReg = do
-  yt <- listOf doubles
-  yp <- shuffle yt
-  return (yt, yp)
-
 genReg1 :: Gen ([Double], [Double])
 genReg1 = do
   yt <- listOf1 doubles
   yp <- shuffle yt
   return (yt, yp)
 
+between :: Ord a => a -> a -> a -> Bool
 between x i j = x >= i && x <= j

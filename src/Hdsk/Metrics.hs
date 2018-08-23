@@ -25,22 +25,14 @@ module Hdsk.Metrics
 , Zippable
 ) where
 
-import Control.Monad (foldM)
-import Control.Monad.ST (ST)
 import Data.Matrix (Matrix)
 import Data.Maybe (fromMaybe)
 import Data.Vector (Vector)
-import qualified Data.HashTable.ST.Cuckoo as H
 import qualified Data.List as L
 import qualified Data.Matrix as M
 import qualified Data.Vector as V
 
 import Hdsk.Description (mean, var)
-
-type HashTable s k v = H.HashTable s k v
-
-
--- ===== ACCURACY ===== --
 
 -- | /O(n)/ Given the ground truth @yTrue@ and predictions @yPred@,
 -- the expression @accuracy c yTrue yPred@ reports the accuracy of the
@@ -54,12 +46,8 @@ accuracy = ((accuracyCM .) .) . confusionMatrix
 -- from a confusion matrix, rather than a list of truths and
 -- predictions.
 accuracyCM :: Fractional a => Matrix Int -> a
--- accuracyCM = checkNotEmpty (\cm _ -> M.trace cm `divInt` sum cm)
 accuracyCM cm | sum cm == 0 = 0
               | otherwise   = M.trace cm `divInt` sum cm
-
-
--- ===== PRECISION ===== --
 
 -- | /O(n)/ Compute the precision (positive predictive value) of a list
 -- of predictions, given the class list, target class label,
@@ -92,9 +80,6 @@ precisionCM :: Fractional a => Matrix Int -> Int -> a
 precisionCM cm i | tp cm i + fp cm i == (0::Int) = undefined
                  | otherwise = tp cm i / (tp cm i + fp cm i)
 
-
--- ===== RECALL ===== --
-
 -- | /O(n)/ Compute the recall (sensitivity, true positive/ hit rate) of a
 -- list of predictions, given ground truth, class list, and target class
 -- label. See @precision@ for discussion of arguments.
@@ -113,9 +98,6 @@ recallCM :: Fractional a => Matrix Int -> Int -> a
 recallCM cm i | tp cm i + fn cm i == (0::Int) = undefined
               | otherwise = tp cm i / (tp cm i + fn cm i)
 
-
--- ===== SPECIFICITY ===== --
-
 -- | /O(n)/ Compute the specificity (true negative rate) of the
 -- predictions given a list of class labels, a target class, and ground
 -- truth. /TN \/ (FP + TN)/, the proportion of negative objects
@@ -133,9 +115,6 @@ specificityCM :: Fractional a => Matrix Int -> Int -> a
 specificityCM cm i | fp cm i + tn cm i == (0::Int) = undefined
                    | otherwise = tn cm i / (fp cm i + tn cm i)
 
-
--- ===== F!-SCORE ===== --
-
 -- | /O(n)/ Compute the balanced f1-score of the model for a given
 -- class.
 f1 :: (Zippable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
@@ -147,45 +126,31 @@ f1CM :: Fractional a => Matrix Int -> Int -> a
 f1CM cm i | tp cm i + fp cm i + fn cm i == (0::Int) = undefined
           | otherwise = 2 * tp cm i / (2 * tp cm i + fp cm i + fn cm i)
 
-
-
 -- | /O(C^2 + n)/ where /C/ is the number of classes and /n/ the number
--- of predictions. In general, /n >> C/.
---
--- Generates the confusion matrix for the predictions of an
--- N-class predictor. The result will be a 1-indexed NxN matrix where
--- rows represent the predicted class and columns the actual class.
--- Classes are encoded as indices, where the index of a class within the
--- matrix corresponds to its index within the set of classes.
+-- of predictions. In general, /n >> C/. Generates the confusion matrix
+-- for the predictions of an N-class predictor. The result will be a
+-- 1-indexed NxN matrix where rows represent the predicted class and
+-- columns the actual class. Classes are encoded as indices, where the
+-- index of a class within the matrix corresponds to its index within
+-- the set of classes.
 confusionMatrix :: (Zippable z, Eq a) => [a] -> z a -> z a -> Matrix Int
 confusionMatrix classes yTrue yPred =
     foldr hit (M.zero n n) $ Hdsk.Metrics.zip yTrue yPred
   where n = length classes
+        getIdx e = fromMaybe 0 (L.elemIndex e classes) + 1
         hit (yt, yp) cm = let old = cm M.! (predIdx, trueIdx)
-                              -- matrices are 1-indexed, so add 1
-                              predIdx = getIdx yp classes + 1
-                              trueIdx = getIdx yt classes + 1
+                              predIdx = getIdx yp; trueIdx = getIdx yt
                           in M.setElem (old + 1) (predIdx, trueIdx) cm
-        getIdx e xs = fromMaybe 0 $ L.elemIndex e xs
-
--- confusionHash :: Zippable z =>
---     z a -> z a -> ST s (HashTable s k (HashTable s k Int))
--- confusionHash = (foldM hit H.new .) . Hdsk.Metrics.zip
---   where hit ht (yt, yp) = ht
 
 -- | Class of types which support the zip and zipWith operations.
 class Foldable z => Zippable z where
-  zip     :: z a -> z b -> z (a, b)
-  zipWith :: (a -> b -> c) -> z a -> z b -> z c
+  zip :: z a -> z b -> z (a, b)
 
 instance Zippable Vector where
-  zip     = V.zip
-  zipWith = V.zipWith
+  zip = V.zip
 
 instance Zippable [] where
-  zip     = L.zip
-  zipWith = L.zipWith
-
+  zip = L.zip
 
 -- | /O(1)/ Count the true positives for a class in a given confusion
 -- matrix.
@@ -220,17 +185,14 @@ tn cm i = fromIntegral $
 meanSqError :: Floating a => [a] -> [a] -> a
 meanSqError = mkMeanErrorFunc (**2)
 
-
 -- | /O(n)/ Find the mean absolute error of the regression. The
 -- absolute error of an estimate is the absolute value of its difference
 -- with the corresponding observation.
 meanAbsError :: Fractional a => [a] -> [a] -> a
 meanAbsError = mkMeanErrorFunc abs
 
-
 mkMeanErrorFunc :: Fractional a => (a -> a) -> [a] -> [a] -> a
 mkMeanErrorFunc f = ((mean . map f) .) . L.zipWith (-)
-
 
 -- | /O(n)/ Find the explained variance of a regression. Explained
 -- variance measures the proportion of the observations is accounted for
@@ -239,7 +201,6 @@ explainedVariance :: (Eq a, Floating a) => [a] -> [a] -> a
 explainedVariance yObs yEst
     | var yObs == 0 = 1
     | otherwise     = 1 - var (residuals yObs yEst) / var yObs
-
 
 -- | /O(n)/ Find the coefficient of determination (R^2 value) of a
 -- regression. Aka goodness of fit.
@@ -267,4 +228,4 @@ mkCMFunc f classes c yTrue yPred =
   where cm = confusionMatrix classes yTrue yPred
 
 residuals :: Num a => [a] -> [a] -> [a]
-residuals = L.zipWith (-)
+residuals = zipWith (-)
