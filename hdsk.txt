@@ -192,13 +192,12 @@ f1 :: (Zippable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
 f1CM :: Fractional a => Matrix Int -> Int -> a
 
 -- | <i>O(C^2 + n)</i> where <i>C</i> is the number of classes and <i>n</i>
---   the number of predictions. In general, <i>n &gt;&gt; C</i>.
---   
---   Generates the confusion matrix for the predictions of an N-class
---   predictor. The result will be a 1-indexed NxN matrix where rows
---   represent the predicted class and columns the actual class. Classes
---   are encoded as indices, where the index of a class within the matrix
---   corresponds to its index within the set of classes.
+--   the number of predictions. In general, <i>n &gt;&gt; C</i>. Generates
+--   the confusion matrix for the predictions of an N-class predictor. The
+--   result will be a 1-indexed NxN matrix where rows represent the
+--   predicted class and columns the actual class. Classes are encoded as
+--   indices, where the index of a class within the matrix corresponds to
+--   its index within the set of classes.
 confusionMatrix :: (Zippable z, Eq a) => [a] -> z a -> z a -> Matrix Int
 
 -- | <i>O(1)</i> Count the true positives for a class in a given confusion
