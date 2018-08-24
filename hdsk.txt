@@ -242,6 +242,22 @@ instance Hdsk.Metrics.Zippable Data.Vector.Vector
 instance Hdsk.Metrics.Zippable []
 
 
+-- | This module implements the K Nearest Neighbors classifier, which finds
+--   the k tuples "closest" to the unobserved instance and combines their
+--   labels via some voting/ consensus metric to produce a prediction.
+module Hdsk.NearestNeighbors
+
+-- | <i>O(nD log k)</i> where <i>D</i> is the cost of the distance
+--   function. Select the <tt>k</tt> nearest training instances to the
+--   argument tuple, according to the given distance metric (greater value
+--   means more dissimilar).
+knn :: (tup -> tup -> Double) -> Int -> [tup] -> tup -> [tup]
+
+-- | <i>O(k^2)</i> Report the most frequent label from a list of data
+--   instances.
+majorityLabel :: Eq label => (tup -> label) -> [tup] -> label
+
+
 -- | This module contains functions which support efficient numerical
 --   methods, e.g. approximating derivatives.
 module Hdsk.Numerical
