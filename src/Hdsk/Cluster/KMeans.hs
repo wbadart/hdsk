@@ -57,12 +57,13 @@ kmedoids = kclusterer 0.01 distEuclidean (medoid distEuclidean)
 -- | Convenience function for creating clustering function. For
 -- instance, @kmeans@, as defined in this module, is a @kclusterer@ with
 -- euclidean distance function, mean center measure, and /eta = 0.01/.
-kclusterer :: Double              -- ^ Minimum improvement
-           -> DistFunc Double     -- ^ Distance metric between points
-           -> CenterFunc Double   -- ^ Measure of center of cluster
-           -> Int                 -- ^ The parameter /k/
-           -> [[Double]]          -- ^ The list of data points
-           -> [Int]               -- ^ Final clustering
+kclusterer :: Eq tup
+           => Double                 -- ^ Minimum improvement /eta/
+           -> (tup -> tup -> Double) -- ^ Distance metric between points
+           -> ([tup] -> tup)         -- ^ Measure of center of cluster
+           -> Int                    -- ^ The parameter /k/
+           -> [tup]                  -- ^ The list of data points
+           -> [Int]                  -- ^ Final clustering
 kclusterer eta dist center k dat = terminate eta err
                                  $ improve dist center dat initial
   where initial = take (length dat) $ cycle [0..k-1]
@@ -73,8 +74,8 @@ kclusterer eta dist center k dat = terminate eta err
 -- of clusters, /D/ is the dimensionality of the data, and /i/ is the
 -- number of iterations. Improve the quality of the clustering.
 -- Generates an infinite list of clusterings.
-improve :: (Ord a, Floating a) =>
-    DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> [[Int]]
+improve :: (Eq tup, Ord d) =>
+    (tup -> tup -> d) -> ([tup] -> tup) -> [tup] -> [Int] -> [[Int]]
 improve dist metric dat = iterate (mkClustering . mkCentroids)
   where mkClustering = flip (cluster dist) dat
         mkCentroids  = flip (midpoints metric) dat
@@ -85,21 +86,23 @@ improve dist metric dat = iterate (mkClustering . mkCentroids)
 -- clusters, is implied by the length of the list of initial centroids.
 -- Returns a list of cluster labels (encoded as integers) which
 -- correspond 1-1 with the given list of data points.
-cluster :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
+cluster :: (Eq tup, Ord d) => (tup -> tup -> d) -> [tup] -> [tup] -> [Int]
 cluster dist cs = map $ toIdx . flip (closestTo dist) cs
   where toIdx c = fromMaybe (-1) $ elemIndex c cs
 
 -- | /O(nD)/ Calculate the mean squared distance from each point in a
 -- cluster to the centroid.
-meanSqDist :: Floating a =>
-    DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
+-- meanSqDist :: Floating a =>
+--     DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
+meanSqDist :: (Ord d, Floating d) =>
+    (tup -> tup -> d) -> ([tup] -> tup) -> [tup] -> [Int] -> d
 meanSqDist dist c dat cIdxs = mean $ zipWith (((**2) .) . dist) dat cents
   where cents  = map (midpoints c cIdxs dat !!) cIdxs
 
 -- | /O(nD)/ where /n/ is the number of data points and /D/ is the
 -- dimensionality of the data. Calculate the midpoints of clusters
 -- according to a metric (@centroid@, for instance).
-midpoints :: Floating a => CenterFunc a -> [Int] -> [[a]]-> [[a]]
+midpoints :: ([tup] -> tup) -> [Int] -> [tup]-> [tup]
 midpoints center clusters =
     mkPts . V.accum (flip (:)) initial . zip clusters
   where initial = V.generate (maximum clusters + 1) $ const []
@@ -108,11 +111,11 @@ midpoints center clusters =
 -- | /O(nD)/ where /n/ is the number of points and /D/ is the
 -- dimensionality of each point. Compute the mean of a list of
 -- D-dimensional points.
-centroid :: Fractional a => CenterFunc a
+centroid :: Fractional a => [[a]] -> [a]
 centroid = map mean . transpose
 
 -- | /O(n^2)/ Compute the medoid of a list of points.
-medoid :: Fractional a => DistFunc a -> CenterFunc a
+medoid :: (Ord d, Fractional d) => (tup -> tup -> d) -> [tup] -> tup
 medoid dist xs = minimumBy (compare `on` avgDistToOthers) xs
   where avgDistToOthers x = mean $ map (dist x) xs
 
@@ -123,7 +126,7 @@ medoid dist xs = minimumBy (compare `on` avgDistToOthers) xs
 --
 -- >>> closestTo (\x y -> abs $ sum (zipWith (-) x y)) [0] [[1], [2]]
 -- >>> [1.0]
-closestTo :: (Ord a, Floating a) => DistFunc a -> [a] -> [[a]] -> [a]
+closestTo :: Ord d => (tup -> tup -> d) -> tup -> [tup] -> tup
 closestTo dist x = minimumBy (compare `on` dist x)
 
 -- | /O(D)/ where /D/ is the dimensionality of the vectors. General
