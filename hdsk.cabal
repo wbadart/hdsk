@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3bc53b245333266893a55f2dfb7e6f04c4cfd869efef6254d0ad772550e2d1a5
+-- hash: 17176e54f57e1b5106a3c2a9eaf77107059d484f1c205a77edbc7efa14fe4ee6
 
 name:           hdsk
 version:        0.1.0.0
@@ -41,6 +41,7 @@ library
       Hdsk.Cluster.KMeans
       Hdsk.Description
       Hdsk.Metrics
+      Hdsk.NearestNeighbors
       Hdsk.Numerical
       Hdsk.Bayesian.NaiveBayes
       Hdsk.Bayesian.Bins
@@ -68,6 +69,7 @@ test-suite spec
       Hdsk.Cluster.KMeansSpec
       Hdsk.DescriptionSpec
       Hdsk.MetricsSpec
+      Hdsk.NearestNeighborsSpec
       Hdsk.NumericalSpec
       Hdsk.Util
       Paths_hdsk
