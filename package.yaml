@@ -20,6 +20,7 @@ dependencies:
   - containers < 0.6
   - matrix >= 0.3
   - hashtables >= 1.2
+  - heap >= 1.0.4 && < 2
 
 library:
   source-dirs: src
