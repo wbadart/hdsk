@@ -10,11 +10,10 @@ import qualified Data.Vector as V
 
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (
-  Gen, arbitrary, property,
-  choose, forAll, listOf1, orderedList, shuffle, vector)
+  property, choose, forAll, listOf1, orderedList, shuffle, vector)
 
 import Hdsk.Util (
-  doubles, shouldLieBetween, shouldBeUndefined, shouldBeErrorEmpty)
+  doubles, shouldLieBetween, shouldBeErrorEmpty)
 import Hdsk.Description
 
 spec :: Spec
