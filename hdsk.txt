@@ -295,7 +295,7 @@ kmedoids :: Int -> [[Double]] -> [Int]
 --   <tt>kmeans</tt>, as defined in this module, is a <tt>kclusterer</tt>
 --   with euclidean distance function, mean center measure, and <i>eta =
 --   0.01</i>.
-kclusterer :: Double -> DistFunc Double -> CenterFunc Double -> Int -> [[Double]] -> [Int]
+kclusterer :: Eq tup => Double -> (tup -> tup -> Double) -> ([tup] -> tup) -> Int -> [tup] -> [Int]
 
 -- | <i>O(nkD)</i> where <i>n</i> is the number of data points, <i>k</i> is
 --   the number of clusters, and <i>D</i> is the dimensionality of the
@@ -303,30 +303,30 @@ kclusterer :: Double -> DistFunc Double -> CenterFunc Double -> Int -> [[Double]
 --   <i>k</i>, number of clusters, is implied by the length of the list of
 --   initial centroids. Returns a list of cluster labels (encoded as
 --   integers) which correspond 1-1 with the given list of data points.
-cluster :: (Ord a, Floating a) => DistFunc a -> [[a]] -> [[a]] -> [Int]
+cluster :: (Eq tup, Ord d) => (tup -> tup -> d) -> [tup] -> [tup] -> [Int]
 
 -- | <i>O(inkD)</i> where <i>n</i> is the number of data points, <i>k</i>
 --   is the number of clusters, <i>D</i> is the dimensionality of the data,
 --   and <i>i</i> is the number of iterations. Improve the quality of the
 --   clustering. Generates an infinite list of clusterings.
-improve :: (Ord a, Floating a) => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> [[Int]]
+improve :: (Eq tup, Ord d) => (tup -> tup -> d) -> ([tup] -> tup) -> [tup] -> [Int] -> [[Int]]
 
 -- | <i>O(nD)</i> Calculate the mean squared distance from each point in a
 --   cluster to the centroid.
-meanSqDist :: Floating a => DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
+meanSqDist :: (Ord d, Floating d) => (tup -> tup -> d) -> ([tup] -> tup) -> [tup] -> [Int] -> d
 
 -- | <i>O(nD)</i> where <i>n</i> is the number of data points and <i>D</i>
 --   is the dimensionality of the data. Calculate the midpoints of clusters
 --   according to a metric (<tt>centroid</tt>, for instance).
-midpoints :: Floating a => CenterFunc a -> [Int] -> [[a]] -> [[a]]
+midpoints :: ([tup] -> tup) -> [Int] -> [tup] -> [tup]
 
 -- | <i>O(nD)</i> where <i>n</i> is the number of points and <i>D</i> is
 --   the dimensionality of each point. Compute the mean of a list of
 --   D-dimensional points.
-centroid :: Fractional a => CenterFunc a
+centroid :: Fractional a => [[a]] -> [a]
 
 -- | <i>O(n^2)</i> Compute the medoid of a list of points.
-medoid :: Fractional a => DistFunc a -> CenterFunc a
+medoid :: (Ord d, Fractional d) => (tup -> tup -> d) -> [tup] -> tup
 
 -- | <i>O(kD)</i> where <i>k</i> is the number of points to consider and
 --   <i>D</i> is the dimensionality of the data. Select from a list of
@@ -338,7 +338,7 @@ medoid :: Fractional a => DistFunc a -> CenterFunc a
 --   
 --   &gt;&gt;&gt; [1.0]
 --   </pre>
-closestTo :: (Ord a, Floating a) => DistFunc a -> [a] -> [[a]] -> [a]
+closestTo :: Ord d => (tup -> tup -> d) -> tup -> [tup] -> tup
 
 -- | <i>O(D)</i> where <i>D</i> is the dimensionality of the vectors.
 --   General distance metric between two vectors/ data points in the same
