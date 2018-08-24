@@ -14,12 +14,21 @@ import Hdsk.NearestNeighbors
 spec :: Spec
 spec = do
 
-  describe "knnclassifier" $
+  describe "knnclassifier" $ do
     it "performs the full classification" $ do
       let dist x y = abs $ fst x - fst y
           vote = majorityLabel snd
           dat = [(0, "yes"), (1, "yes"), (0.5, "no"), (9, "no")]
       knnclassifier vote dist 3 dat (0, "unk") `shouldBe` "yes"
+
+    it "works on the iris toy set" $ do
+      let classify = knnclassifier (majorityLabel last) dist 5
+          dist x y = distEuclidean (init x) (init y)
+          getdat fname =
+            map (read::String->[Double]) . lines <$> readFile fname
+      train <- getdat "util/irisTrain.csv"
+      test  <- getdat "util/irisTest.csv"
+      map (classify train) test `shouldBe` map last test
 
   describe "knn" $ do
     it ("selects the single closest tuple to the target instance " ++
