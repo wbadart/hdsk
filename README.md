@@ -48,7 +48,7 @@ of the repository.
 
 ## Usage
 
-Please see [hdsk.wbadart.info](https://hdsk.wbadart.info) for library documentation.
+Please see [wbadart.info/hdsk](https://wbadart.info/hdsk) for library documentation.
 Further project info, such as planned features, is made available on the
 [wiki](https://github.com/wbadart/hdsk/wiki).
 
