@@ -247,11 +247,14 @@ instance Hdsk.Metrics.Zippable []
 --   labels via some voting/ consensus metric to produce a prediction.
 module Hdsk.NearestNeighbors
 
+-- | Assemble a KNN classifier.
+knnclassifier :: Ord d => ([tup] -> label) -> (tup -> tup -> d) -> Int -> [tup] -> tup -> label
+
 -- | <i>O(nD log k)</i> where <i>D</i> is the cost of the distance
 --   function. Select the <tt>k</tt> nearest training instances to the
 --   argument tuple, according to the given distance metric (greater value
 --   means more dissimilar).
-knn :: (tup -> tup -> Double) -> Int -> [tup] -> tup -> [tup]
+knn :: Ord d => (tup -> tup -> d) -> Int -> [tup] -> tup -> [tup]
 
 -- | <i>O(k^2)</i> Report the most frequent label from a list of data
 --   instances.
