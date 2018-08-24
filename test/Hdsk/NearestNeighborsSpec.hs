@@ -14,6 +14,13 @@ import Hdsk.NearestNeighbors
 spec :: Spec
 spec = do
 
+  describe "knnclassifier" $
+    it "performs the full classification" $ do
+      let dist x y = abs $ fst x - fst y
+          vote = majorityLabel snd
+          dat = [(0, "yes"), (1, "yes"), (0.5, "no"), (9, "no")]
+      knnclassifier vote dist 3 dat (0, "unk") `shouldBe` "yes"
+
   describe "knn" $ do
     it ("selects the single closest tuple to the target instance " ++
         "according to the distance metric with k=1") $
