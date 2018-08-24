@@ -14,7 +14,9 @@ module Hdsk.NearestNeighbors
 , majorityLabel
 ) where
 
+import Data.Function (on)
 import Data.Heap (MaxPrioHeap)
+import Data.List (maximumBy)
 import Data.Maybe (fromMaybe)
 import qualified Data.Heap as H
 
@@ -33,7 +35,9 @@ knn dist k dat x = map snd (H.toAscList $ foldr nearest H.empty dat)
         getTail = fromMaybe H.empty . H.viewTail
         getMax = maybe (1/0) fst . H.viewHead
 
--- | /O(???)/ Report the most frequent label from a list of data
+-- | /O(k^2)/ Report the most frequent label from a list of data
 -- instances.
-majorityLabel :: (tup -> label) -> [tup] -> label
-majorityLabel _ _ = undefined
+majorityLabel :: Eq label => (tup -> label) -> [tup] -> label
+majorityLabel getLabel dat = maximumBy (compare `on` count) labels
+  where count x = length $ filter (==x) labels
+        labels = map getLabel dat
