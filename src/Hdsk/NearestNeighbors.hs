@@ -1,4 +1,4 @@
-{-|
+{- |
 Module:       Hdsk.NearestNeighbors
 Description:  Classify unobserved data based on similar instances
 Copyright:    (c) Will Badart, 2018
@@ -20,20 +20,20 @@ import qualified Data.Heap as H
 
 import Hdsk.Cluster.KMeans (DistFunc)
 
--- | /O(nD)/ where /D/ is the cost of the distance function. Select the
--- @k@ nearest training instances to the argument tuple, according to
--- the given distance metric (greater value means more dissimilar).
-knn :: Fractional a =>
-    DistFunc a -> Int -> [[a]] -> [a] -> MaxPrioHeap Double [a]
-knn dist k dat x = foldr nearest (H.empty::MaxPrioHeap Double a) dat
-  where nearest x' h =
-          if dist x x' < getMax h
-            then H.insert (dist x x', x')
-               (if H.size h < k
-                  then h
-                  else fromMaybe undefined (H.viewTail h))
-            else h
-        getMax = fst . fromMaybe (1/0) . H.viewHead
+-- | /O(nD log k)/ where /D/ is the cost of the distance function.
+-- Select the @k@ nearest training instances to the argument tuple,
+-- according to the given distance metric (greater value means more
+-- dissimilar).
+knn :: Fractional a => DistFunc a -> Int -> [[a]] -> [a] -> [[a]]
+knn dist k dat x = map snd (H.toAscList $ foldr nearest H.empty dat)
+  where nearest x' h
+          | H.size h < k = H.insert (d, x') h
+          | d < getMax h = H.insert (d, x') (getTail h)
+          | otherwise    = h
+          where d = dist x x'
+        getTail :: MaxPrioHeap Double [a] -> MaxPrioHeap Double [a]
+        getTail = fromMaybe H.empty . H.viewTail
+        getMax = maybe (1/0) fst . H.viewHead
 
 -- | /O(???)/ Report the most frequent label from a list of data
 -- instances.

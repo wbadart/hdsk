@@ -15,9 +15,9 @@ spec :: Spec
 spec = do
 
   describe "knn" $ do
-    it ("selects the single closest tuple to the target instance "
+    it ("selects the single closest tuple to the target instance " ++
         "according to the distance metric with k=1") $
-      knn distEuclidean 1 [[0, 0], [10, 10]] [1, 1] `shouldBe` [0, 0]
+      knn distEuclidean 1 [[0, 0], [10, 10]] [1, 1] `shouldBe` [[0, 0]]
 
     it "selects the k closest tuples with larger k" $
       knn distEuclidean 3
