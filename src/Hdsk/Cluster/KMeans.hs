@@ -92,8 +92,6 @@ cluster dist cs = map $ toIdx . flip (closestTo dist) cs
 
 -- | /O(nD)/ Calculate the mean squared distance from each point in a
 -- cluster to the centroid.
--- meanSqDist :: Floating a =>
---     DistFunc a -> CenterFunc a -> [[a]] -> [Int] -> Double
 meanSqDist :: (Ord d, Floating d) =>
     (tup -> tup -> d) -> ([tup] -> tup) -> [tup] -> [Int] -> d
 meanSqDist dist c dat cIdxs = mean $ zipWith (((**2) .) . dist) dat cents
