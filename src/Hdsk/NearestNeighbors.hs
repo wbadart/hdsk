@@ -26,10 +26,9 @@ import qualified Data.Heap as H
 -- dissimilar).
 knn :: (tup -> tup -> Double) -> Int -> [tup] -> tup -> [tup]
 knn dist k dat x = map snd (H.toAscList $ foldr nearest H.empty dat)
-  where nearest x' h
-          | H.size h < k = H.insert (d, x') h
-          | d < getMax h = H.insert (d, x') (getTail h)
-          | otherwise    = h
+  where nearest x' h | H.size h < k = H.insert (d, x') h
+                     | d < getMax h = H.insert (d, x') (getTail h)
+                     | otherwise    = h
           where d = dist x x'
         getTail :: MaxPrioHeap Double tup -> MaxPrioHeap Double tup
         getTail = fromMaybe H.empty . H.viewTail
