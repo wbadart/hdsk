@@ -20,7 +20,7 @@ def main():
 
     X, y = make_classification(int(args.SIZE / TEST_PROPORTION))
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=TEST_PROPORTION)
+        X, y, test_size=TEST_PROPORTION, random_state=0xdecafbad)
 
     model = DecisionTreeClassifier(max_depth=6).fit(X_train, y_train)
     y_pred = model.predict(X_test)
