@@ -35,5 +35,5 @@ knn dist k dat x = map snd (H.toAscList $ foldr nearest H.empty dat)
 
 -- | /O(???)/ Report the most frequent label from a list of data
 -- instances.
-majorityLabel :: (t -> l) -> [t] -> l
+majorityLabel :: (tup -> label) -> [tup] -> label
 majorityLabel _ _ = undefined
