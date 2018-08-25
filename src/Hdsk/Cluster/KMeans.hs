@@ -59,7 +59,6 @@ kclusterer eta dist center k dat = terminate eta err
   where initial = take (length dat) $ cycle [0..k-1]
         err     = meanSqDist dist center dat
 
-
 -- | /O(inkD)/ where /n/ is the number of data points, /k/ is the number
 -- of clusters, /D/ is the dimensionality of the data, and /i/ is the
 -- number of iterations. Improve the quality of the clustering.

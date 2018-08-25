@@ -31,7 +31,6 @@ mean :: (Foldable f, Fractional n) => f n -> n
 mean xs | null xs   = error "empty list"
         | otherwise = sum xs / fromIntegral (length xs)
 
-
 -- | /O(n)/ Computes the unbiased variance of a collection of numbers.
 var :: (Foldable f, Functor f, Floating n) => f n -> n
 var xs | null xs = error "empty list"
@@ -39,11 +38,9 @@ var xs | null xs = error "empty list"
        | otherwise = sum (fmap sqDiff xs) / fromIntegral (length xs - 1)
   where sqDiff x = (x - avg) ** 2; avg = mean xs
 
-
 -- | /O(n)/ Computes the standard deviation of a collection of numbers.
 std :: (Foldable f, Functor f, Floating n) => f n -> n
 std = sqrt . var
-
 
 -- | /O(n)/ Selects the element which is greater than @p@% of the rest.
 -- When the @p@-th percentile does not land directly on a whole index,
@@ -59,21 +56,17 @@ percentile p xs | null xs = error "empty list"
   where idx = p * fromIntegral (length xs) / 100 - 0.5
         k   = floor idx
 
-
 -- | /O(n)/ Finds the median element the collection.
 median :: (Selectable p, RealFrac n) => p n -> n
 median = percentile 50
-
 
 -- | /O(n)/ Finds the first quartile of a collection of numbers.
 q1 :: (Selectable p, RealFrac n) => p n -> n
 q1 = percentile 25
 
-
 -- | /O(n)/ Finds the third quartile of a collection of numbers.
 q3 :: (Selectable p, RealFrac n) => p n -> n
 q3 = percentile 75
-
 
 -- | /O(n)/ Inter-quartile range. The distance between the first and third
 -- quartiles.
@@ -86,7 +79,6 @@ iqr = (-) <$> q3 <*> q1
 whole :: RealFrac a => a -> Bool
 whole x = x == fromIntegral (floor x :: Int)
 
-
 -- | /O(n)/ Simple implementation of quickselct (aka Hoare's algorithm or
 -- k-rank). Selects the @k@-smallest element from the collection.
 select :: (Selectable p, Ord a) => Int -> p a -> a
@@ -98,14 +90,12 @@ select k xxs | null xxs     = error "empty list"
         len = length left
         x = Hdsk.Description.head xxs; xs = Hdsk.Description.tail xxs
 
-
 -- | Defines a container which is suitable for the k-rank/ select
 -- algorithm.
 class Foldable p => Selectable p where
   partition :: (a -> Bool) -> p a -> (p a, p a)
   head      :: p a -> a
   tail      :: p a -> p a
-
 
 instance Selectable Vector where
   partition = V.partition
