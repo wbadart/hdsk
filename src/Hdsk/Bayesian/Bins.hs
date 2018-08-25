@@ -1,4 +1,4 @@
-{-|
+{- |
 Module:       Hdsk.Bayesian.Bins
 Description:  Utilities for binning continuous data
 Copyright:    (c) Will Badart, 2018
@@ -10,14 +10,12 @@ module Hdsk.Bayesian.Bins
 , genIntervals
 ) where
 
-import Data.HashTable.ST.Cuckoo as H
 import Data.List (find)
 import Hdsk.Description (Selectable, percentile)
 
--- | /O(n k^2 n log n) where /k/ is # of bins./ Map each number in a
--- vector of continueous data to a bin number according to its percentile
--- (makes even-width bins). Bins are 0-indexed. Based on sample
--- quantiles.
+-- | /O(n)/ Map each number in a vector of continuous data to a bin
+-- number according to its percentile (makes even-width bins). Bins are
+-- 0-indexed.
 bin :: (Functor f, Selectable f) => [Double -> Bool] -> f Double -> f Int
 bin intervals = fmap idx
   where idx x = case find (($ x) . snd) (zip [0..] intervals) of
