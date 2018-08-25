@@ -1,11 +1,11 @@
 {- |
-Module:       Hdsk.Bayesian.Bins
+Module:       Hdsk.Bins
 Description:  Utilities for binning continuous data
 Copyright:    (c) Will Badart, 2018
 License:      BSD-3-Clause
 -}
 
-module Hdsk.Bayesian.Bins
+module Hdsk.Bins
 ( bin
 , genIntervals
 ) where

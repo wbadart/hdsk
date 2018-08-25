@@ -1,13 +1,13 @@
 {-|
-Module:       Hdsk.Bayesian.NaiveBayesSpec
+Module:       Hdsk.NaiveBayesSpec
 Description:  Unit tests for the Hdsk.Bayesian.NaiveBayes exports
 -}
 
-module Hdsk.Bayesian.NaiveBayesSpec (spec) where
+module Hdsk.NaiveBayesSpec (spec) where
 
 import Test.Hspec (Spec, describe, it, shouldBe)
 
-import Hdsk.Bayesian.NaiveBayes
+import Hdsk.NaiveBayes
 
 spec :: Spec
 spec =

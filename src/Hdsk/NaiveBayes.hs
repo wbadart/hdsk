@@ -1,5 +1,5 @@
 {-|
-Module:       Hdsk.Bayesian.NaiveBayes
+Module:       Hdsk.NaiveBayes
 Description:  Collection of bayesian methods
 Copyright:    (c) Will Badart, 2018
 License:      BSD-3-Clause
@@ -8,7 +8,7 @@ A simple implementation of a Naive Bayes classifier for purely categorical
 data.
 -}
 
-module Hdsk.Bayesian.NaiveBayes
+module Hdsk.NaiveBayes
 ( CPT, mkTables, classify, posterior
 , likelihood, labelCount, dataLength
 ) where

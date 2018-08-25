@@ -1,13 +1,13 @@
 {- |
-Module:       Hdsk.Bayesian.BinsSpec
+Module:       Hdsk.BinsSpec
 Description:  Unit tests of binning and histogram utilities
 -}
 
-module Hdsk.Bayesian.BinsSpec (spec) where
+module Hdsk.BinsSpec (spec) where
 
 import Test.Hspec (Spec, describe, it, shouldBe)
 
-import Hdsk.Bayesian.Bins
+import Hdsk.Bins
 
 spec :: Spec
 spec = do

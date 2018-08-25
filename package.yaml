@@ -25,13 +25,13 @@ dependencies:
 library:
   source-dirs: src
   exposed-modules:
+    - Hdsk.Bins
     - Hdsk.Cluster.KMeans
     - Hdsk.Description
     - Hdsk.Metrics
+    - Hdsk.NaiveBayes
     - Hdsk.NearestNeighbors
     - Hdsk.Numerical
-    - Hdsk.Bayesian.NaiveBayes
-    - Hdsk.Bayesian.Bins
   ghc-options:
     - -Wall
 
