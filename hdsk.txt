@@ -10,48 +10,6 @@
 @version 0.1.0.0
 
 
--- | A simple implementation of a Naive Bayes classifier for purely
---   categorical data.
-module Hdsk.Bayesian.NaiveBayes
-
--- | Type alias for the conditional probability table data structure. Maps
---   labels to lookup tables where lookup tables map from feature values to
---   the number of times that feature value was observed with the parent
---   label.
-type CPT = Map String (Map String Int)
-
--- | /O(n * k * (log l + log m)) where n is the number of data points, k is
---   the length of each data point, l is the number of labels, and m is the
---   gretest number of feature values for any feature./ Generate the
---   conditional probability tables over the dataset. Counts the occurences
---   of each feature value given a class. Maps from class label to a map
---   from feature value to count.
-mkTables :: [[String]] -> [CPT]
-
--- | /O(l k m) where l is the number of labels, k is the length of each
---   feature vector, and m is the number of feature values./ Given a list
---   of conditional probability tables and an unlabeled tuple, predicts the
---   label of the tuple.
-classify :: [CPT] -> [String] -> String
-
--- | /O(k m) where k is the length of the feature vector and m is the
---   number of feature values./ Given conditional probability tables, a
---   tuple, and a label calculate the posterior probability of the label
---   given that tuple. P(C|X)
-posterior :: [CPT] -> [String] -> String -> Double
-
--- | <i>O(m)</i> Given a class, feature value, and conditional probability
---   table, compute the likelihood of that configuration. P(x_i|c)
-likelihood :: String -> String -> CPT -> Double
-
--- | <i>O(m) where m is the number of feature values.</i> Computes the
---   frequency of the given label from the given conditional prob. table.
-labelCount :: Num n => CPT -> String -> n
-
--- | <i>O(l m)</i> Calculate the number of training instances from a CPT.
-dataLength :: Num n => CPT -> n
-
-
 -- | This module contains basic numerical descriptive statistics that are
 --   applicable to a vector of doubles.
 module Hdsk.Description
@@ -98,12 +56,11 @@ instance Hdsk.Description.Selectable Data.Sequence.Internal.Seq
 instance Hdsk.Description.Selectable []
 
 
-module Hdsk.Bayesian.Bins
+module Hdsk.Bins
 
--- | <i>O(n k^2 n log n) where </i>k<i> is # of bins.</i> Map each number
---   in a vector of continueous data to a bin number according to its
---   percentile (makes even-width bins). Bins are 0-indexed. Based on
---   sample quantiles.
+-- | <i>O(n)</i> Map each number in a vector of continuous data to a bin
+--   number according to its percentile (makes even-width bins). Bins are
+--   0-indexed.
 bin :: (Functor f, Selectable f) => [Double -> Bool] -> f Double -> f Int
 
 -- | <i>O(kn)</i> Generate the bounds of fixed width bins, encoded as
@@ -252,6 +209,48 @@ instance Hdsk.Metrics.Zippable Data.Vector.Vector
 instance Hdsk.Metrics.Zippable []
 
 
+-- | A simple implementation of a Naive Bayes classifier for purely
+--   categorical data.
+module Hdsk.NaiveBayes
+
+-- | Type alias for the conditional probability table data structure. Maps
+--   labels to lookup tables where lookup tables map from feature values to
+--   the number of times that feature value was observed with the parent
+--   label.
+type CPT = Map String (Map String Int)
+
+-- | /O(n * k * (log l + log m)) where n is the number of data points, k is
+--   the length of each data point, l is the number of labels, and m is the
+--   gretest number of feature values for any feature./ Generate the
+--   conditional probability tables over the dataset. Counts the occurences
+--   of each feature value given a class. Maps from class label to a map
+--   from feature value to count.
+mkTables :: [[String]] -> [CPT]
+
+-- | /O(l k m) where l is the number of labels, k is the length of each
+--   feature vector, and m is the number of feature values./ Given a list
+--   of conditional probability tables and an unlabeled tuple, predicts the
+--   label of the tuple.
+classify :: [CPT] -> [String] -> String
+
+-- | /O(k m) where k is the length of the feature vector and m is the
+--   number of feature values./ Given conditional probability tables, a
+--   tuple, and a label calculate the posterior probability of the label
+--   given that tuple. P(C|X)
+posterior :: [CPT] -> [String] -> String -> Double
+
+-- | <i>O(m)</i> Given a class, feature value, and conditional probability
+--   table, compute the likelihood of that configuration. P(x_i|c)
+likelihood :: String -> String -> CPT -> Double
+
+-- | <i>O(m) where m is the number of feature values.</i> Computes the
+--   frequency of the given label from the given conditional prob. table.
+labelCount :: Num n => CPT -> String -> n
+
+-- | <i>O(l m)</i> Calculate the number of training instances from a CPT.
+dataLength :: Num n => CPT -> n
+
+
 -- | This module implements the K Nearest Neighbors classifier, which finds
 --   the k tuples "closest" to the unobserved instance and combines their
 --   labels via some voting/ consensus metric to produce a prediction.
@@ -285,7 +284,7 @@ terminate :: Double -> (a -> Double) -> [a] -> a
 -- | This module provides an implementation of the k-means clustering
 --   algorithm. K-means is well suited to problems where the number of
 --   clusters is known and fixed (it is a parameter to the algorithm).
-module Hdsk.Cluster.KMeans
+module Hdsk.Cluster
 
 -- | <i>O(inkD)</i> Run the kmeans clustering algorithm over the given
 --   dataset. Returns a list of cluster labels which corresponds 1-1 with
