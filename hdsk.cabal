@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 44fe1734c745511710b46fd6b47f0e0024407b0188e207d8bdf9fc026070fa37
+-- hash: 955dd718afe8afe1d686c275e321306489c2d54ad081fde64c3d253255fea67b
 
 name:           hdsk
 version:        0.1.0.0
@@ -67,6 +67,7 @@ test-suite spec
     , matrix >=0.3
     , vector ==0.12.*
   other-modules:
+      Hdsk.Bayesian.BinsSpec
       Hdsk.Bayesian.NaiveBayesSpec
       Hdsk.Cluster.KMeansSpec
       Hdsk.DescriptionSpec

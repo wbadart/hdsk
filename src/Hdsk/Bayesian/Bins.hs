@@ -6,23 +6,33 @@ License:      BSD-3-Clause
 -}
 
 module Hdsk.Bayesian.Bins
-( -- bin
+( bin
+, genIntervals
 ) where
 
--- import Data.List (find)
--- import Data.Vector (Vector)
--- import Hdsk.Description (percentile)
+import Data.HashTable.ST.Cuckoo as H
+import Data.List (find)
+import Hdsk.Description (Selectable, percentile)
 
--- import qualified Data.Vector as V
+-- | /O(n k^2 n log n) where /k/ is # of bins./ Map each number in a
+-- vector of continueous data to a bin number according to its percentile
+-- (makes even-width bins). Bins are 0-indexed. Based on sample
+-- quantiles.
+bin :: (Functor f, Selectable f) => [Double -> Bool] -> f Double -> f Int
+bin intervals = fmap idx
+  where idx x = case find (($ x) . snd) (zip [0..] intervals) of
+                  Just (i, _) -> i
+                  Nothing     -> length intervals - 1
 
--- bin :: Int -> Vector Double -> Vector Int
--- -- ^ /O(n k^2 n log n) where k is # of bins./ Map each number in a vector
--- -- of continueous data to a bin number according to its percentile (makes
--- -- even-width bins).
--- bin k xs | V.null xs = V.empty
---          | otherwise = V.map idx xs
---   where idx x = case find (($ x) . snd) (zip [1..k] preds) of
---                   Just (i, _) -> i; Nothing -> k
---         preds = map
---           (\j y -> y <= percentile (100 * j / fromIntegral k) xs)
---           [1..fromIntegral k]
+-- | /O(kn)/ Generate the bounds of fixed width bins, encoded as
+-- predicates of sample quantiles.
+genIntervals :: Selectable f => Int -> f Double -> [Double -> Bool]
+genIntervals k dat = map (\j y -> y <= percentile (100 * j / k') dat) [1..k']
+  where k' = fromIntegral k
+
+-- | /O(???)/ Compute the frequency of fixed-width bins along the
+-- series.
+-- histFixed :: (Eq a, Ord a) => Int -> [a] -> [((a, a), Int)]
+-- histFixed = (count .) . bin
+--   where count = runST . foldr ct H.new
+--         ct x h = H.mutate h x (\v -> case v of Just v' -> v' + 1; Nothing -> 1)
