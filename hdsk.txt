@@ -10,9 +10,6 @@
 @version 0.1.0.0
 
 
-module Hdsk.Bayesian.Bins
-
-
 -- | A simple implementation of a Naive Bayes classifier for purely
 --   categorical data.
 module Hdsk.Bayesian.NaiveBayes
@@ -99,6 +96,19 @@ class Foldable p => Selectable p
 instance Hdsk.Description.Selectable Data.Vector.Vector
 instance Hdsk.Description.Selectable Data.Sequence.Internal.Seq
 instance Hdsk.Description.Selectable []
+
+
+module Hdsk.Bayesian.Bins
+
+-- | <i>O(n k^2 n log n) where </i>k<i> is # of bins.</i> Map each number
+--   in a vector of continueous data to a bin number according to its
+--   percentile (makes even-width bins). Bins are 0-indexed. Based on
+--   sample quantiles.
+bin :: (Functor f, Selectable f) => [Double -> Bool] -> f Double -> f Int
+
+-- | <i>O(kn)</i> Generate the bounds of fixed width bins, encoded as
+--   predicates of sample quantiles.
+genIntervals :: Selectable f => Int -> f Double -> [Double -> Bool]
 
 
 -- | A standard set of metrics for evaluating both classification and
@@ -276,14 +286,6 @@ terminate :: Double -> (a -> Double) -> [a] -> a
 --   algorithm. K-means is well suited to problems where the number of
 --   clusters is known and fixed (it is a parameter to the algorithm).
 module Hdsk.Cluster.KMeans
-
--- | A metric which rates, on a continuous scale, how far apart its two
---   arguments are.
-type DistFunc a = [a] -> [a] -> Double
-
--- | A metric which calculates the center of a list of points, e.g.
---   <tt>centroid</tt> or <i>medoid</i>.
-type CenterFunc a = [[a]] -> [a]
 
 -- | <i>O(inkD)</i> Run the kmeans clustering algorithm over the given
 --   dataset. Returns a list of cluster labels which corresponds 1-1 with
