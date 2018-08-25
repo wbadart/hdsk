@@ -10,9 +10,7 @@ clusters is known and fixed (it is a parameter to the algorithm).
 -}
 
 module Hdsk.Cluster.KMeans
-( DistFunc
-, CenterFunc
-, kmeans
+( kmeans
 , kmedoids
 , kclusterer
 , cluster
@@ -34,14 +32,6 @@ import qualified Data.Vector as V
 
 import Hdsk.Description (mean)
 import Hdsk.Numerical (terminate)
-
--- | A metric which rates, on a continuous scale, how far apart its two
--- arguments are.
-type DistFunc a = [a] -> [a] -> Double
-
--- | A metric which calculates the center of a list of points, e.g.
--- @centroid@ or /medoid/.
-type CenterFunc a = [[a]] -> [a]
 
 -- | /O(inkD)/ Run the kmeans clustering algorithm over the given
 -- dataset. Returns a list of cluster labels which corresponds 1-1 with
