@@ -26,7 +26,7 @@ library:
   source-dirs: src
   exposed-modules:
     - Hdsk.Bins
-    - Hdsk.Cluster.KMeans
+    - Hdsk.Cluster
     - Hdsk.Description
     - Hdsk.Metrics
     - Hdsk.NaiveBayes

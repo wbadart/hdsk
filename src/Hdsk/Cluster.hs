@@ -1,5 +1,5 @@
 {- |
-Module:       Hdsk.Cluster.KMeans
+Module:       Hdsk.Cluster
 Description:  Implementation of the k-means clustering algorithm
 Copyright:    (c) Will Badart, 2018
 License:      BSD-3-Clause
@@ -9,7 +9,7 @@ algorithm. K-means is well suited to problems where the number of
 clusters is known and fixed (it is a parameter to the algorithm).
 -}
 
-module Hdsk.Cluster.KMeans
+module Hdsk.Cluster
 ( kmeans
 , kmedoids
 , kclusterer

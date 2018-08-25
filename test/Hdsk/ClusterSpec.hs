@@ -1,16 +1,16 @@
 {-|
-Module:       Hdsk.Cluster.KMeansSpec
-Description:  Unit tests for the Hdsk.Cluster.KMeans exports
+Module:       Hdsk.ClusterSpec
+Description:  Unit tests for the Hdsk.Cluster exports
 -}
 
-module Hdsk.Cluster.KMeansSpec (spec) where
+module Hdsk.ClusterSpec (spec) where
 
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (property)
 
 import Hdsk.Util (shouldLieBetween)
 
-import Hdsk.Cluster.KMeans
+import Hdsk.Cluster
 
 spec :: Spec
 spec = do

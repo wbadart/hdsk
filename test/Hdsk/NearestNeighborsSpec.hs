@@ -8,7 +8,7 @@ module Hdsk.NearestNeighborsSpec (spec) where
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (Gen, elements, forAll, listOf, property, vectorOf)
 
-import Hdsk.Cluster.KMeans (distEuclidean)
+import Hdsk.Cluster (distEuclidean)
 import Hdsk.Util (doubles)
 
 import Hdsk.NearestNeighbors
