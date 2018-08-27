@@ -39,7 +39,7 @@ countHT :: (Foldable f, Eq k, Hashable k)
 countHT = foldr count' H.new
   where count' x ht = ht >>= (\h' -> H.mutate h' x
           (\case Just c  -> (Just (c + 1), h')
-                 Nothing -> (Just 1, h)))
+                 Nothing -> (Just 1, h')))
 
 -- | /O(n)/ Convenience function for getting the count of a single
 -- element from a container.
