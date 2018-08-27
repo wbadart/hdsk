@@ -8,6 +8,8 @@ This module contains several general utility functions used throughout
 the library. Exporting this because they may be helpful to users too.
 -}
 
+{-# LANGUAGE LambdaCase #-}
+
 module Hdsk.Util
 ( count
 , countHT
@@ -35,9 +37,9 @@ count = foldr (flip (M.insertWith (+)) 1) M.empty
 countHT :: (Foldable f, Eq k, Hashable k)
         => f k -> ST s (HashTable s k Int)
 countHT = foldr count' H.new
-  where count' x ht = ht >>= (\h' -> H.mutate h' x (plus1 h'))
-        plus1 h (Just c) = (Just (c + 1), h)
-        plus1 h Nothing  = (Just 1, h)
+  where count' x ht = ht >>= (\h' -> H.mutate h' x
+          (\case Just c  -> (Just (c + 1), h')
+                 Nothing -> (Just 1, h)))
 
 -- | /O(n)/ Convenience function for getting the count of a single
 -- element from a container.
