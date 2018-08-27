@@ -12,7 +12,7 @@ import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (
   property, choose, forAll, listOf1, orderedList, shuffle, vector)
 
-import Hdsk.Util (
+import Test.Util (
   doubles, shouldLieBetween, shouldBeErrorEmpty)
 import Hdsk.Description
 

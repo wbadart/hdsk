@@ -8,7 +8,7 @@ module Hdsk.ClusterSpec (spec) where
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (property)
 
-import Hdsk.Util (shouldLieBetween)
+import Test.Util (shouldLieBetween)
 
 import Hdsk.Cluster
 

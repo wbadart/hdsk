@@ -8,7 +8,7 @@ module Hdsk.NumericalSpec (spec) where
 import Control.Exception (evaluate)
 import Test.Hspec (Spec, describe, it, shouldBe)
 
-import Hdsk.Util (shouldBeUndefined)
+import Test.Util (shouldBeUndefined)
 
 import Hdsk.Numerical
 

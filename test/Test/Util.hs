@@ -3,7 +3,7 @@ Module:       Hdsk.Util
 Description:  Helper functions for project unit tests.
 -}
 
-module Hdsk.Util
+module Test.Util
 ( shouldLieBetween
 , shouldBeUndefined
 , shouldBeErrorEmpty

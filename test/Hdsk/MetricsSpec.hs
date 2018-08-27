@@ -14,7 +14,7 @@ import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (
   Gen, property, elements, forAll, listOf, listOf1, shuffle)
 
-import Hdsk.Util (
+import Test.Util (
   doubles, ints,
   shouldLieBetween, shouldBeUndefined, shouldBeErrorEmpty)
 
