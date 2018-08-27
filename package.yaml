@@ -8,6 +8,74 @@ copyright:   "2018 Will Badart"
 
 synopsis:    Unified data science toolkit for Haskell and more
 category:    Math
+
+extra-source-files:
+  - README.md
+  - CHANGELOG.md
+
+dependencies:
+  - base >= 4.7 && < 5
+  - vector == 0.12.*
+  - containers < 0.6
+  - matrix >= 0.3
+  - hashtables >= 1.2
+  - heap >= 1.0.4 && < 2
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - Hdsk.Bins
+    - Hdsk.Cluster
+    - Hdsk.Description
+    - Hdsk.Metrics
+    - Hdsk.NaiveBayes
+    - Hdsk.NearestNeighbors
+    - Hdsk.Numerical
+  ghc-options:
+    - -Wall
+
+tests:
+  spec:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -Wall
+      - -Wno-type-defaults
+    dependencies:
+      - hdsk
+      - base >= 4.7 && < 5
+      - vector == 0.12.*
+      - hspec == 2.*
+      - QuickCheck == 2.11.*
+
+  # doctest:
+  #   main:         RunDocTest.hs
+  #   source-dirs:  test
+  #   ghc-options:
+  #     - -threaded
+  #     - -rtsopts
+  #     - -with-rtsopts=-N
+  #   dependencies:
+  #     - hdsk
+  #     - doctest >= 0.2
+
+benchmarks:
+  metrics:
+    main: benchmark/Metrics.hs
+    dependencies:
+      - hdsk
+      - matrix >= 0.3
+      - criterion >= 1.4 && < 2
+
+  nb:
+    main: benchmark/NB.hs
+    dependencies:
+      - hdsk
+      - criterion >= 1.4 && < 2
+
 description: >
     = Haskell Data Science Kit
 
@@ -78,69 +146,3 @@ description: >
     [11]: https://opensource.org/licenses/BSD-3-Clause
     [12]: https://wiki.haskell.org/How_to_write_a_Haskell_program
 
-extra-source-files:
-  - README.md
-  - CHANGELOG.md
-
-dependencies:
-  - base >= 4.7 && < 5
-  - vector == 0.12.*
-  - containers < 0.6
-  - matrix >= 0.3
-  - hashtables >= 1.2
-  - heap >= 1.0.4 && < 2
-
-library:
-  source-dirs: src
-  exposed-modules:
-    - Hdsk.Bins
-    - Hdsk.Cluster
-    - Hdsk.Description
-    - Hdsk.Metrics
-    - Hdsk.NaiveBayes
-    - Hdsk.NearestNeighbors
-    - Hdsk.Numerical
-  ghc-options:
-    - -Wall
-
-tests:
-  spec:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-      - -threaded
-      - -rtsopts
-      - -with-rtsopts=-N
-      - -Wall
-      - -Wno-type-defaults
-    dependencies:
-      - hdsk
-      - base >= 4.7 && < 5
-      - vector == 0.12.*
-      - hspec == 2.*
-      - QuickCheck == 2.11.*
-
-  # doctest:
-  #   main:         RunDocTest.hs
-  #   source-dirs:  test
-  #   ghc-options:
-  #     - -threaded
-  #     - -rtsopts
-  #     - -with-rtsopts=-N
-  #   dependencies:
-  #     - hdsk
-  #     - doctest >= 0.2
-
-benchmarks:
-  metrics:
-    main: benchmark/Metrics.hs
-    dependencies:
-      - hdsk
-      - matrix >= 0.3
-      - criterion >= 1.4 && < 2
-
-  nb:
-    main: benchmark/NB.hs
-    dependencies:
-      - hdsk
-      - criterion >= 1.4 && < 2
