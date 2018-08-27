@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e98b1d19010d944d2822488c980910e7dd32e1f1fc6f6b66d999cf63a432033b
+-- hash: 1582fe4ebb061bfb5dc44026ea076efacc2673fd7158e569c4231b534294b0b9
 
 name:           hdsk
 version:        0.1.0.0
@@ -69,6 +69,7 @@ library
       Hdsk.NaiveBayes
       Hdsk.NearestNeighbors
       Hdsk.Numerical
+      Hdsk.Util
   other-modules:
       Paths_hdsk
   default-language: Haskell2010
@@ -97,6 +98,7 @@ test-suite spec
       Hdsk.NaiveBayesSpec
       Hdsk.NearestNeighborsSpec
       Hdsk.NumericalSpec
+      Hdsk.UtilSpec
       Test.Util
       Paths_hdsk
   default-language: Haskell2010

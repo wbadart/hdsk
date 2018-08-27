@@ -31,6 +31,7 @@ library:
     - Hdsk.NaiveBayes
     - Hdsk.NearestNeighbors
     - Hdsk.Numerical
+    - Hdsk.Util
   ghc-options:
     - -Wall
 
