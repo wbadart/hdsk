@@ -27,6 +27,8 @@ library:
   exposed-modules:
     - Hdsk.Bins
     - Hdsk.Cluster
+    - Hdsk.DecisionTree
+    - Hdsk.DecisionTree.Entropy
     - Hdsk.Description
     - Hdsk.Metrics
     - Hdsk.NaiveBayes
