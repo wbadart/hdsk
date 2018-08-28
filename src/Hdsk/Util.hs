@@ -30,6 +30,11 @@ import qualified Data.Map.Strict as M
 count :: (Foldable f, Ord k) => f k -> Map k Int
 count = foldr (flip (M.insertWith (+)) 1) M.empty
 
+-- | /O(n)/ Given a container and a predicate, calculate the number of
+-- elements which pass the predicate
+countBy :: Foldable f => (a -> Bool) -> f a -> Int
+countBy p = foldr (\x t -> if p x then t + 1 else t) 0
+
 -- | /O(n)/ Given a container, construct a hash table from the unique
 -- elements of the container to their frequency within the container. I
 -- recommend this function over 'count' when 1) counting performance is
