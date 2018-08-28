@@ -9,5 +9,15 @@ in service of decision tree classification.
 -}
 
 module Hdsk.DecisionTree.Entropy
-(
+( entropy
 ) where
+
+-- | /O(???)/ Calculate the total information entropy of a dataset.
+entropy :: Floating a => [tup] -> a
+entropy dat = undefined
+
+
+-- ===== Utilities ===== --
+
+lg :: Floating a => a -> a
+lg = logBase 2
