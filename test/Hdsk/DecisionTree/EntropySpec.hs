@@ -11,7 +11,7 @@ import Test.Util (shouldLieBetween)
 import Hdsk.DecisionTree.Entropy
 
 spec :: Spec
-spec =
+spec = do
 
   describe "entropy" $ do
     it "finds expected entropy in base 2" $
@@ -22,3 +22,8 @@ spec =
 
     it "works for multi-class data" $
       shouldLieBetween 1.58 1.59 $ entropy id [1, 2, 3]
+
+
+  describe "conditionalEntropy" $
+    it "finds the conditional entropy of a certain branching" $
+      True `shouldBe` False
