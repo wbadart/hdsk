@@ -16,7 +16,7 @@ import qualified Data.Map.Strict as M
 
 import Hdsk.Util (count)
 
--- | /O(???)/ Calculate the total information entropy of a dataset.
+-- | /O(n log n)/ Calculate the total information entropy of a dataset.
 entropy :: (Functor f, Foldable f, Eq label, Ord label, Floating a)
         => (tup -> label) -> f tup -> a
 entropy getLabel dat = M.foldr prob 0 (count (fmap getLabel dat))
