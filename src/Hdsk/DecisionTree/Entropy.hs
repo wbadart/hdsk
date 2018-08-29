@@ -16,7 +16,7 @@ module Hdsk.DecisionTree.Entropy
 import Data.List (nub)
 import qualified Data.Map.Strict as M
 
-import Hdsk.Util (count, countBy)
+import Hdsk.Util (count, countBy', length', lg)
 
 -- | /O(n log n)/ Calculate the total information entropy of a dataset.
 entropy :: (Functor f, Foldable f, Eq label, Ord label, Floating a)
@@ -39,15 +39,3 @@ conditionalEntropy getLabel dat branches =
     in sum $ map ent branches
   where labels xs = nub $ map getLabel xs
         hasLabel l x = getLabel x == l
-
-
--- ===== Utilities ===== --
-
-lg :: Floating a => a -> a
-lg = logBase 2
-
-countBy' :: (Foldable f, Num b) => (a -> Bool) -> f a -> b
-countBy' = (fromIntegral .) . countBy
-
-length' :: (Num a, Foldable f) => f b -> a
-length' = fromIntegral . length

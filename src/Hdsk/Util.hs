@@ -13,8 +13,11 @@ the library. Exporting this because they may be helpful to users too.
 module Hdsk.Util
 ( count
 , countBy
+, countBy'
 , countHT
 , countElemHT
+, length'
+, lg
 ) where
 
 import Control.Monad.ST (ST, runST)
@@ -36,6 +39,10 @@ count = foldr (flip (M.insertWith (+)) 1) M.empty
 countBy :: Foldable f => (a -> Bool) -> f a -> Int
 countBy p = foldr (\x t -> if p x then t + 1 else t) 0
 
+-- | /O(n)/ Version of 'countBy' with generic result.
+countBy' :: (Foldable f, Num b) => (a -> Bool) -> f a -> b
+countBy' = (fromIntegral .) . countBy
+
 -- | /O(n)/ Given a container, construct a hash table from the unique
 -- elements of the container to their frequency within the container. I
 -- recommend this function over 'count' when 1) counting performance is
@@ -51,3 +58,11 @@ countHT = foldr count' H.new
 -- element from a container.
 countElemHT :: (Foldable f, Eq k, Hashable k) => f k -> k -> Int
 countElemHT xs x = fromMaybe 0 $ runST $ (`H.lookup` x) =<< countHT xs
+
+-- | /O(n)/ Shorthand for 'genericLength' which works on all foldables.
+length' :: (Num a, Foldable f) => f b -> a
+length' = fromIntegral . length
+
+-- | /O(1)/ Shorthand for @logBase 2@
+lg :: Floating a => a -> a
+lg = logBase 2

@@ -10,5 +10,28 @@ and more.
 -}
 
 module Hdsk.DecisionTree
-(
+( infoGain
+, splitInfo
+, gainRatio
 ) where
+
+import Hdsk.DecisionTree.Entropy (entropy, conditionalEntropy)
+import Hdsk.Util (length', countBy', lg)
+
+-- | /O(???)/
+infoGain :: (Eq label, Ord label)
+         => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
+infoGain getLabel dat branches =
+  entropy getLabel dat - conditionalEntropy getLabel dat branches
+
+-- | /O(???)/
+splitInfo :: [tup] -> [tup -> Bool] -> Double
+splitInfo dat branches =
+  let bits c = (c / length' dat) * lg (c / length' dat)
+  in  -sum (map (bits . (`countBy'` dat)) branches)
+
+-- | /O(???)/
+gainRatio :: (Eq label, Ord label)
+          => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
+gainRatio getLabel dat branches =
+  infoGain getLabel dat branches / splitInfo dat branches
