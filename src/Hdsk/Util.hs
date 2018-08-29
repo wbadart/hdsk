@@ -12,6 +12,7 @@ the library. Exporting this because they may be helpful to users too.
 
 module Hdsk.Util
 ( count
+, countBy
 , countHT
 , countElemHT
 ) where
