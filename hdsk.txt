@@ -303,25 +303,6 @@ labelCount :: Num n => CPT -> String -> n
 dataLength :: Num n => CPT -> n
 
 
--- | This module implements the K Nearest Neighbors classifier, which finds
---   the k tuples "closest" to the unobserved instance and combines their
---   labels via some voting/ consensus metric to produce a prediction.
-module Hdsk.NearestNeighbors
-
--- | Assemble a KNN classifier.
-knnclassifier :: Ord d => ([tup] -> label) -> (tup -> tup -> d) -> Int -> [tup] -> tup -> label
-
--- | <i>O(nD log k)</i> where <i>D</i> is the cost of the distance
---   function. Select the <tt>k</tt> nearest training instances to the
---   argument tuple, according to the given distance metric (greater value
---   means more dissimilar).
-knn :: Ord d => (tup -> tup -> d) -> Int -> [tup] -> tup -> [tup]
-
--- | <i>O(k^2)</i> Report the most frequent label from a list of data
---   instances.
-majorityLabel :: Eq label => (tup -> label) -> [tup] -> label
-
-
 -- | This module contains functions which support efficient numerical
 --   methods, e.g. approximating derivatives.
 module Hdsk.Numerical
@@ -416,6 +397,11 @@ distEuclidean :: Floating a => [a] -> [a] -> a
 --   the library. Exporting this because they may be helpful to users too.
 module Hdsk.Util
 
+-- | <i>O(n log n)</i> Compute the most frequent label in the data set.
+--   Ties do not have well defined behavior; the tie is broken by
+--   <a>maximumBy</a> which doesn't have clear documentation on ties.
+majorityLabel :: (Eq label, Ord label) => (tup -> label) -> [tup] -> label
+
 -- | <i>O(n log n)</i> Given a container, construct a map from the unique
 --   elements of the container to their frequency within the container.
 count :: (Foldable f, Ord k) => f k -> Map k Int
@@ -445,6 +431,26 @@ length' :: (Num a, Foldable f) => f b -> a
 lg :: Floating a => a -> a
 
 
+-- | This module implements the K Nearest Neighbors classifier, which finds
+--   the k tuples "closest" to the unobserved instance and combines their
+--   labels via some voting/ consensus metric to produce a prediction.
+module Hdsk.NearestNeighbors
+
+-- | Assemble a KNN classifier.
+knnclassifier :: Ord d => ([tup] -> label) -> (tup -> tup -> d) -> Int -> [tup] -> tup -> label
+
+-- | <i>O(nD log k)</i> where <i>D</i> is the cost of the distance
+--   function. Select the <tt>k</tt> nearest training instances to the
+--   argument tuple, according to the given distance metric (greater value
+--   means more dissimilar).
+knn :: Ord d => (tup -> tup -> d) -> Int -> [tup] -> tup -> [tup]
+
+-- | <i>O(n log n)</i> Compute the most frequent label in the data set.
+--   Ties do not have well defined behavior; the tie is broken by
+--   <a>maximumBy</a> which doesn't have clear documentation on ties.
+majorityLabel :: (Eq label, Ord label) => (tup -> label) -> [tup] -> label
+
+
 -- | This module implements various measures of entropy and information
 --   gain in service of decision tree classification.
 module Hdsk.DecisionTree.Entropy
@@ -453,7 +459,7 @@ module Hdsk.DecisionTree.Entropy
 --   dataset.
 entropy :: (Functor f, Foldable f, Eq label, Ord label, Floating a) => (tup -> label) -> f tup -> a
 
--- | <i>O(???)</i> Compute the conditional entropy of splitting the dataset
+-- | <i>O(nC)</i> Compute the conditional entropy of splitting the dataset
 --   over the given branches.
 conditionalEntropy :: Eq label => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
 
@@ -463,11 +469,21 @@ conditionalEntropy :: Eq label => (tup -> label) -> [tup] -> [tup -> Bool] -> Do
 --   tactics, and more.
 module Hdsk.DecisionTree
 
--- | <i>O(???)</i>
+-- | <i>O(nC + n log n)</i> Compute the information gain of the given
+--   branching. Branches are encoded as a list of predicates over data
+--   instances. An object belongs to whichever branch for which it passes
+--   the predicate. Assumes that each data object will pass one and only
+--   one of the branching predicates.
 infoGain :: (Eq label, Ord label) => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
 
--- | <i>O(???)</i>
-splitInfo :: [tup] -> [tup -> Bool] -> Double
+-- | <i>O(nB)</i> where <i>B</i> is the number of branches. Compute the
+--   split info of the branching.
+splitInfo :: (Eq label, Ord label) => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
 
--- | <i>O(???)</i>
+-- | <i>O(nB + nC + n log n)</i> Compute the gain ratio of a branching.
 gainRatio :: (Eq label, Ord label) => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
+
+-- | <i>O(n log n)</i> Compute the branching predicates for the feature
+--   values at the given index. The feature values at index <tt>idx</tt>
+--   should be categorical.
+mkCatTests :: Ord a => (tup -> a) -> [tup] -> [tup -> Bool]
