@@ -10,22 +10,55 @@ and more.
 -}
 
 module Hdsk.DecisionTree
-( infoGain
+( classify
+, infoGain
 , splitInfo
 , gainRatio
 , mkCatTests
 ) where
 
+import Data.List (find, maximumBy)
+import Data.Function (on)
 import Hdsk.DecisionTree.Entropy (entropy, conditionalEntropy)
 import Hdsk.Util (length', countBy', lg, majorityLabel)
 
 import qualified Data.Set as S
+
+-- | /O(???)/
+classify :: (Eq label, Ord label)
+         => ([tup] -> [[tup -> Bool]])
+         -> (tup -> label)
+         -> ((tup -> label) -> [tup] -> [tup -> Bool] -> Double)
+         -> [tup]
+         -> tup
+         -> label
+classify mkBranchings getLabel criterion dat tup
+  | length (uniq $ map getLabel dat) <= 1 = majorityLabel getLabel dat
+  | otherwise =
+    let branching  = bestBranching getLabel criterion dat branchings
+        branchings = mkBranchings dat
+     in maybe undefined
+        (\p -> classify' (filter p dat) tup)
+        $ find ($tup) branching
+  where classify' = classify mkBranchings getLabel criterion
 
 -- | /O(n log n)/ Compute the branching predicates for the feature
 -- values at the given index. The feature values at index @idx@ should
 -- be categorical.
 mkCatTests :: Ord a => (tup -> a) -> [tup] -> [tup -> Bool]
 mkCatTests getVal = map (\v -> (==v) . getVal) . uniq . map getVal
+
+-- | /O(BX)/ where /B/ is the number of branchings to test and /X/ is
+-- the cost of the branching criterion. Find the optimal branching
+-- according to the given criterion.
+bestBranching :: (Eq label, Ord label)
+              => (tup -> label)
+              -> ((tup -> label) -> [tup] -> [tup -> Bool] -> Double)
+              -> [tup]
+              -> [[tup -> Bool]]
+              -> [tup -> Bool]
+bestBranching getLabel criterion dat =
+    maximumBy (compare `on` criterion getLabel dat)
 
 
 -- ===== Information Measures ===== --
