@@ -8,13 +8,12 @@ This module implements various measures of entropy and information gain
 in service of decision tree classification.
 -}
 
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Hdsk.DecisionTree.Entropy
 ( entropy
 , conditionalEntropy
 ) where
 
+import Data.List (nub)
 import qualified Data.Map.Strict as M
 
 import Hdsk.Util (count, countBy)
@@ -23,26 +22,24 @@ import Hdsk.Util (count, countBy)
 entropy :: (Functor f, Foldable f, Eq label, Ord label, Floating a)
         => (tup -> label) -> f tup -> a
 entropy getLabel dat = M.foldr prob 0 (count (fmap getLabel dat))
-  where prob ct acc = let p = fromIntegral ct / len in acc - p * lg p
-        len = fromIntegral (length dat)
+  where prob ct acc = let p = fromIntegral ct / length' dat
+                      in  acc - p * lg p
 
 -- | /O(???)/ Compute the conditional entropy of splitting the dataset
 -- over the given branches.
-conditionalEntropy :: (Functor f, Foldable f,
-                       Eq label, Ord label, Floating a)
-                   => (tup -> label) -> f tup -> [tup -> Bool] -> a
-conditionalEntropy getLabel dat branches = sum $ map ent branches
-  where ent branch      = (ct branch / len) * totalEnt branch
-        totalEnt :: (tup -> Bool) -> a
-        totalEnt branch = -sum $ fracs branch
-        fracs branch    = map (let c = ct branch
-                               in \f -> if f/=0 then (f/c) * lg (f/c)
-                                                else 0) $ freq branch
-        freq branch     = [ ct (\x -> branch x && getLabel x == l)
-                          | l <- M.keys $ count $ map getLabel dat ]
+conditionalEntropy :: Eq label
+                   => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
+conditionalEntropy getLabel dat branches =
+    let ct p    = countBy' p dat
+        freqs p = [ct ((&&) <$> p <*> hasLabel l) | l <- labels dat]
+        fracs p = [if f /= 0 then (f / c) * lg (f / c) else 0
+                    | (f, c) <- zip (freqs p) (repeat $ ct p)]
+        total p = negate $ sum $ fracs p
+        ent p   = (ct p / length' dat) * total p
+    in sum $ map ent branches
+  where labels xs = nub $ map getLabel xs
+        hasLabel l x = getLabel x == l
 
-        ct  p      = fromIntegral $ countBy p dat
-        len        = fromIntegral $ length dat
 
 -- ===== Utilities ===== --
 
@@ -51,3 +48,6 @@ lg = logBase 2
 
 countBy' :: (Foldable f, Num b) => (a -> Bool) -> f a -> b
 countBy' = (fromIntegral .) . countBy
+
+length' :: (Num a, Foldable f) => f b -> a
+length' = fromIntegral . length

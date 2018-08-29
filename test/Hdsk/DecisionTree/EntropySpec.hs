@@ -5,6 +5,7 @@ Description:  Unit tests for measures of entropy
 
 module Hdsk.DecisionTree.EntropySpec (spec) where
 
+import Data.List (nub)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.Util (shouldLieBetween)
 
@@ -25,5 +26,8 @@ spec = do
 
 
   describe "conditionalEntropy" $
-    it "finds the conditional entropy of a certain branching" $
-      True `shouldBe` False
+    it "finds the conditional entropy of a certain branching" $ do
+      dat <- map words . lines <$> readFile "util/weather.txt"
+      let outlookTests = map (\v t -> head t == v) $ nub $ map head dat
+      shouldLieBetween 0.690 0.694
+        $ conditionalEntropy last dat outlookTests
