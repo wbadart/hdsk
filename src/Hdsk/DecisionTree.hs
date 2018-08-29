@@ -13,10 +13,19 @@ module Hdsk.DecisionTree
 ( infoGain
 , splitInfo
 , gainRatio
+, mkCatTests
 ) where
 
 import Hdsk.DecisionTree.Entropy (entropy, conditionalEntropy)
-import Hdsk.Util (length', countBy', lg)
+import Hdsk.Util (length', countBy', lg, majorityLabel)
+
+import qualified Data.Set as S
+
+-- | /O(n log n)/ Compute the branching predicates for the feature
+-- values at the given index. The feature values at index @idx@ should
+-- be categorical.
+mkCatTests :: Ord a => (tup -> a) -> [tup] -> [tup -> Bool]
+mkCatTests getVal = map (\v -> (==v) . getVal) . uniq . map getVal
 
 
 -- ===== Information Measures ===== --
@@ -33,8 +42,9 @@ infoGain getLabel dat branches =
 
 -- | /O(nB)/ where /B/ is the number of branches. Compute the split info
 -- of the branching.
-splitInfo :: [tup] -> [tup -> Bool] -> Double
-splitInfo dat branches =
+splitInfo :: (Eq label, Ord label)
+          => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
+splitInfo _ dat branches =
   let bits c = (c / length' dat) * lg (c / length' dat)
   in  -sum (map (bits . (`countBy'` dat)) branches)
 
@@ -42,4 +52,11 @@ splitInfo dat branches =
 gainRatio :: (Eq label, Ord label)
           => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
 gainRatio getLabel dat branches =
-  infoGain getLabel dat branches / splitInfo dat branches
+  infoGain getLabel dat branches / splitInfo getLabel dat branches
+
+
+-- ===== Utilities ===== --
+
+-- | /O(n log n)/
+uniq :: Ord a => [a] -> [a]
+uniq = S.toList . S.fromList
