@@ -8,6 +8,8 @@ This module implements various measures of entropy and information gain
 in service of decision tree classification.
 -}
 
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Hdsk.DecisionTree.Entropy
 ( entropy
 , conditionalEntropy
@@ -29,8 +31,18 @@ entropy getLabel dat = M.foldr prob 0 (count (fmap getLabel dat))
 conditionalEntropy :: (Functor f, Foldable f,
                        Eq label, Ord label, Floating a)
                    => (tup -> label) -> f tup -> [tup -> Bool] -> a
-conditionalEntropy getLabel dat branches = undefined
+conditionalEntropy getLabel dat branches = sum $ map ent branches
+  where ent branch      = (ct branch / len) * totalEnt branch
+        totalEnt :: (tup -> Bool) -> a
+        totalEnt branch = -sum $ fracs branch
+        fracs branch    = map (let c = ct branch
+                               in \f -> if f/=0 then (f/c) * lg (f/c)
+                                                else 0) $ freq branch
+        freq branch     = [ ct (\x -> branch x && getLabel x == l)
+                          | l <- M.keys $ count $ map getLabel dat ]
 
+        ct  p      = fromIntegral $ countBy p dat
+        len        = fromIntegral $ length dat
 
 -- ===== Utilities ===== --
 
