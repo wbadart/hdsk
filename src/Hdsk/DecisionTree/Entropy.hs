@@ -25,7 +25,7 @@ entropy getLabel dat = M.foldr prob 0 (count (fmap getLabel dat))
   where prob ct acc = let p = fromIntegral ct / length' dat
                       in  acc - p * lg p
 
--- | /O(???)/ Compute the conditional entropy of splitting the dataset
+-- | /O(nC)/ Compute the conditional entropy of splitting the dataset
 -- over the given branches.
 conditionalEntropy :: Eq label
                    => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
