@@ -11,7 +11,8 @@ the library. Exporting this because they may be helpful to users too.
 {-# LANGUAGE LambdaCase #-}
 
 module Hdsk.Util
-( count
+( majorityLabel
+, count
 , countBy
 , countBy'
 , countHT
@@ -21,6 +22,8 @@ module Hdsk.Util
 ) where
 
 import Control.Monad.ST (ST, runST)
+import Data.List (maximumBy)
+import Data.Function (on)
 import Data.Hashable (Hashable)
 import Data.HashTable.ST.Cuckoo (HashTable)
 import Data.Map.Strict (Map)
@@ -28,6 +31,13 @@ import Data.Maybe (fromMaybe)
 
 import qualified Data.HashTable.ST.Cuckoo as H
 import qualified Data.Map.Strict as M
+
+-- | /O(n log n)/ Compute the most frequent label in the data set. Ties
+-- do not have well defined behavior; the tie is broken by
+-- 'Data.List.maximumBy' which doesn't have clear documentation on ties.
+majorityLabel :: (Eq label, Ord label) => (tup -> label) -> [tup] -> label
+majorityLabel getLabel =
+  fst . maximumBy (compare `on` snd) . M.toList . count . map getLabel
 
 -- | /O(n log n)/ Given a container, construct a map from the unique
 -- elements of the container to their frequency within the container.

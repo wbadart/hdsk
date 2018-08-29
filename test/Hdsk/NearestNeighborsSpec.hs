@@ -9,6 +9,7 @@ import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (Gen, elements, forAll, listOf, property, vectorOf)
 
 import Hdsk.Cluster (distEuclidean)
+import Hdsk.Util (majorityLabel)
 import Test.Util (doubles)
 
 import Hdsk.NearestNeighbors

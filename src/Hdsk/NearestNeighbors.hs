@@ -15,10 +15,10 @@ module Hdsk.NearestNeighbors
 , majorityLabel
 ) where
 
-import Data.Function (on)
 import Data.Heap (MaxPrioHeap)
-import Data.List (maximumBy)
 import Data.Maybe (fromMaybe)
+import Hdsk.Util (majorityLabel)
+
 import qualified Data.Heap as H
 
 -- | Assemble a KNN classifier.
@@ -44,10 +44,3 @@ knn dist k dat x = map snd (H.toAscList $ foldr nearest H.empty dat)
         getTail :: Ord d => MaxPrioHeap d tup -> MaxPrioHeap d tup
         getTail = fromMaybe H.empty . H.viewTail
         getMax = maybe undefined fst . H.viewHead
-
--- | /O(k^2)/ Report the most frequent label from a list of data
--- instances.
-majorityLabel :: Eq label => (tup -> label) -> [tup] -> label
-majorityLabel getLabel dat = maximumBy (compare `on` count) labels
-  where count x = length $ filter (==x) labels
-        labels = map getLabel dat

@@ -20,6 +20,10 @@ spec = do
 
   let uut = [1, 1, 2, 3] :: [Int]
 
+  describe "majorityLabel" $
+    it "picks the most frequent label from the datset" $
+      majorityLabel id uut `shouldBe` 1
+
   describe "count" $
     it "finds the frequency of each element" $
       count uut `shouldBe` M.fromList [(1, 2), (2, 1), (3, 1)]
