@@ -420,6 +420,13 @@ module Hdsk.Util
 --   elements of the container to their frequency within the container.
 count :: (Foldable f, Ord k) => f k -> Map k Int
 
+-- | <i>O(n)</i> Given a container and a predicate, calculate the number of
+--   elements which pass the predicate
+countBy :: Foldable f => (a -> Bool) -> f a -> Int
+
+-- | <i>O(n)</i> Version of <a>countBy</a> with generic result.
+countBy' :: (Foldable f, Num b) => (a -> Bool) -> f a -> b
+
 -- | <i>O(n)</i> Given a container, construct a hash table from the unique
 --   elements of the container to their frequency within the container. I
 --   recommend this function over <a>count</a> when 1) counting performance
@@ -429,3 +436,38 @@ countHT :: (Foldable f, Eq k, Hashable k) => f k -> ST s (HashTable s k Int)
 -- | <i>O(n)</i> Convenience function for getting the count of a single
 --   element from a container.
 countElemHT :: (Foldable f, Eq k, Hashable k) => f k -> k -> Int
+
+-- | <i>O(n)</i> Shorthand for <tt>genericLength</tt> which works on all
+--   foldables.
+length' :: (Num a, Foldable f) => f b -> a
+
+-- | <i>O(1)</i> Shorthand for <tt>logBase 2</tt>
+lg :: Floating a => a -> a
+
+
+-- | This module implements various measures of entropy and information
+--   gain in service of decision tree classification.
+module Hdsk.DecisionTree.Entropy
+
+-- | <i>O(n log n)</i> Calculate the total information entropy of a
+--   dataset.
+entropy :: (Functor f, Foldable f, Eq label, Ord label, Floating a) => (tup -> label) -> f tup -> a
+
+-- | <i>O(???)</i> Compute the conditional entropy of splitting the dataset
+--   over the given branches.
+conditionalEntropy :: Eq label => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
+
+
+-- | This module facilitates the definition of decision tree classifiers
+--   with tools for combining and parametrizing entropy measures, pruning
+--   tactics, and more.
+module Hdsk.DecisionTree
+
+-- | <i>O(???)</i>
+infoGain :: (Eq label, Ord label) => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
+
+-- | <i>O(???)</i>
+splitInfo :: [tup] -> [tup -> Bool] -> Double
+
+-- | <i>O(???)</i>
+gainRatio :: (Eq label, Ord label) => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
