@@ -469,6 +469,9 @@ conditionalEntropy :: Eq label => (tup -> label) -> [tup] -> [tup -> Bool] -> Do
 --   tactics, and more.
 module Hdsk.DecisionTree
 
+-- | <i>O(???)</i>
+classify :: (Eq label, Ord label) => ([tup] -> [[tup -> Bool]]) -> (tup -> label) -> ((tup -> label) -> [tup] -> [tup -> Bool] -> Double) -> [tup] -> tup -> label
+
 -- | <i>O(nC + n log n)</i> Compute the information gain of the given
 --   branching. Branches are encoded as a list of predicates over data
 --   instances. An object belongs to whichever branch for which it passes
