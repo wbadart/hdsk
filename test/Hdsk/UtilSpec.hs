@@ -8,10 +8,12 @@ Description:  Unit tests for the utility module
 module Hdsk.UtilSpec (spec) where
 
 import Control.Monad.ST (runST)
+import Data.Vector (Vector)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (property)
 import qualified Data.HashTable.Class as H
 import qualified Data.Map.Strict as M
+import qualified Data.Vector as V
 
 import Hdsk.Util
 
@@ -54,3 +56,15 @@ spec = do
   describe "lg" $
     it "is equivalent to logBase 2" $ property
       (\x -> x < 0 || lg x == logBase (2::Double) x)
+
+  describe "uniq" $ do
+    it "filters duplicates out of a list" $
+      uniq [1, 1, 2, 3, 2] `shouldBe` [1, 2, 3]
+    it "works on empty lists" $
+      uniq ([]::[Int]) `shouldBe` []
+
+  describe "uniq'" $ do
+    it "filters duplicates out of a container" $
+      uniq' (V.fromList [1, 1, 2, 3, 2]) `shouldBe` V.fromList [1, 2, 3]
+    it "works on empty containers" $
+      uniq' (V.empty::Vector Int) `shouldBe` V.empty

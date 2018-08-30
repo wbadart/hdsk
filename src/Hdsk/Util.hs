@@ -19,8 +19,11 @@ module Hdsk.Util
 , countElemHT
 , length'
 , lg
+, uniq
+, uniq'
 ) where
 
+import Control.Applicative (Alternative, (<|>), empty, pure)
 import Control.Monad.ST (ST, runST)
 import Data.List (maximumBy)
 import Data.Function (on)
@@ -31,13 +34,15 @@ import Data.Maybe (fromMaybe)
 
 import qualified Data.HashTable.ST.Cuckoo as H
 import qualified Data.Map.Strict as M
+import qualified Data.Set as S
 
 -- | /O(n log n)/ Compute the most frequent label in the data set. Ties
 -- do not have well defined behavior; the tie is broken by
 -- 'Data.List.maximumBy' which doesn't have clear documentation on ties.
-majorityLabel :: (Eq label, Ord label) => (tup -> label) -> [tup] -> label
+majorityLabel :: (Foldable f, Functor f, Eq label, Ord label)
+              => (tup -> label) -> f tup -> label
 majorityLabel getLabel =
-  fst . maximumBy (compare `on` snd) . M.toList . count . map getLabel
+  fst . maximumBy (compare `on` snd) . M.toList . count . fmap getLabel
 
 -- | /O(n log n)/ Given a container, construct a map from the unique
 -- elements of the container to their frequency within the container.
@@ -76,3 +81,13 @@ length' = fromIntegral . length
 -- | /O(1)/ Shorthand for @logBase 2@
 lg :: Floating a => a -> a
 lg = logBase 2
+
+-- | /O(n log n)/ Filter the duplicates out of a list.
+uniq :: Ord a => [a] -> [a]
+uniq = S.toList . S.fromList
+
+-- | /O(n log n + nX)/ where /X/ is the const of the associative binary
+-- operator for the given @Alternative@ type. Filter the duplicates out
+-- of a @Foldable@, @Alternative@ container.
+uniq' :: (Foldable f, Alternative f, Ord a) => f a -> f a
+uniq' xs = S.foldr ((<|>) . pure) empty $ foldr S.insert S.empty xs
