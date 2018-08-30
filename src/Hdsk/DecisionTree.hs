@@ -24,14 +24,18 @@ import Hdsk.Util (length', countBy', lg, majorityLabel)
 
 import qualified Data.Set as S
 
--- | /O(???)/
+-- | /O(???)/ Predict the label of an unobserved tuple, according to the
+-- provided parameters.
 classify :: (Eq label, Ord label)
-         => ([tup] -> [[tup -> Bool]])
-         -> (tup -> label)
-         -> ((tup -> label) -> [tup] -> [tup -> Bool] -> Double)
-         -> [tup]
-         -> tup
-         -> label
+         => ([tup] -> [[tup -> Bool]]) -- ^ Function to generate possible
+                                       -- branchings from the data
+         -> (tup -> label) -- ^ Function which extracts the label from a
+                           -- data object
+         -> ((tup -> label) -> [tup] -> [tup -> Bool] -> Double) -- ^ Split
+                                 -- criteria, like 'infoGain' or 'gainRatio'
+         -> [tup] -- ^ The dataset as a list of data objects
+         -> tup   -- ^ The unobserved instance
+         -> label -- ^ The predicted label
 classify mkBranchings getLabel criterion dat tup
   | length (uniq $ map getLabel dat) <= 1 = majorityLabel getLabel dat
   | otherwise =
