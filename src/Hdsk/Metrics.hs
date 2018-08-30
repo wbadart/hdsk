@@ -22,15 +22,13 @@ module Hdsk.Metrics
 , meanAbsError
 , explainedVariance
 , r2score
-, Zippable
 ) where
 
+import Control.Monad.Zip (MonadZip, mzip, mzipWith)
+import Data.List (elemIndex)
 import Data.Matrix (Matrix)
 import Data.Maybe (fromMaybe)
-import Data.Vector (Vector)
-import qualified Data.List as L
 import qualified Data.Matrix as M
-import qualified Data.Vector as V
 
 import Hdsk.Description (mean, var)
 
@@ -39,7 +37,8 @@ import Hdsk.Description (mean, var)
 -- predictions, /(TP + TN) \/ (P + N)/. Here, @c@ is the list of class
 -- labels, e.g. @["cat", "dog"]@. Accuracy represents the proportion of
 -- classifications which were correct.
-accuracy :: (Zippable z, Eq a, Fractional b) => [a] -> z a -> z a -> b
+accuracy :: (MonadZip z, Foldable z, Eq a, Fractional b)
+         => [a] -> z a -> z a -> b
 accuracy = ((accuracyCM .) .) . confusionMatrix
 
 -- | /O(C^2)/ where /C/ is the number of classes. Calculate accuracy
@@ -64,8 +63,8 @@ accuracyCM cm | sum cm == 0 = 0
 -- positive predictions which are true.
 --
 -- Precision is undefined when no positive predictions are made.
-precision :: (Zippable z, Eq a, Fractional b) =>
-    [a] -> a -> z a -> z a -> b
+precision :: (MonadZip z, Foldable z, Eq a, Fractional b)
+          => [a] -> a -> z a -> z a -> b
 precision = mkCMFunc precisionCM
 
 -- | /O(C^2)/ Compute the precision directly from a confusion matrix.
@@ -89,7 +88,8 @@ precisionCM cm i | tp cm i + fp cm i == (0::Int) = undefined
 -- classified as such.
 --
 -- Recall is undefined when there are no positive observations.
-recall :: (Zippable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
+recall :: (MonadZip z, Foldable z, Eq a, Fractional b)
+       => [a] -> a -> z a -> z a -> b
 recall = mkCMFunc recallCM
 
 -- | /O(C^2)/ Compute recall from a confusion matrix for a specified
@@ -104,8 +104,8 @@ recallCM cm i | tp cm i + fn cm i == (0::Int) = undefined
 -- correctly labeled.
 --
 -- Specificity is undefined when there are no negative truths.
-specificity :: (Zippable z, Eq a, Fractional b) =>
-    [a] -> a -> z a -> z a -> b
+specificity :: (MonadZip z, Foldable z, Eq a, Fractional b)
+            => [a] -> a -> z a -> z a -> b
 specificity = mkCMFunc specificityCM
 
 -- | /O(C^2)/ Compute specificity from a confusion matrix for a
@@ -117,7 +117,8 @@ specificityCM cm i | fp cm i + tn cm i == (0::Int) = undefined
 
 -- | /O(n)/ Compute the balanced f1-score of the model for a given
 -- class.
-f1 :: (Zippable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
+f1 :: (MonadZip z, Foldable z, Eq a, Fractional b)
+   => [a] -> a -> z a -> z a -> b
 f1 = mkCMFunc f1CM
 
 -- | /O(C^2)/ Compute the f1-score from a confusion matrix. See
@@ -133,24 +134,15 @@ f1CM cm i | tp cm i + fp cm i + fn cm i == (0::Int) = undefined
 -- columns the actual class. Classes are encoded as indices, where the
 -- index of a class within the matrix corresponds to its index within
 -- the set of classes.
-confusionMatrix :: (Zippable z, Eq a) => [a] -> z a -> z a -> Matrix Int
+confusionMatrix :: (MonadZip z, Foldable z, Eq a)
+                => [a] -> z a -> z a -> Matrix Int
 confusionMatrix classes yTrue yPred =
-    foldr hit (M.zero n n) $ Hdsk.Metrics.zip yTrue yPred
+    foldr hit (M.zero n n) $ mzip yTrue yPred
   where n = length classes
-        getIdx e = fromMaybe 0 (L.elemIndex e classes) + 1
+        getIdx e = fromMaybe 0 (elemIndex e classes) + 1
         hit (yt, yp) cm = let old = cm M.! (predIdx, trueIdx)
                               predIdx = getIdx yp; trueIdx = getIdx yt
                           in M.setElem (old + 1) (predIdx, trueIdx) cm
-
--- | Class of types which support the zip and zipWith operations.
-class Foldable z => Zippable z where
-  zip :: z a -> z b -> z (a, b)
-
-instance Zippable Vector where
-  zip = V.zip
-
-instance Zippable [] where
-  zip = L.zip
 
 -- | /O(1)/ Count the true positives for a class in a given confusion
 -- matrix.
@@ -191,8 +183,9 @@ meanSqError = mkMeanErrorFunc (**2)
 meanAbsError :: Fractional a => [a] -> [a] -> a
 meanAbsError = mkMeanErrorFunc abs
 
-mkMeanErrorFunc :: Fractional a => (a -> a) -> [a] -> [a] -> a
-mkMeanErrorFunc f = ((mean . map f) .) . L.zipWith (-)
+mkMeanErrorFunc :: (MonadZip z, Foldable z, Functor z, Fractional a)
+                => (a -> a) -> z a -> z a -> a
+mkMeanErrorFunc f = ((mean . fmap f) .) . mzipWith (-)
 
 -- | /O(n)/ Find the explained variance of a regression. Explained
 -- variance measures the proportion of the observations is accounted for
@@ -219,13 +212,13 @@ r2score yObs yEst
 divInt :: (Integral n, Fractional m) => n -> n -> m
 x `divInt` y = fromIntegral x / fromIntegral y
 
-mkCMFunc :: (Zippable z, Eq a, Fractional b) =>
+mkCMFunc :: (MonadZip z, Foldable z, Eq a, Fractional b) =>
   (Matrix Int -> Int -> b) -> [a] -> a -> z a -> z a -> b
 mkCMFunc f classes c yTrue yPred =
-    f cm $ case L.elemIndex c classes of
+    f cm $ case elemIndex c classes of
              Just i  -> i + 1
              Nothing -> error "unknown class name"
   where cm = confusionMatrix classes yTrue yPred
 
-residuals :: Num a => [a] -> [a] -> [a]
-residuals = zipWith (-)
+residuals :: (MonadZip z, Num a) => z a -> z a -> z a
+residuals = mzipWith (-)
