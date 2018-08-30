@@ -469,7 +469,8 @@ conditionalEntropy :: Eq label => (tup -> label) -> [tup] -> [tup -> Bool] -> Do
 --   tactics, and more.
 module Hdsk.DecisionTree
 
--- | <i>O(???)</i>
+-- | <i>O(???)</i> Predict the label of an unobserved tuple, according to
+--   the provided parameters.
 classify :: (Eq label, Ord label) => ([tup] -> [[tup -> Bool]]) -> (tup -> label) -> ((tup -> label) -> [tup] -> [tup -> Bool] -> Double) -> [tup] -> tup -> label
 
 -- | <i>O(nC + n log n)</i> Compute the information gain of the given
