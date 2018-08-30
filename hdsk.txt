@@ -345,14 +345,14 @@ module Hdsk.Cluster
 --   the input list of data points.
 kmeans :: Int -> [[Double]] -> [Int]
 
--- | O(ikD*n^2)/ Run the kmedoids clustering algorithm over the given
+-- | <i>O(ikD*n^2)</i> Run the kmedoids clustering algorithm over the given
 --   dataset.
 kmedoids :: Int -> [[Double]] -> [Int]
 
 -- | Convenience function for creating clustering function. For instance,
---   <tt>kmeans</tt>, as defined in this module, is a <tt>kclusterer</tt>
---   with euclidean distance function, mean center measure, and <i>eta =
---   0.01</i>.
+--   <a>kmeans</a>, as defined in this module, is a <a>kclusterer</a> with
+--   <a>distEuclidean</a> distance metric, <a>centroid</a> center measure,
+--   and <i>eta = 0.01</i>.
 kclusterer :: Eq tup => Double -> (tup -> tup -> Double) -> ([tup] -> tup) -> Int -> [tup] -> [Int]
 
 -- | <i>O(nkD)</i> where <i>n</i> is the number of data points, <i>k</i> is
@@ -375,7 +375,7 @@ meanSqDist :: (Ord d, Floating d) => (tup -> tup -> d) -> ([tup] -> tup) -> [tup
 
 -- | <i>O(nD)</i> where <i>n</i> is the number of data points and <i>D</i>
 --   is the dimensionality of the data. Calculate the midpoints of clusters
---   according to a metric (<tt>centroid</tt>, for instance).
+--   according to a metric (<a>centroid</a>, for instance).
 midpoints :: ([tup] -> tup) -> [Int] -> [tup] -> [tup]
 
 -- | <i>O(nD)</i> where <i>n</i> is the number of points and <i>D</i> is
@@ -405,11 +405,11 @@ closestTo :: Ord d => (tup -> tup -> d) -> tup -> [tup] -> tup
 --   distance).
 minkowski :: Floating a => a -> [a] -> [a] -> a
 
--- | Common case of <tt>minkowski</tt> is with <i>p = 1</i> for Manhattan
+-- | Common case of <a>minkowski</a> is with <i>p = 1</i> for Manhattan
 --   distance.
 distManhattan :: Floating a => [a] -> [a] -> a
 
--- | Common case of <tt>minkowski</tt> is with <i>p = 2</i> for Euclidean
+-- | Common case of <a>minkowski</a> is with <i>p = 2</i> for Euclidean
 --   distance.
 distEuclidean :: Floating a => [a] -> [a] -> a
 
