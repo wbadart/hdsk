@@ -485,7 +485,7 @@ entropy :: (Functor f, Foldable f, Eq label, Ord label, Floating a) => (tup -> l
 
 -- | <i>O(nC)</i> Compute the conditional entropy of splitting the dataset
 --   over the given branches.
-conditionalEntropy :: Eq label => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
+conditionalEntropy :: (Foldable f, Alternative f, Eq label, Ord label) => (tup -> label) -> f tup -> [tup -> Bool] -> Double
 
 
 -- | This module facilitates the definition of decision tree classifiers
