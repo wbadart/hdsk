@@ -416,7 +416,7 @@ module Hdsk.Util
 -- | <i>O(n log n)</i> Compute the most frequent label in the data set.
 --   Ties do not have well defined behavior; the tie is broken by
 --   <a>maximumBy</a> which doesn't have clear documentation on ties.
-majorityLabel :: (Eq label, Ord label) => (tup -> label) -> [tup] -> label
+majorityLabel :: (Foldable f, Functor f, Eq label, Ord label) => (tup -> label) -> f tup -> label
 
 -- | <i>O(n log n)</i> Given a container, construct a map from the unique
 --   elements of the container to their frequency within the container.
@@ -446,6 +446,14 @@ length' :: (Num a, Foldable f) => f b -> a
 -- | <i>O(1)</i> Shorthand for <tt>logBase 2</tt>
 lg :: Floating a => a -> a
 
+-- | <i>O(n log n)</i> Filter the duplicates out of a list.
+uniq :: Ord a => [a] -> [a]
+
+-- | <i>O(n log n + nX)</i> where <i>X</i> is the const of the associative
+--   binary operator for the given <tt>Alternative</tt> type. Filter the
+--   duplicates out of a <tt>Foldable</tt>, <tt>Alternative</tt> container.
+uniq' :: (Foldable f, Alternative f, Ord a) => f a -> f a
+
 
 -- | This module implements the K Nearest Neighbors classifier, which finds
 --   the k tuples "closest" to the unobserved instance and combines their
@@ -464,7 +472,7 @@ knn :: Ord d => (tup -> tup -> d) -> Int -> [tup] -> tup -> [tup]
 -- | <i>O(n log n)</i> Compute the most frequent label in the data set.
 --   Ties do not have well defined behavior; the tie is broken by
 --   <a>maximumBy</a> which doesn't have clear documentation on ties.
-majorityLabel :: (Eq label, Ord label) => (tup -> label) -> [tup] -> label
+majorityLabel :: (Foldable f, Functor f, Eq label, Ord label) => (tup -> label) -> f tup -> label
 
 
 -- | This module implements various measures of entropy and information
