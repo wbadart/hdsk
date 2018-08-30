@@ -26,7 +26,7 @@ module Hdsk.Cluster
 ) where
 
 import Data.Function (on)
-import Data.List (elemIndex, minimumBy)
+import Data.List (elemIndex, minimumBy, transpose)
 import Data.Maybe (fromMaybe)
 import qualified Data.Vector as V
 
@@ -39,14 +39,15 @@ import Hdsk.Numerical (terminate)
 kmeans :: Int -> [[Double]] -> [Int]
 kmeans = kclusterer 0.01 distEuclidean centroid
 
--- | O(ikD*n^2)/ Run the kmedoids clustering algorithm over the given
+-- | /O(ikD*n^2)/ Run the kmedoids clustering algorithm over the given
 -- dataset.
 kmedoids :: Int -> [[Double]] -> [Int]
 kmedoids = kclusterer 0.01 distEuclidean (medoid distEuclidean)
 
 -- | Convenience function for creating clustering function. For
--- instance, @kmeans@, as defined in this module, is a @kclusterer@ with
--- euclidean distance function, mean center measure, and /eta = 0.01/.
+-- instance, 'kmeans', as defined in this module, is a 'kclusterer' with
+-- 'distEuclidean' distance metric, 'centroid' center measure, and
+-- /eta = 0.01/.
 kclusterer :: Eq tup
            => Double                 -- ^ Minimum improvement /eta/
            -> (tup -> tup -> Double) -- ^ Distance metric between points
@@ -88,7 +89,7 @@ meanSqDist dist c dat cIdxs = mean $ zipWith (((**2) .) . dist) dat cents
 
 -- | /O(nD)/ where /n/ is the number of data points and /D/ is the
 -- dimensionality of the data. Calculate the midpoints of clusters
--- according to a metric (@centroid@, for instance).
+-- according to a metric ('centroid', for instance).
 midpoints :: ([tup] -> tup) -> [Int] -> [tup]-> [tup]
 midpoints center clusters =
     mkPts . V.accum (flip (:)) initial . zip clusters
@@ -124,15 +125,10 @@ minkowski :: Floating a => a -> [a] -> [a] -> a
 minkowski p x y = sum (zipWith absDistP x y) ** (1 / p)
   where absDistP xi yi = abs (xi - yi) ** p
 
--- | Common case of @minkowski@ is with /p = 1/ for Manhattan distance.
+-- | Common case of 'minkowski' is with /p = 1/ for Manhattan distance.
 distManhattan :: Floating a => [a] -> [a] -> a
 distManhattan = minkowski 1
 
--- | Common case of @minkowski@ is with /p = 2/ for Euclidean distance.
+-- | Common case of 'minkowski' is with /p = 2/ for Euclidean distance.
 distEuclidean :: Floating a => [a] -> [a] -> a
 distEuclidean = minkowski 2
-
--- | Transpose a 2D array.
-transpose :: [[a]] -> [[a]]
-transpose ([]:_) = []
-transpose x = map head x : transpose (map tail x)
