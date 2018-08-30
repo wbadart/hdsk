@@ -154,7 +154,7 @@ module Hdsk.Metrics
 --   <tt>c</tt> is the list of class labels, e.g. <tt>["cat", "dog"]</tt>.
 --   Accuracy represents the proportion of classifications which were
 --   correct.
-accuracy :: (Zippable z, Eq a, Fractional b) => [a] -> z a -> z a -> b
+accuracy :: (MonadZip z, Foldable z, Eq a, Fractional b) => [a] -> z a -> z a -> b
 
 -- | <i>O(C^2)</i> where <i>C</i> is the number of classes. Calculate
 --   accuracy from a confusion matrix, rather than a list of truths and
@@ -180,7 +180,7 @@ accuracyCM :: Fractional a => Matrix Int -> a
 --   predictions which are true.
 --   
 --   Precision is undefined when no positive predictions are made.
-precision :: (Zippable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
+precision :: (MonadZip z, Foldable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
 
 -- | <i>O(C^2)</i> Compute the precision directly from a confusion matrix.
 --   The second argument is the class index within the confusion matrix.
@@ -203,7 +203,7 @@ precisionCM :: Fractional a => Matrix Int -> Int -> a
 --   classified as such.
 --   
 --   Recall is undefined when there are no positive observations.
-recall :: (Zippable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
+recall :: (MonadZip z, Foldable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
 
 -- | <i>O(C^2)</i> Compute recall from a confusion matrix for a specified
 --   class. See <tt>precisionCM</tt> for discussion on the class index
@@ -216,7 +216,7 @@ recallCM :: Fractional a => Matrix Int -> Int -> a
 --   correctly labeled.
 --   
 --   Specificity is undefined when there are no negative truths.
-specificity :: (Zippable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
+specificity :: (MonadZip z, Foldable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
 
 -- | <i>O(C^2)</i> Compute specificity from a confusion matrix for a
 --   specified class. See <tt>precisionCM</tt> for discussion on the class
@@ -225,7 +225,7 @@ specificityCM :: Fractional a => Matrix Int -> Int -> a
 
 -- | <i>O(n)</i> Compute the balanced f1-score of the model for a given
 --   class.
-f1 :: (Zippable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
+f1 :: (MonadZip z, Foldable z, Eq a, Fractional b) => [a] -> a -> z a -> z a -> b
 
 -- | <i>O(C^2)</i> Compute the f1-score from a confusion matrix. See
 --   <tt>precisionCM</tt> for a discussion of the class index argument.
@@ -238,7 +238,7 @@ f1CM :: Fractional a => Matrix Int -> Int -> a
 --   predicted class and columns the actual class. Classes are encoded as
 --   indices, where the index of a class within the matrix corresponds to
 --   its index within the set of classes.
-confusionMatrix :: (Zippable z, Eq a) => [a] -> z a -> z a -> Matrix Int
+confusionMatrix :: (MonadZip z, Foldable z, Eq a) => [a] -> z a -> z a -> Matrix Int
 
 -- | <i>O(1)</i> Count the true positives for a class in a given confusion
 --   matrix.
@@ -275,11 +275,6 @@ explainedVariance :: (Eq a, Floating a) => [a] -> [a] -> a
 -- | <i>O(n)</i> Find the coefficient of determination (R^2 value) of a
 --   regression. Aka goodness of fit.
 r2score :: (Eq a, Floating a) => [a] -> [a] -> a
-
--- | Class of types which support the zip and zipWith operations.
-class Foldable z => Zippable z
-instance Hdsk.Metrics.Zippable Data.Vector.Vector
-instance Hdsk.Metrics.Zippable []
 
 
 -- | A simple implementation of a Naive Bayes classifier for purely
