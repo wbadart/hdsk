@@ -80,7 +80,7 @@ benchmarks:
       - hdsk
       - criterion >= 1.4 && < 2
 
-description: >
+description: |
     = Haskell Data Science Kit
 
     ![Build status](https://travis-ci.org/wbadart/hdsk.svg?branch=master)
@@ -90,11 +90,11 @@ description: >
     in the Haskell language.
 
     Sources suggest that in spite of huge potential for performance gains over
-    current de facto methods [[1]], adoption of Haskell in the data science
+    current de facto methods [1], adoption of Haskell in the data science
     community lags for a variety of reasons, the greatest of which seems to be the
-    dearth [[2]] of easy-to-use data science libraries (indeed, searching for
+    dearth [2] of easy-to-use data science libraries (indeed, searching for
     "/data science/" on GitHub yields __14__ Haskell-language repositories and
-    __5,807__ Python-language repositories [[3]]). This project seeks to mediate
+    __5,807__ Python-language repositories [3]). This project seeks to mediate
     that issue by presenting a /unified/ (though modular) library of data science
     utilities which support the entire life-cycle of a data science project.
 
@@ -105,9 +105,9 @@ description: >
     solution to any given function (and in cases when I don't, pull requests are
     gladly welcomed!).
 
-    [1]: https://izbicki.me/blog/hlearn-cross-validates-400x-faster-than-weka
-    [2]: https://www.linkedin.com/pulse/haskell-data-science-good-bad-ugly-tom-hutchins
-    [3]: https://github.com/search?q=data+science+language%3AHaskell&type=Repositories
+    1. https://izbicki.me/blog/hlearn-cross-validates-400x-faster-than-weka
+    2. https://www.linkedin.com/pulse/haskell-data-science-good-bad-ugly-tom-hutchins
+    3. https://github.com/search?q=data+science+language%3AHaskell&type=Repositories
 
 
     == Installation
@@ -135,18 +135,17 @@ description: >
 
     Please see [wbadart.info/hdsk](https://wbadart.info/hdsk) for library documentation.
     Further project info, such as planned features, is made available on the
-    [wiki](https://github.com/wbadart/hdsk/wiki).
+    wiki: https://github.com/wbadart/hdsk/wiki.
 
 
     == License
 
     You'll notice a key theme in this document has been __promoting adoption.__ As
     such, I'm developing and eventually releasing this project under the
-    BSD-3-Clause [[11]] license, due to its general permissiveness. This is also
-    one of the more popular licenses among the Haskell community [[12]].
+    BSD-3-Clause [1] license, due to its general permissiveness. This is also
+    one of the more popular licenses among the Haskell community [2].
 
     Please see [LICENSE](./LICENSE) for the full text.
 
-    [11]: https://opensource.org/licenses/BSD-3-Clause
-    [12]: https://wiki.haskell.org/How_to_write_a_Haskell_program
-
+    11. https://opensource.org/licenses/BSD-3-Clause
+    12. https://wiki.haskell.org/How_to_write_a_Haskell_program
