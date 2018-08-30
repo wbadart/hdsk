@@ -13,10 +13,10 @@ module Hdsk.DecisionTree.Entropy
 , conditionalEntropy
 ) where
 
-import Data.List (nub)
+import Control.Applicative (Alternative)
 import qualified Data.Map.Strict as M
 
-import Hdsk.Util (count, countBy', length', lg)
+import Hdsk.Util (count, countBy', length', lg, uniq')
 
 -- | /O(n log n)/ Calculate the total information entropy of a dataset.
 entropy :: (Functor f, Foldable f, Eq label, Ord label, Floating a)
@@ -27,15 +27,15 @@ entropy getLabel dat = M.foldr prob 0 (count (fmap getLabel dat))
 
 -- | /O(nC)/ Compute the conditional entropy of splitting the dataset
 -- over the given branches.
-conditionalEntropy :: Eq label
-                   => (tup -> label) -> [tup] -> [tup -> Bool] -> Double
+conditionalEntropy :: (Foldable f, Alternative f, Eq label, Ord label)
+                   => (tup -> label) -> f tup -> [tup -> Bool] -> Double
 conditionalEntropy getLabel dat branches =
     let ct p    = countBy' p dat
-        freqs p = [ct ((&&) <$> p <*> hasLabel l) | l <- labels dat]
-        fracs p = [if f /= 0 then (f / c) * lg (f / c) else 0
-                    | (f, c) <- zip (freqs p) (repeat $ ct p)]
-        total p = negate $ sum $ fracs p
+        freqs p = (\l -> ct ((&&) <$> p <*> hasLabel l)) <$> labels dat
+        fracs p = let c = ct p in (\f -> if f/=0 then (f/c)*lg(f/c) else 0)
+                                  <$> freqs p
+        total p = -sum (fracs p)
         ent p   = (ct p / length' dat) * total p
     in sum $ map ent branches
-  where labels xs = nub $ map getLabel xs
+  where labels = uniq' . fmap getLabel
         hasLabel l x = getLabel x == l
