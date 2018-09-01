@@ -27,10 +27,3 @@ bin intervals = fmap idx
 genIntervals :: Selectable f => Int -> f Double -> [Double -> Bool]
 genIntervals k dat = map (\j y -> y <= percentile (100 * j / k') dat) [1..k']
   where k' = fromIntegral k
-
--- | /O(???)/ Compute the frequency of fixed-width bins along the
--- series.
--- histFixed :: (Eq a, Ord a) => Int -> [a] -> [((a, a), Int)]
--- histFixed = (count .) . bin
---   where count = runST . foldr ct H.new
---         ct x h = H.mutate h x (\v -> case v of Just v' -> v' + 1; Nothing -> 1)
