@@ -19,10 +19,6 @@ main = defaultMain
     [ bench "creation" $ nf (confusionMatrix c yt) yp
     ]
 
-  -- , env mkZipped $ \ ~(c, ys) -> bgroup "confusionPreZipped"
-  --   [ bench "creation" $ nf (confusionZipped c) ys
-  --   ]
-
   , env mkPreds $ \ ~(c, yt, yp) -> bgroup "list"
     [ bench "accuracy"    $ nf (accuracy    c   yt :: LF) yp
     , bench "precision"   $ nf (precision   c 0 yt :: LF) yp
