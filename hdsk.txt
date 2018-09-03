@@ -516,3 +516,9 @@ gainRatio :: (Foldable f, Alternative f, Eq label, Ord label) => (tup -> label) 
 --   values at the given index. The feature values at index <tt>idx</tt>
 --   should be categorical.
 mkCatTests :: (Foldable f, Alternative f, Ord a) => (tup -> a) -> f tup -> f (tup -> Bool)
+
+-- | <i>O(???)</i> Compute the branching predicates for a continuous
+--   predicate. Will always be a pair, where one branch claims the objects
+--   with values less than or equal to the split point, and the other those
+--   greater. The split optimizes the given criterion.
+mkContTests :: (Foldable f, Alternative f, Ord a) => (tup -> a) -> f tup -> f (tup -> Bool)
