@@ -15,6 +15,7 @@ module Hdsk.DecisionTree
 , splitInfo
 , gainRatio
 , mkCatTests
+, mkContTests
 ) where
 
 import Control.Applicative (Alternative)
