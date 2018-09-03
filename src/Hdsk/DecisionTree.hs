@@ -53,6 +53,14 @@ mkCatTests :: (Foldable f, Alternative f, Ord a)
            => (tup -> a) -> f tup -> f (tup -> Bool)
 mkCatTests getVal = fmap (\v -> (==v) . getVal) . uniq' . fmap getVal
 
+-- | /O(???)/ Compute the branching predicates for a continuous
+-- predicate. Will always be a pair, where one branch claims the objects
+-- with values less than or equal to the split point, and the other
+-- those greater. The split optimizes the given criterion.
+mkContTests :: (Foldable  f, Alternative f, Ord a)
+            => (tup -> a) -> f tup -> f (tup -> Bool)
+mkContTests _ _ = undefined
+
 -- | /O(BX)/ where /B/ is the number of branchings to test and /X/ is
 -- the cost of the branching criterion. Find the optimal branching
 -- according to the given criterion.
