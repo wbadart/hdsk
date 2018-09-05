@@ -21,6 +21,8 @@ module Hdsk.Util
 , lg
 , uniq
 , uniq'
+, head'
+, last'
 ) where
 
 import Control.Applicative (Alternative, (<|>), empty, pure)
@@ -91,3 +93,11 @@ uniq = S.toList . S.fromList
 -- of a @Foldable@, @Alternative@ container.
 uniq' :: (Foldable f, Alternative f, Ord a) => f a -> f a
 uniq' xs = S.foldr ((<|>) . pure) empty $ foldr S.insert S.empty xs
+
+-- | /O(n)/ Return the first item in a foldable.
+head' :: Foldable f => f a -> a
+head' = foldr1 (curry fst)
+
+-- | /O(n)/ Return the last element of a foldable.
+last' :: Foldable f => f a -> a
+last' = foldr1 (curry snd)

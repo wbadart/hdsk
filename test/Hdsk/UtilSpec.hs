@@ -68,3 +68,11 @@ spec = do
       uniq' (V.fromList [1, 1, 2, 3, 2]) `shouldBe` V.fromList [1, 2, 3]
     it "works on empty containers" $
       uniq' (V.empty::Vector Int) `shouldBe` V.empty
+
+  describe "head'" $
+    it "works the same as head on lists" $ property
+      (\(xs::[Int]) -> null xs || head xs == head' xs)
+
+  describe "last'" $
+    it "works the same as last on lists" $ property
+      (\(xs::[Int]) -> null xs || last xs == last' xs)
