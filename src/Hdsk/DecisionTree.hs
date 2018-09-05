@@ -82,8 +82,14 @@ bestBranching getLabel criterion dat =
 -- instances. An object belongs to whichever branch for which it passes
 -- the predicate. Assumes that each data object will pass one and only
 -- one of the branching predicates.
+--
+-- All the other split criteria defined in this module (e.g.
+-- 'splitInfo', 'gainRatio') share the same interface.
 infoGain :: (Foldable f, Alternative f, Eq label, Ord label)
-         => (tup -> label) -> f tup -> [tup -> Bool] -> Double
+         => (tup -> label) -- ^ Funciton to extract label of a tuple
+         -> f tup          -- ^ Dataset
+         -> [tup -> Bool]  -- ^ Branching, encoded as list of predicates
+         -> Double         -- ^ Calculated information gain
 infoGain getLabel dat branches =
   entropy getLabel dat - conditionalEntropy getLabel dat branches
 
