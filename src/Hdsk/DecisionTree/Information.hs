@@ -21,6 +21,9 @@ import qualified Data.Map.Strict as M
 
 import Hdsk.Util (count, countBy', length', lg, uniq')
 
+
+-- ===== Information Measures ===== ==
+
 -- | /O(nC + n log n)/ Compute the information gain of the given
 -- branching. Branches are encoded as a list of predicates over data
 -- instances. An object belongs to whichever branch for which it passes
@@ -50,6 +53,10 @@ gainRatio :: (Foldable f, Alternative f, Eq label, Ord label)
           => (tup -> label) -> f tup -> [tup -> Bool] -> Double
 gainRatio getLabel dat branches =
   infoGain getLabel dat branches / splitInfo getLabel dat branches
+
+
+-- ===== Entropy Measures ===== --
+
 -- | /O(n log n)/ Calculate the total information entropy of a dataset.
 entropy :: (Functor f, Foldable f, Eq label, Ord label, Floating a)
         => (tup -> label) -> f tup -> a
