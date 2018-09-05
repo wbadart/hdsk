@@ -455,6 +455,12 @@ uniq :: Ord a => [a] -> [a]
 --   duplicates out of a <tt>Foldable</tt>, <tt>Alternative</tt> container.
 uniq' :: (Foldable f, Alternative f, Ord a) => f a -> f a
 
+-- | <i>O(n)</i> Return the first item in a foldable.
+head' :: Foldable f => f a -> a
+
+-- | <i>O(n)</i> Return the last element of a foldable.
+last' :: Foldable f => f a -> a
+
 
 -- | This module implements the K Nearest Neighbors classifier, which finds
 --   the k tuples "closest" to the unobserved instance and combines their
