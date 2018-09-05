@@ -478,7 +478,24 @@ majorityLabel :: (Foldable f, Functor f, Eq label, Ord label) => (tup -> label) 
 
 -- | This module implements various measures of entropy and information
 --   gain in service of decision tree classification.
-module Hdsk.DecisionTree.Entropy
+module Hdsk.DecisionTree.Information
+
+-- | <i>O(nC + n log n)</i> Compute the information gain of the given
+--   branching. Branches are encoded as a list of predicates over data
+--   instances. An object belongs to whichever branch for which it passes
+--   the predicate. Assumes that each data object will pass one and only
+--   one of the branching predicates.
+--   
+--   All the other split criteria defined in this module (e.g.
+--   <a>splitInfo</a>, <a>gainRatio</a>) share the same interface.
+infoGain :: (Foldable f, Alternative f, Eq label, Ord label) => (tup -> label) -> f tup -> [tup -> Bool] -> Double
+
+-- | <i>O(nB)</i> where <i>B</i> is the number of branches. Compute the
+--   split info of the branching.
+splitInfo :: (Foldable f, Alternative f, Eq label, Ord label) => (tup -> label) -> f tup -> [tup -> Bool] -> Double
+
+-- | <i>O(nB + nC + n log n)</i> Compute the gain ratio of a branching.
+gainRatio :: (Foldable f, Alternative f, Eq label, Ord label) => (tup -> label) -> f tup -> [tup -> Bool] -> Double
 
 -- | <i>O(n log n)</i> Calculate the total information entropy of a
 --   dataset.
@@ -497,20 +514,6 @@ module Hdsk.DecisionTree
 -- | Predict the label of an unobserved tuple, according to the provided
 --   parameters.
 classify :: (Foldable f, Alternative f, MonadPlus f, Eq label, Ord label) => (f tup -> [[tup -> Bool]]) -> (tup -> label) -> ((tup -> label) -> f tup -> [tup -> Bool] -> Double) -> f tup -> tup -> label
-
--- | <i>O(nC + n log n)</i> Compute the information gain of the given
---   branching. Branches are encoded as a list of predicates over data
---   instances. An object belongs to whichever branch for which it passes
---   the predicate. Assumes that each data object will pass one and only
---   one of the branching predicates.
-infoGain :: (Foldable f, Alternative f, Eq label, Ord label) => (tup -> label) -> f tup -> [tup -> Bool] -> Double
-
--- | <i>O(nB)</i> where <i>B</i> is the number of branches. Compute the
---   split info of the branching.
-splitInfo :: (Foldable f, Alternative f, Eq label, Ord label) => (tup -> label) -> f tup -> [tup -> Bool] -> Double
-
--- | <i>O(nB + nC + n log n)</i> Compute the gain ratio of a branching.
-gainRatio :: (Foldable f, Alternative f, Eq label, Ord label) => (tup -> label) -> f tup -> [tup -> Bool] -> Double
 
 -- | <i>O(n log n)</i> Compute the branching predicates for the feature
 --   values at the given index. The feature values at index <tt>idx</tt>
