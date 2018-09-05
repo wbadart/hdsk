@@ -22,7 +22,7 @@ import Control.Applicative (Alternative)
 import Control.Monad (MonadPlus, mfilter)
 import Data.List (find, maximumBy)
 import Data.Function (on)
-import Hdsk.DecisionTree.Entropy (entropy, conditionalEntropy)
+import Hdsk.DecisionTree.Information (entropy, conditionalEntropy)
 import Hdsk.Util (length', countBy', lg, majorityLabel, uniq')
 
 -- | Predict the label of an unobserved tuple, according to the provided

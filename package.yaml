@@ -28,7 +28,7 @@ library:
     - Hdsk.Bins
     - Hdsk.Cluster
     - Hdsk.DecisionTree
-    - Hdsk.DecisionTree.Entropy
+    - Hdsk.DecisionTree.Information
     - Hdsk.Description
     - Hdsk.Metrics
     - Hdsk.NaiveBayes

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 391c78c5fd085f0c28b92cb66c2b22a5aa65d487a48029ed57dd631eb0ff1776
+-- hash: 533de58971a00df0fbc8c99e2c90010f0706a7a71b5003a68d1c947f3f7bc327
 
 name:           hdsk
 version:        0.1.0.0
@@ -110,7 +110,7 @@ library
       Hdsk.Bins
       Hdsk.Cluster
       Hdsk.DecisionTree
-      Hdsk.DecisionTree.Entropy
+      Hdsk.DecisionTree.Information
       Hdsk.Description
       Hdsk.Metrics
       Hdsk.NaiveBayes
@@ -141,7 +141,7 @@ test-suite spec
   other-modules:
       Hdsk.BinsSpec
       Hdsk.ClusterSpec
-      Hdsk.DecisionTree.EntropySpec
+      Hdsk.DecisionTree.InformationSpec
       Hdsk.DecisionTreeSpec
       Hdsk.DescriptionSpec
       Hdsk.MetricsSpec

@@ -1,15 +1,15 @@
 {- |
-Module:       Hdsk.DecisionTree.EntropySpec
+Module:       Hdsk.DecisionTree.InformationSpec
 Description:  Unit tests for measures of entropy
 -}
 
-module Hdsk.DecisionTree.EntropySpec (spec) where
+module Hdsk.DecisionTree.InformationSpec (spec) where
 
 import Data.List (nub)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.Util (shouldLieBetween)
 
-import Hdsk.DecisionTree.Entropy
+import Hdsk.DecisionTree.Information
 
 spec :: Spec
 spec = do
