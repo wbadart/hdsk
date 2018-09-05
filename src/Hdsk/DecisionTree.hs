@@ -11,9 +11,6 @@ and more.
 
 module Hdsk.DecisionTree
 ( classify
-, infoGain
-, splitInfo
-, gainRatio
 , mkCatTests
 , mkContTests
 ) where
@@ -22,7 +19,6 @@ import Control.Applicative (Alternative)
 import Control.Monad (MonadPlus, mfilter)
 import Data.List (find, maximumBy)
 import Data.Function (on)
-import Hdsk.DecisionTree.Information (entropy, conditionalEntropy)
 import Hdsk.Util (length', countBy', lg, majorityLabel, uniq')
 
 -- | Predict the label of an unobserved tuple, according to the provided
@@ -73,36 +69,3 @@ bestBranching :: (Foldable f, Alternative f, Eq label, Ord label)
               -> [tup -> Bool]
 bestBranching getLabel criterion dat =
     maximumBy (compare `on` criterion getLabel dat)
-
-
--- ===== Information Measures ===== --
-
--- | /O(nC + n log n)/ Compute the information gain of the given
--- branching. Branches are encoded as a list of predicates over data
--- instances. An object belongs to whichever branch for which it passes
--- the predicate. Assumes that each data object will pass one and only
--- one of the branching predicates.
---
--- All the other split criteria defined in this module (e.g.
--- 'splitInfo', 'gainRatio') share the same interface.
-infoGain :: (Foldable f, Alternative f, Eq label, Ord label)
-         => (tup -> label) -- ^ Funciton to extract label of a tuple
-         -> f tup          -- ^ Dataset
-         -> [tup -> Bool]  -- ^ Branching, encoded as list of predicates
-         -> Double         -- ^ Calculated information gain
-infoGain getLabel dat branches =
-  entropy getLabel dat - conditionalEntropy getLabel dat branches
-
--- | /O(nB)/ where /B/ is the number of branches. Compute the split info
--- of the branching.
-splitInfo :: (Foldable f, Alternative f, Eq label, Ord label)
-          => (tup -> label) -> f tup -> [tup -> Bool] -> Double
-splitInfo _ dat branches =
-  let bits c = (c / length' dat) * lg (c / length' dat)
-  in  -sum (map (bits . (`countBy'` dat)) branches)
-
--- | /O(nB + nC + n log n)/ Compute the gain ratio of a branching.
-gainRatio :: (Foldable f, Alternative f, Eq label, Ord label)
-          => (tup -> label) -> f tup -> [tup -> Bool] -> Double
-gainRatio getLabel dat branches =
-  infoGain getLabel dat branches / splitInfo getLabel dat branches

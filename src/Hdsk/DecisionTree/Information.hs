@@ -9,7 +9,10 @@ in service of decision tree classification.
 -}
 
 module Hdsk.DecisionTree.Information
-( entropy
+( infoGain
+, splitInfo
+, gainRatio
+, entropy
 , conditionalEntropy
 ) where
 
@@ -18,6 +21,35 @@ import qualified Data.Map.Strict as M
 
 import Hdsk.Util (count, countBy', length', lg, uniq')
 
+-- | /O(nC + n log n)/ Compute the information gain of the given
+-- branching. Branches are encoded as a list of predicates over data
+-- instances. An object belongs to whichever branch for which it passes
+-- the predicate. Assumes that each data object will pass one and only
+-- one of the branching predicates.
+--
+-- All the other split criteria defined in this module (e.g.
+-- 'splitInfo', 'gainRatio') share the same interface.
+infoGain :: (Foldable f, Alternative f, Eq label, Ord label)
+         => (tup -> label) -- ^ Funciton to extract label of a tuple
+         -> f tup          -- ^ Dataset
+         -> [tup -> Bool]  -- ^ Branching, encoded as list of predicates
+         -> Double         -- ^ Calculated information gain
+infoGain getLabel dat branches =
+  entropy getLabel dat - conditionalEntropy getLabel dat branches
+
+-- | /O(nB)/ where /B/ is the number of branches. Compute the split info
+-- of the branching.
+splitInfo :: (Foldable f, Alternative f, Eq label, Ord label)
+          => (tup -> label) -> f tup -> [tup -> Bool] -> Double
+splitInfo _ dat branches =
+  let bits c = (c / length' dat) * lg (c / length' dat)
+  in  -sum (map (bits . (`countBy'` dat)) branches)
+
+-- | /O(nB + nC + n log n)/ Compute the gain ratio of a branching.
+gainRatio :: (Foldable f, Alternative f, Eq label, Ord label)
+          => (tup -> label) -> f tup -> [tup -> Bool] -> Double
+gainRatio getLabel dat branches =
+  infoGain getLabel dat branches / splitInfo getLabel dat branches
 -- | /O(n log n)/ Calculate the total information entropy of a dataset.
 entropy :: (Functor f, Foldable f, Eq label, Ord label, Floating a)
         => (tup -> label) -> f tup -> a
