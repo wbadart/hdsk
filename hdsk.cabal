@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 93ae21432f008b44d4875f336a3bd33382a24352a378058c6463801018fa68ee
+-- hash: 2be42e48da4a92f753e48f216689a9cc3908d8c4f6625488ba4a5f0c5f1594bb
 
 name:           hdsk
 version:        0.1.0.0
@@ -150,6 +150,23 @@ test-suite spec
       Hdsk.NumericalSpec
       Hdsk.UtilSpec
       Test.Util
+      Paths_hdsk
+  default-language: Haskell2010
+
+benchmark metrics
+  type: exitcode-stdio-1.0
+  main-is: benchmark/Metrics.hs
+  build-depends:
+      base >=4.7 && <5
+    , containers <0.6
+    , criterion >=1.4 && <2
+    , hashable >=1.2 && <2
+    , hashtables >=1.2
+    , hdsk
+    , heap >=1.0.4 && <2
+    , matrix >=0.3
+    , vector ==0.12.*
+  other-modules:
       Paths_hdsk
   default-language: Haskell2010
 
