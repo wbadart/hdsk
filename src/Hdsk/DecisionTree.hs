@@ -37,7 +37,7 @@ data DecisionTree tup label
 -- /D/ is the depth of the tree. Use the given decision tree to predict
 -- a label for an unobserved data instance.
 classify :: DecisionTree tup label -> tup -> label
-classify (Decision p label) tup = label
+classify (Decision _ label) tup = label
 classify (Branches _ kids)  tup = maybe undefined (`classify` tup)
                                 $ find match kids
   where match (Branches p _) = p tup
