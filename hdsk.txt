@@ -455,6 +455,9 @@ uniq :: Ord a => [a] -> [a]
 --   duplicates out of a <tt>Foldable</tt>, <tt>Alternative</tt> container.
 uniq' :: (Foldable f, Alternative f, Ord a) => f a -> f a
 
+-- | <i>O(n)</i> Return the number of uniq values in the container.
+nuniq :: (Foldable f, Ord a) => f a -> Int
+
 -- | <i>O(n)</i> Return the first item in a foldable.
 head' :: Foldable f => f a -> a
 
@@ -517,17 +520,23 @@ conditionalEntropy :: (Foldable f, Alternative f, Eq label, Ord label) => (tup -
 --   tactics, and more.
 module Hdsk.DecisionTree
 
--- | Predict the label of an unobserved tuple, according to the provided
---   parameters.
-classify :: (Foldable f, Alternative f, MonadPlus f, Eq label, Ord label) => (f tup -> [[tup -> Bool]]) -> (tup -> label) -> ((tup -> label) -> f tup -> [tup -> Bool] -> Double) -> f tup -> tup -> label
+-- | Representation of a decision tree's structure. Non-leaf nodes are
+--   encoded with a predicate over the tuple type (this function signals
+--   whether a tuple belongs to the branch) and its child nodes. Leaf
+--   nodes, or decisions, likewise claim tuples with their embedded
+--   predicate, and store the appropriate label.
+data DecisionTree tup label
 
--- | <i>O(n log n)</i> Compute the branching predicates for the feature
---   values at the given index. The feature values at index <tt>idx</tt>
---   should be categorical.
-mkCatTests :: (Foldable f, Alternative f, Ord a) => (tup -> a) -> f tup -> f (tup -> Bool)
+-- | The first field of a branching node is the predicate which encodes it
+--   (e.g. "this is the branch for tuples with attribute weather =
+--   <tt>sunny</tt>), and the second is the node's children.
+Branches :: (tup -> Bool) -> [DecisionTree tup label] -> DecisionTree tup label
 
--- | <i>O(???)</i> Compute the branching predicates for a continuous
---   predicate. Will always be a pair, where one branch claims the objects
---   with values less than or equal to the split point, and the other those
---   greater. The split optimizes the given criterion.
-mkContTests :: (Foldable f, Alternative f, Ord a) => (tup -> a) -> f tup -> f (tup -> Bool)
+-- | Again, the first field determines which data objects this node applies
+--   to, and the second records the decision of the node.
+Decision :: (tup -> Bool) -> label -> DecisionTree tup label
+
+-- | <i>O(X log D)</i> where <i>X</i> is the maximum number of feature
+--   values and <i>D</i> is the depth of the tree. Use the given decision
+--   tree to predict a label for an unobserved data instance.
+classify :: DecisionTree tup label -> tup -> label
