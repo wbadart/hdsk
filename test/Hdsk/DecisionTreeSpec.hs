@@ -13,22 +13,16 @@ import Hdsk.DecisionTree
 spec :: Spec
 spec = do
 
-  let wdat =
-        [ ["sunny", "arid", "yes"]
-        , ["cloudy", "arid", "no"]
-        , ["sunny", "humid", "no"]]
+  let dt = Branches (const True)
+           [ Decision ((=="sunny")  . (!!0)) "play"
+           , Branches ((=="cloudy") . (!!0))
+             [ Decision ((=="warm") . (!!1)) "play"
+             , Decision ((=="cold") . (!!1)) "not play" ]]
 
-  describe "classify" $
-    it "picks the best label for the unobserved tuple" $ do
-      let b dat = map (\i -> mkCatTests (!!i) dat) [0..1]
-      classify b last infoGain wdat ["cloudy", "humid", ""]
-        `shouldBe` "no"
-
-  describe "mkCatTests" $ do
-    it "produces predicates over categorical feature values" $
-      map ($1) (mkCatTests id [1, 1, 2, 3])
-        `shouldBe` [True, False, False]
-
-    it "works on non-trivial cases!" $
-      [test x | test <- mkCatTests head wdat, x <- wdat]
-        `shouldBe` [False, True, False, True, False, True]
+  describe "DecisionTree classify" $ do
+    it "finds the applicable leaf node (Decision)" $
+      classify dt ["sunny", "warm"] `shouldBe` "play"
+    it "recurses correctly when need be" $
+      classify dt ["cloudy", "cold"] `shouldBe` "not play"
+    it "finds the first branching predicate to pass for the tuple" $
+      classify dt ["cloudy", "warm"] `shouldBe` "play"

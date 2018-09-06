@@ -11,11 +11,13 @@ and more.
 
 module Hdsk.DecisionTree
 ( DecisionTree(..)
+, classify
 ) where
 
 import Control.Applicative (Alternative)
+import Data.List (find)
 import Hdsk.DecisionTree.Information (infoGain)
-import Hdsk.Util (head', majorityLabel, uniq')
+import Hdsk.Util (head', majorityLabel, nuniq)
 
 -- | Representation of a decision tree's structure. Non-leaf nodes are
 -- encoded with a predicate over the tuple type (this function signals
@@ -31,6 +33,16 @@ data DecisionTree tup label
   -- applies to, and the second records the decision of the node.
   | Decision (tup -> Bool) label
 
+-- | /O(X log D)/ where /X/ is the maximum number of feature values and
+-- /D/ is the depth of the tree. Use the given decision tree to predict
+-- a label for an unobserved data instance.
+classify :: DecisionTree tup label -> tup -> label
+classify (Decision p label) tup = label
+classify (Branches _ kids)  tup = maybe undefined (`classify` tup)
+                                $ find match kids
+  where match (Branches p _) = p tup
+        match (Decision p _) = p tup
+
 -- | /O(???)/ Generate a decision tree using the ID3 algorithm.
 id3 :: (Alternative f, Foldable f, Ord label)
     => label
@@ -44,6 +56,6 @@ id3 fallback prop getLabel unused dat
   | null unused = Decision prop (majorityLabel getLabel dat)
   | null dat    = Decision prop fallback
   | otherwise   = Branches prop bestBranching
-  where homogenous = length (uniq' $ getLabel <$> dat) == 1
+  where homogenous = nuniq (getLabel <$> dat) == 1
         bestBranching :: [DecisionTree tup label]
         bestBranching = undefined
