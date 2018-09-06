@@ -25,8 +25,8 @@ def main():
     model = DecisionTreeClassifier(max_depth=6).fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
-    savetxt(args.O_TRUE, y_test, delimiter=',')
-    savetxt(args.O_PRED, y_pred, delimiter=',')
+    savetxt(args.otrue, y_test, delimiter=',')
+    savetxt(args.opred, y_pred, delimiter=',')
 
 
 if __name__ == '__main__':
