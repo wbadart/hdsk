@@ -22,7 +22,9 @@ spec = do
   describe "DecisionTree classify" $ do
     it "finds the applicable leaf node (Decision)" $
       classify dt ["sunny", "warm"] `shouldBe` "play"
+
     it "recurses correctly when need be" $
       classify dt ["cloudy", "cold"] `shouldBe` "not play"
+
     it "finds the first branching predicate to pass for the tuple" $
       classify dt ["cloudy", "warm"] `shouldBe` "play"
