@@ -69,6 +69,13 @@ spec = do
     it "works on empty containers" $
       uniq' (V.empty::Vector Int) `shouldBe` V.empty
 
+  describe "nuniq" $ do
+    it "counts the number of unique elements in a container" $ do
+      nuniq [1::Int, 2, 3, 4] `shouldBe` 4
+      nuniq [1::Int, 1, 2, 2] `shouldBe` 2
+    it "is zero on empty containers" $
+      nuniq ([]::[Int]) `shouldBe` 0
+
   describe "head'" $
     it "works the same as head on lists" $ property
       (\(xs::[Int]) -> null xs || head xs == head' xs)

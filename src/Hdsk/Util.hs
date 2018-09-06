@@ -21,6 +21,7 @@ module Hdsk.Util
 , lg
 , uniq
 , uniq'
+, nuniq
 , head'
 , last'
 ) where
@@ -93,6 +94,10 @@ uniq = S.toList . S.fromList
 -- of a @Foldable@, @Alternative@ container.
 uniq' :: (Foldable f, Alternative f, Ord a) => f a -> f a
 uniq' xs = S.foldr ((<|>) . pure) empty $ foldr S.insert S.empty xs
+
+-- | /O(n)/ Return the number of uniq values in the container.
+nuniq :: (Foldable f, Ord a) => f a -> Int
+nuniq = S.size . foldr S.insert S.empty
 
 -- | /O(n)/ Return the first item in a foldable.
 head' :: Foldable f => f a -> a
