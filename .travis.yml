@@ -43,7 +43,11 @@ before_script:
 
 script:
 # Build the package, its tests, and its docs and run the tests
-- stack --no-terminal test --haddock --no-haddock-deps --haddock-arguments="--odir=docs" --test-arguments='--color'
+- stack --no-terminal test --haddock --no-haddock-deps --haddock-arguments="--odir=docs" --test-arguments='--color' --coverage
+
+after_script:
+- stack install hpc-coveralls
+- stack exec hpc-coveralls spec
 
 deploy:
   provider: pages
