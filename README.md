@@ -1,6 +1,7 @@
 # Haskell Data Science Kit
 
-![Build status](https://travis-ci.org/wbadart/hdsk.svg?branch=master)
+[![Build status][build status]](https://travis-ci.org/wbadart/hdsk)
+[![License][license badge]][11]
 
 The Haskell Data Science Kit (*HDSK*) project is an attempt to create a
 well-documented, well-tested, and performant data science library implemented
@@ -64,3 +65,6 @@ Please see [LICENSE](./LICENSE) for the full text.
 
 [11]: https://opensource.org/licenses/BSD-3-Clause
 [12]: https://wiki.haskell.org/How_to_write_a_Haskell_program
+
+[build status]: https://img.shields.io/badge/license-BSD3-lightgrey.svg
+[license badge]: https://img.shields.io/badge/license-BSD3-lightgrey.svg
