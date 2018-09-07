@@ -66,5 +66,5 @@ Please see [LICENSE](./LICENSE) for the full text.
 [11]: https://opensource.org/licenses/BSD-3-Clause
 [12]: https://wiki.haskell.org/How_to_write_a_Haskell_program
 
-[build status]: https://img.shields.io/badge/license-BSD3-lightgrey.svg
+[build status]:  https://travis-ci.org/wbadart/hdsk.svg?branch=master
 [license badge]: https://img.shields.io/badge/license-BSD3-lightgrey.svg
