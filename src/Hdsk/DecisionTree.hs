@@ -61,20 +61,23 @@ id3 fallback prop getLabel unused dat
   | homogenous  = Decision prop (getLabel $ head' dat)
   | null unused = Decision prop (majorityLabel getLabel dat)
   | null dat    = Decision prop fallback
-  | otherwise   = Branches prop $ map mkTree bestBranching
+  | otherwise   = Branches prop
+                $ let (unused', branching) = bestBranching
+                   in map (mkTree unused') branching
   where homogenous = nuniq (fmap getLabel dat) == 1
-        bestBranching :: [tup -> Bool]
+
+        bestBranching :: ([tup -> v], [tup -> Bool])
         bestBranching = maximumBy
-                          (compare `on` infoGain getLabel dat)
+                          (compare `on`
+                            \ ~(_, b) -> infoGain getLabel dat b)
                           branchings
-        branchings :: [[tup -> Bool]]
+
+        branchings :: [([tup -> v], [tup -> Bool])]
         branchings = concatMap mkTests unused
-        mkTests :: (tup -> v) -> [[tup -> Bool]]
+
+        mkTests :: (tup -> v) -> [([tup -> v], [tup -> Bool])]
         mkTests attr = undefined
-        mkTree :: (tup -> Bool) -> DecisionTree tup label
-        mkTree p = id3
-                     (majorityLabel getLabel dat)
-                     p
-                     getLabel
-                     undefined
-                     (mfilter p dat)
+
+        mkTree :: [tup -> v] -> (tup -> Bool) -> DecisionTree tup label
+        mkTree unused' p = id3 (majorityLabel getLabel dat)
+                             p getLabel unused' (mfilter p dat)
