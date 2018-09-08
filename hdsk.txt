@@ -542,4 +542,4 @@ Decision :: (tup -> Bool) -> label -> DecisionTree tup label
 classify :: DecisionTree tup label -> tup -> label
 
 -- | <i>O(???)</i> Generate a decision tree using the ID3 algorithm.
-id3 :: forall f tup label v. (Alternative f, MonadPlus f, Foldable f, Ord label) => label -> (tup -> Bool) -> (tup -> label) -> [tup -> v] -> f tup -> DecisionTree tup label
+id3 :: forall f tup label v. (Alternative f, MonadPlus f, Foldable f, Ord label, Ord v) => label -> (tup -> Bool) -> (tup -> label) -> [tup -> v] -> f tup -> DecisionTree tup label
