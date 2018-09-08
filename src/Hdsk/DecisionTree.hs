@@ -9,13 +9,18 @@ tools for combining and parametrizing entropy measures, pruning tactics,
 and more.
 -}
 
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Hdsk.DecisionTree
 ( DecisionTree(..)
 , classify
+, id3
 ) where
 
 import Control.Applicative (Alternative)
-import Data.List (find)
+import Control.Monad (MonadPlus, mfilter)
+import Data.Function (on)
+import Data.List (find, maximumBy)
 import Hdsk.DecisionTree.Information (infoGain)
 import Hdsk.Util (head', majorityLabel, nuniq)
 
@@ -39,12 +44,13 @@ data DecisionTree tup label
 classify :: DecisionTree tup label -> tup -> label
 classify (Decision _ label) _  = label
 classify (Branches _ kids) tup = maybe undefined (`classify` tup)
-                                $ find match kids
+                               $ find match kids
   where match (Branches p _) = p tup
         match (Decision p _) = p tup
 
 -- | /O(???)/ Generate a decision tree using the ID3 algorithm.
-id3 :: (Alternative f, Foldable f, Ord label)
+id3 :: forall f tup label v.
+       (Alternative f, MonadPlus f, Foldable f, Ord label)
     => label
     -> (tup -> Bool)
     -> (tup -> label)
@@ -55,7 +61,20 @@ id3 fallback prop getLabel unused dat
   | homogenous  = Decision prop (getLabel $ head' dat)
   | null unused = Decision prop (majorityLabel getLabel dat)
   | null dat    = Decision prop fallback
-  | otherwise   = Branches prop bestBranching
-  where homogenous = nuniq (getLabel <$> dat) == 1
-        bestBranching :: [DecisionTree tup label]
-        bestBranching = undefined
+  | otherwise   = Branches prop $ map mkTree bestBranching
+  where homogenous = nuniq (fmap getLabel dat) == 1
+        bestBranching :: [tup -> Bool]
+        bestBranching = maximumBy
+                          (compare `on` infoGain getLabel dat)
+                          branchings
+        branchings :: [[tup -> Bool]]
+        branchings = concatMap mkTests unused
+        mkTests :: (tup -> v) -> [[tup -> Bool]]
+        mkTests attr = undefined
+        mkTree :: (tup -> Bool) -> DecisionTree tup label
+        mkTree p = id3
+                     (majorityLabel getLabel dat)
+                     p
+                     getLabel
+                     undefined
+                     (mfilter p dat)
