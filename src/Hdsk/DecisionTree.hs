@@ -22,7 +22,7 @@ import Control.Monad (MonadPlus, mfilter)
 import Data.Function (on)
 import Data.List (find, maximumBy)
 import Hdsk.DecisionTree.Information (infoGain)
-import Hdsk.Util (head', majorityLabel, nuniq)
+import Hdsk.Util (head', majorityLabel, nuniq, uniq')
 
 -- | Representation of a decision tree's structure. Non-leaf nodes are
 -- encoded with a predicate over the tuple type (this function signals
@@ -50,7 +50,7 @@ classify (Branches _ kids) tup = maybe undefined (`classify` tup)
 
 -- | /O(???)/ Generate a decision tree using the ID3 algorithm.
 id3 :: forall f tup label v.
-       (Alternative f, MonadPlus f, Foldable f, Ord label)
+       (Alternative f, MonadPlus f, Foldable f, Ord label, Ord v)
     => label
     -> (tup -> Bool)
     -> (tup -> label)
@@ -73,10 +73,15 @@ id3 fallback prop getLabel unused dat
                           branchings
 
         branchings :: [([tup -> v], [tup -> Bool])]
-        branchings = concatMap mkTests unused
+        branchings = concatMap (mkTests . (`splitAt` unused))
+                               [0..length unused - 1]
 
-        mkTests :: (tup -> v) -> [([tup -> v], [tup -> Bool])]
-        mkTests attr = undefined
+        mkTests :: ([tup -> v], [tup -> v])
+                -> [([tup -> v], [tup -> Bool])]
+        mkTests (_, []) = []
+        mkTests (u1, attr:u2) =
+          let vals = uniq' $ fmap attr dat
+           in [(u1 ++ u2, error "WIP")]
 
         mkTree :: [tup -> v] -> (tup -> Bool) -> DecisionTree tup label
         mkTree unused' p = id3 (majorityLabel getLabel dat)
