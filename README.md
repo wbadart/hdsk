@@ -67,4 +67,4 @@ Please see [LICENSE](./LICENSE) for the full text.
 [12]: https://wiki.haskell.org/How_to_write_a_Haskell_program
 
 [build status]:  https://travis-ci.org/wbadart/hdsk.svg?branch=master
-[license badge]: https://img.shields.io/badge/license-BSD3-lightgrey.svg
+[license badge]: https://img.shields.io/badge/license-BSD3-blue.svg
