@@ -540,3 +540,6 @@ Decision :: (tup -> Bool) -> label -> DecisionTree tup label
 --   values and <i>D</i> is the depth of the tree. Use the given decision
 --   tree to predict a label for an unobserved data instance.
 classify :: DecisionTree tup label -> tup -> label
+
+-- | <i>O(???)</i> Generate a decision tree using the ID3 algorithm.
+id3 :: forall f tup label v. (Alternative f, MonadPlus f, Foldable f, Ord label) => label -> (tup -> Bool) -> (tup -> label) -> [tup -> v] -> f tup -> DecisionTree tup label
