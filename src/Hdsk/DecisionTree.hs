@@ -38,6 +38,35 @@ data DecisionTree tup label
   -- applies to, and the second records the decision of the node.
   | Decision (tup -> Bool) label
 
+-- | An attribute is a value of a data object which is not its label; a
+-- data objects attributes are the complete set of non-label values
+-- which can be extracte from the data object. Each one can be encoded
+-- as a function from a data object to the target value type, and
+-- wrapping that function in the 'Attribute' type allows you to tag
+-- which attributes should be treated as continuous, and which are
+-- categorical (a distinction which must be made for certain
+-- algorithms).
+data Attribute tup v
+  -- | In general, categorical variables are those which can only take
+  -- on one of a certain, fixed set of discrete values. In the context
+  -- of this data type, an attribute should be tagged as categorical if
+  -- its branches should be encoded with equality. That is, when a tree
+  -- branches on a 'Categorical' attribute, it will generate one branch
+  -- for each of the feature values, and each will test whether an
+  -- unobserved data object shares that feature value.
+  = Categorical (tup -> v)
+  -- | In general, ordinal data are values which can be meaningfully
+  -- ordered relative to one another. This can be either discrete (e.g.
+  -- military rank, grade in school) or continuous (temperature
+  -- outside). In the context of this data type, attributes should be
+  -- tagged as 'Ordinal' when the branches they generate should be
+  -- encoded as a binary split over some pivot. That is, when a tree
+  -- branches on an 'Ordinal' attribute, it generates two branches, one
+  -- which accepts data objects with attribute vaules less than or equal
+  -- to a certain pivot, and one for those with greater (the pivot value
+  -- depends on the split criteria for the algorithm).
+  | Ordinal (tup -> v)
+
 -- | /O(X log D)/ where /X/ is the maximum number of feature values and
 -- /D/ is the depth of the tree. Use the given decision tree to predict
 -- a label for an unobserved data instance.
@@ -54,7 +83,7 @@ id3 :: forall f tup label v.
     => label
     -> (tup -> Bool)
     -> (tup -> label)
-    -> [tup -> v]
+    -> [Attribute tup v]
     -> f tup
     -> DecisionTree tup label
 id3 fallback prop getLabel unused dat
@@ -66,23 +95,24 @@ id3 fallback prop getLabel unused dat
                    in map (mkTree unused') branching
   where homogenous = nuniq (fmap getLabel dat) == 1
 
-        bestBranching :: ([tup -> v], [tup -> Bool])
+        bestBranching :: ([Attribute tup v], [tup -> Bool])
         bestBranching = maximumBy
                           (compare `on`
                             \ ~(_, b) -> infoGain getLabel dat b)
                           branchings
 
-        branchings :: [([tup -> v], [tup -> Bool])]
+        branchings :: [([Attribute tup v], [tup -> Bool])]
         branchings = concatMap (mkTests . (`splitAt` unused))
                                [0..length unused - 1]
 
-        mkTests :: ([tup -> v], [tup -> v])
-                -> [([tup -> v], [tup -> Bool])]
+        mkTests :: ([Attribute tup v], [Attribute tup v])
+                -> [([Attribute tup v], [tup -> Bool])]
         mkTests (_, []) = []
-        mkTests (u1, attr:u2) =
+        mkTests (u1, Categorical attr:u2) =
           let vals = uniq' $ fmap attr dat
            in [(u1 ++ u2, error "WIP")]
+        mkTests (u1, Ordinal attr:u2) = error "WIP"
 
-        mkTree :: [tup -> v] -> (tup -> Bool) -> DecisionTree tup label
+        mkTree :: [Attribute tup v] -> (tup -> Bool) -> DecisionTree tup label
         mkTree unused' p = id3 (majorityLabel getLabel dat)
                              p getLabel unused' (mfilter p dat)
