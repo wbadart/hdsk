@@ -108,9 +108,11 @@ id3 fallback prop getLabel unused dat
         mkTests :: ([Attribute tup v], [Attribute tup v])
                 -> [([Attribute tup v], [tup -> Bool])]
         mkTests (_, []) = []
+
         mkTests (u1, Categorical attr:u2) =
           let vals = uniq' $ fmap attr dat
-           in [(u1 ++ u2, error "WIP")]
+           in [(u1 ++ u2, map (\v -> (==v) . attr) vals)]
+
         mkTests (u1, Ordinal attr:u2) = error "WIP"
 
         mkTree :: [Attribute tup v] -> (tup -> Bool) -> DecisionTree tup label

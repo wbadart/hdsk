@@ -28,3 +28,8 @@ spec = do
 
     it "finds the first branching predicate to pass for the tuple" $
       classify dt ["cloudy", "warm"] `shouldBe` "play"
+
+  -- describe "id3" $
+  --   it "constructs and ID3 decision tree" $ do
+  --     let dat = undefined
+  --         dt2 = id3 "" (const True) last (map (flip (!!)) [0..1]) dat
