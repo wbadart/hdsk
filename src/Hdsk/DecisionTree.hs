@@ -115,20 +115,15 @@ id3 = id3' undefined (const True)
 
             mkTests :: ([Attribute tup v], [Attribute tup v])
                     -> ([Attribute tup v], [tup -> Bool])
-            mkTests (_, []) = undefined
-
-            mkTests (u1, Categorical attr:u2) =
-              let vals = uniq' $ fmap attr dat
-               in (u1 ++ u2, listMap (\v -> (==v) . attr) vals)
-
-            -- | TODO: this might not be right. This will concatenate
-            -- all pairs into a flat list. Might have to restructure the
-            -- types so that mkTests returns unused' and a *list* of
-            -- branchings
-            mkTests (u1, Ordinal attr:u2) =
-              let vals = uniq' $ fmap attr dat
-               in (u1 ++ u2, concatMap
-                               (\v -> [(<=v) . attr, (>v) . attr]) vals)
+            mkTests (_, [])       = undefined
+            mkTests (u1, attr:u2) =
+              (u1 ++ u2, getBranchings attr)
+              where getBranchings (Categorical a) =
+                      listMap (\v -> (==v) . a) vals
+                    getBranchings (Ordinal a) = undefined
+                    vals = uniq' $ fmap attr' dat
+                    attr' = case attr of Categorical f -> f
+                                         Ordinal f -> f
 
             mkTree :: [Attribute tup v]
                    -> (tup -> Bool)
