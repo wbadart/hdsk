@@ -464,6 +464,9 @@ head' :: Foldable f => f a -> a
 -- | <i>O(n)</i> Return the last element of a foldable.
 last' :: Foldable f => f a -> a
 
+-- | <i>O(n)</i> Map a function over a foldable, producing a list.
+listMap :: Foldable f => (a -> b) -> f a -> [b]
+
 
 -- | This module implements the K Nearest Neighbors classifier, which finds
 --   the k tuples "closest" to the unobserved instance and combines their
@@ -535,6 +538,36 @@ Branches :: (tup -> Bool) -> [DecisionTree tup label] -> DecisionTree tup label
 -- | Again, the first field determines which data objects this node applies
 --   to, and the second records the decision of the node.
 Decision :: (tup -> Bool) -> label -> DecisionTree tup label
+
+-- | An attribute is a value of a data object which is not its label; a
+--   data objects attributes are the complete set of non-label values which
+--   can be extracte from the data object. Each one can be encoded as a
+--   function from a data object to the target value type, and wrapping
+--   that function in the <a>Attribute</a> type allows you to tag which
+--   attributes should be treated as continuous, and which are categorical
+--   (a distinction which must be made for certain algorithms).
+data Attribute tup v
+
+-- | In general, categorical variables are those which can only take on one
+--   of a certain, fixed set of discrete values. In the context of this
+--   data type, an attribute should be tagged as categorical if its
+--   branches should be encoded with equality. That is, when a tree
+--   branches on a <a>Categorical</a> attribute, it will generate one
+--   branch for each of the feature values, and each will test whether an
+--   unobserved data object shares that feature value.
+Categorical :: (tup -> v) -> Attribute tup v
+
+-- | In general, ordinal data are values which can be meaningfully ordered
+--   relative to one another. This can be either discrete (e.g. military
+--   rank, grade in school) or continuous (temperature outside). In the
+--   context of this data type, attributes should be tagged as
+--   <a>Ordinal</a> when the branches they generate should be encoded as a
+--   binary split over some pivot. That is, when a tree branches on an
+--   <a>Ordinal</a> attribute, it generates two branches, one which accepts
+--   data objects with attribute vaules less than or equal to a certain
+--   pivot, and one for those with greater (the pivot value depends on the
+--   split criteria for the algorithm).
+Ordinal :: (tup -> v) -> Attribute tup v
 
 -- | <i>O(X log D)</i> where <i>X</i> is the maximum number of feature
 --   values and <i>D</i> is the depth of the tree. Use the given decision
