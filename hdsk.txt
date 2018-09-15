@@ -574,5 +574,5 @@ Ordinal :: (tup -> v) -> Attribute tup v
 --   tree to predict a label for an unobserved data instance.
 classify :: DecisionTree tup label -> tup -> label
 
--- | <i>O(???)</i> Generate a decision tree using the ID3 algorithm.
-id3 :: forall f tup label v. (Alternative f, MonadPlus f, Foldable f, Ord label, Ord v) => label -> (tup -> Bool) -> (tup -> label) -> [Attribute tup v] -> f tup -> DecisionTree tup label
+-- | Generate a decision tree using the ID3 algorithm.
+id3 :: (Alternative f, MonadPlus f, Foldable f, Ord label, Ord v) => (tup -> label) -> [Attribute tup v] -> f tup -> DecisionTree tup label
