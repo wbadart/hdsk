@@ -41,7 +41,7 @@ data DecisionTree tup label
 
 -- | An attribute is a value of a data object which is not its label; a
 -- data objects attributes are the complete set of non-label values
--- which can be extracte from the data object. Each one can be encoded
+-- which can be extracted from the data object. Each one can be encoded
 -- as a function from a data object to the target value type, and
 -- wrapping that function in the 'Attribute' type allows you to tag
 -- which attributes should be treated as continuous, and which are
@@ -63,7 +63,7 @@ data Attribute tup v
   -- tagged as 'Ordinal' when the branches they generate should be
   -- encoded as a binary split over some pivot. That is, when a tree
   -- branches on an 'Ordinal' attribute, it generates two branches, one
-  -- which accepts data objects with attribute vaules less than or equal
+  -- which accepts data objects with attribute values less than or equal
   -- to a certain pivot, and one for those with greater (the pivot value
   -- depends on the split criteria for the algorithm).
   | Ordinal (tup -> v)
@@ -78,7 +78,10 @@ classify (Branches _ kids) tup = maybe undefined (`classify` tup)
   where match (Branches p _) = p tup
         match (Decision p _) = p tup
 
--- | Generate a decision tree using the ID3 algorithm.
+-- | Generate a decision tree using the ID3 algorithm. Supports
+-- continuous variables in the same manner as C4.5, by setting a
+-- threshold which corresponds to two branches (for data less or equal
+-- to the threshold, and for data greater than it).
 id3 :: (Alternative f, MonadPlus f, Foldable f, Ord label, Ord v)
     => (tup -> label)     -- ^ Gets label from tuple
     -> [Attribute tup v]  -- ^ Attributes of dataset (see 'Attribute')
