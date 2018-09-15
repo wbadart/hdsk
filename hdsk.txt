@@ -60,9 +60,9 @@
 --   
 --   <h2>Usage</h2>
 --   
---   Please see <a>wbadart.info/hdsk</a> for library documentation. Further
---   project info, such as planned features, is made available on the wiki:
---   <a>https://github.com/wbadart/hdsk/wiki</a>.
+--   Please see <a>willbadart.com/hdsk</a> for library documentation.
+--   Further project info, such as planned features, is made available on
+--   the wiki: <a>https://github.com/wbadart/hdsk/wiki</a>.
 --   
 --   <h2>License</h2>
 --   
