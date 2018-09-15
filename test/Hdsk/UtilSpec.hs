@@ -83,3 +83,7 @@ spec = do
   describe "last'" $
     it "works the same as last on lists" $ property
       (\(xs::[Int]) -> null xs || last xs == last' xs)
+
+  describe "listMap" $
+    it "maps (+1) over a vector producing a list" $
+      listMap (+1) (V.fromList [1, 2 ,3]) `shouldBe` [2, 3, 4]

@@ -24,6 +24,7 @@ module Hdsk.Util
 , nuniq
 , head'
 , last'
+, listMap
 ) where
 
 import Control.Applicative (Alternative, (<|>), empty, pure)
@@ -106,3 +107,7 @@ head' = foldr1 (curry fst)
 -- | /O(n)/ Return the last element of a foldable.
 last' :: Foldable f => f a -> a
 last' = foldr1 (curry snd)
+
+-- | /O(n)/ Map a function over a foldable, producing a list.
+listMap :: Foldable f => (a -> b) -> f a -> [b]
+listMap f = foldr ((:) . f) []
