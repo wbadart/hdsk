@@ -30,6 +30,7 @@ module Hdsk.Util
 import Control.Applicative (Alternative, (<|>), empty, pure)
 import Control.Monad.ST (ST, runST)
 import Data.List (maximumBy)
+import Data.Foldable (toList)
 import Data.Function (on)
 import Data.Hashable (Hashable)
 import Data.HashTable.ST.Cuckoo (HashTable)
@@ -110,4 +111,4 @@ last' = foldr1 (curry snd)
 
 -- | /O(n)/ Map a function over a foldable, producing a list.
 listMap :: Foldable f => (a -> b) -> f a -> [b]
-listMap f = foldr ((:) . f) []
+listMap f = map f . toList
