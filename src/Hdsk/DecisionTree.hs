@@ -78,49 +78,56 @@ classify (Branches _ kids) tup = maybe undefined (`classify` tup)
   where match (Branches p _) = p tup
         match (Decision p _) = p tup
 
--- | /O(???)/ Generate a decision tree using the ID3 algorithm.
-id3 :: forall f tup label v.
-       (Alternative f, MonadPlus f, Foldable f, Ord label, Ord v)
-    => label
-    -> (tup -> Bool)
-    -> (tup -> label)
-    -> [Attribute tup v]
-    -> f tup
+-- | Generate a decision tree using the ID3 algorithm.
+id3 :: (Alternative f, MonadPlus f, Foldable f, Ord label, Ord v)
+    => (tup -> label)     -- ^ Gets label from tuple
+    -> [Attribute tup v]  -- ^ Attributes of dataset (see 'Attribute')
+    -> f tup              -- ^ The dataset
     -> DecisionTree tup label
-id3 fallback prop getLabel unused dat
-  | homogenous  = Decision prop (getLabel $ head' dat)
-  | null unused = Decision prop (majorityLabel getLabel dat)
-  | null dat    = Decision prop fallback
-  | otherwise   = Branches prop
-                $ let (unused', branching) = bestBranching
-                   in map (mkTree unused') branching
-  where homogenous = nuniq (fmap getLabel dat) == 1
+id3 = id3' undefined (const True)
+  where
+    id3' :: forall f tup label v.
+           (Alternative f, MonadPlus f, Foldable f, Ord label, Ord v)
+        => label
+        -> (tup -> Bool)
+        -> (tup -> label)
+        -> [Attribute tup v]
+        -> f tup
+        -> DecisionTree tup label
+    id3' fallback prop getLabel unused dat
+      | homogenous  = Decision prop (getLabel $ head' dat)
+      | null unused = Decision prop (majorityLabel getLabel dat)
+      | null dat    = Decision prop fallback
+      | otherwise   = Branches prop
+                    $ let (unused', branching) = bestBranching
+                       in map (mkTree unused') branching
+      where homogenous = nuniq (fmap getLabel dat) == 1
 
-        bestBranching :: ([Attribute tup v], [tup -> Bool])
-        bestBranching = maximumBy
-                          (compare `on`
-                            \ ~(_, b) -> infoGain getLabel dat b)
-                          branchings
+            bestBranching :: ([Attribute tup v], [tup -> Bool])
+            bestBranching = maximumBy
+                              (compare `on`
+                                \ ~(_, b) -> infoGain getLabel dat b)
+                              branchings
 
-        branchings :: [([Attribute tup v], [tup -> Bool])]
-        branchings = map (mkTests . (`splitAt` unused))
-                               [0..length unused - 1]
+            branchings :: [([Attribute tup v], [tup -> Bool])]
+            branchings = map (mkTests . (`splitAt` unused))
+                                   [0..length unused - 1]
 
-        mkTests :: ([Attribute tup v], [Attribute tup v])
-                -> ([Attribute tup v], [tup -> Bool])
-        mkTests (_, []) = undefined
+            mkTests :: ([Attribute tup v], [Attribute tup v])
+                    -> ([Attribute tup v], [tup -> Bool])
+            mkTests (_, []) = undefined
 
-        mkTests (u1, Categorical attr:u2) =
-          let vals = uniq' $ fmap attr dat
-           in (u1 ++ u2, listMap (\v -> (==v) . attr) vals)
+            mkTests (u1, Categorical attr:u2) =
+              let vals = uniq' $ fmap attr dat
+               in (u1 ++ u2, listMap (\v -> (==v) . attr) vals)
 
-        mkTests (u1, Ordinal attr:u2) =
-          let vals = uniq' $ fmap attr dat
-           in (u1 ++ u2, concatMap
-                           (\v -> [(<=v) . attr, (>v) . attr]) vals)
+            mkTests (u1, Ordinal attr:u2) =
+              let vals = uniq' $ fmap attr dat
+               in (u1 ++ u2, concatMap
+                               (\v -> [(<=v) . attr, (>v) . attr]) vals)
 
-        mkTree :: [Attribute tup v]
-               -> (tup -> Bool)
-               -> DecisionTree tup label
-        mkTree unused' p = id3 (majorityLabel getLabel dat)
-                             p getLabel unused' (mfilter p dat)
+            mkTree :: [Attribute tup v]
+                   -> (tup -> Bool)
+                   -> DecisionTree tup label
+            mkTree unused' p = id3' (majorityLabel getLabel dat)
+                                 p getLabel unused' (mfilter p dat)

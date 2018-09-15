@@ -31,9 +31,5 @@ spec = do
   describe "id3" $
     it "constructs and ID3 decision tree" $ do
       dat <- map words . lines <$> readFile "util/weather.txt"
-      let dt2 = id3 ""
-                  (const True)
-                  last
-                  (map (Categorical . flip (!!)) [0..3])
-                  dat
+      let dt2 = id3 last (map (Categorical . flip (!!)) [0..3]) dat
       classify dt2 ["sunny", "hot", "high", "false"] `shouldBe` "no"
