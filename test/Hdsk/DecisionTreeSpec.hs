@@ -7,7 +7,6 @@ module Hdsk.DecisionTreeSpec (spec) where
 
 import Test.Hspec (Spec, describe, it, shouldBe)
 
-import Hdsk.DecisionTree.Information (infoGain)
 import Hdsk.DecisionTree
 
 spec :: Spec
@@ -29,7 +28,12 @@ spec = do
     it "finds the first branching predicate to pass for the tuple" $
       classify dt ["cloudy", "warm"] `shouldBe` "play"
 
-  -- describe "id3" $
-  --   it "constructs and ID3 decision tree" $ do
-  --     let dat = undefined
-  --         dt2 = id3 "" (const True) last (map (flip (!!)) [0..1]) dat
+  describe "id3" $
+    it "constructs and ID3 decision tree" $ do
+      dat <- map words . lines <$> readFile "util/weather.txt"
+      let dt2 = id3 ""
+                  (const True)
+                  last
+                  (map (Categorical . flip (!!)) [0..3])
+                  dat
+      classify dt2 ["sunny", "hot", "high", "false"] `shouldBe` "no"

@@ -13,6 +13,7 @@ and more.
 
 module Hdsk.DecisionTree
 ( DecisionTree(..)
+, Attribute(..)
 , classify
 , id3
 ) where
@@ -22,7 +23,7 @@ import Control.Monad (MonadPlus, mfilter)
 import Data.Function (on)
 import Data.List (find, maximumBy)
 import Hdsk.DecisionTree.Information (infoGain)
-import Hdsk.Util (head', majorityLabel, nuniq, uniq')
+import Hdsk.Util (head', listMap, majorityLabel, nuniq, uniq')
 
 -- | Representation of a decision tree's structure. Non-leaf nodes are
 -- encoded with a predicate over the tuple type (this function signals
@@ -102,19 +103,24 @@ id3 fallback prop getLabel unused dat
                           branchings
 
         branchings :: [([Attribute tup v], [tup -> Bool])]
-        branchings = concatMap (mkTests . (`splitAt` unused))
+        branchings = map (mkTests . (`splitAt` unused))
                                [0..length unused - 1]
 
         mkTests :: ([Attribute tup v], [Attribute tup v])
-                -> [([Attribute tup v], [tup -> Bool])]
-        mkTests (_, []) = []
+                -> ([Attribute tup v], [tup -> Bool])
+        mkTests (_, []) = undefined
 
         mkTests (u1, Categorical attr:u2) =
           let vals = uniq' $ fmap attr dat
-           in [(u1 ++ u2, map (\v -> (==v) . attr) vals)]
+           in (u1 ++ u2, listMap (\v -> (==v) . attr) vals)
 
-        mkTests (u1, Ordinal attr:u2) = error "WIP"
+        mkTests (u1, Ordinal attr:u2) =
+          let vals = uniq' $ fmap attr dat
+           in (u1 ++ u2, concatMap
+                           (\v -> [(<=v) . attr, (>v) . attr]) vals)
 
-        mkTree :: [Attribute tup v] -> (tup -> Bool) -> DecisionTree tup label
+        mkTree :: [Attribute tup v]
+               -> (tup -> Bool)
+               -> DecisionTree tup label
         mkTree unused' p = id3 (majorityLabel getLabel dat)
                              p getLabel unused' (mfilter p dat)
