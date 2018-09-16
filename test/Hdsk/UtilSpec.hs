@@ -69,6 +69,13 @@ spec = do
     it "works on empty containers" $
       uniq' (V.empty::Vector Int) `shouldBe` V.empty
 
+  describe "uniqList" $ do
+    it "gathers the uniq elements of a foldable into a list" $
+      uniqList (V.fromList [1, 1, 2, 3, 4])
+      `shouldBe` ([1, 2, 3, 4]::[Int])
+    it "gives an empty list for empty foldables" $
+      uniqList (V.empty::Vector Int) `shouldBe` []
+
   describe "nuniq" $ do
     it "counts the number of unique elements in a container" $ do
       nuniq [1::Int, 2, 3, 4] `shouldBe` 4
