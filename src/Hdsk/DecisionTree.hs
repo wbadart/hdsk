@@ -112,18 +112,25 @@ id3 = id3' undefined (const True)
                                 \ ~(_, b) -> infoGain getLabel dat b)
                               branchings
 
+            best :: [[tup -> Bool]] -> [tup -> Bool]
+            best = maximumBy (compare `on` infoGain getLabel dat)
+
             branchings :: [([Attribute tup v], [tup -> Bool])]
             branchings = map (mkTests . (`splitAt` unused))
-                                   [0..length unused - 1]
+                             [0..length unused - 1]
 
             mkTests :: ([Attribute tup v], [Attribute tup v])
                     -> ([Attribute tup v], [tup -> Bool])
-            mkTests (_, [])       = undefined
+            mkTests (_, []) = undefined
             mkTests (u1, attr:u2) =
               (u1 ++ u2, getBranchings attr)
+
               where getBranchings (Categorical a) =
                       listMap (\v -> (==v) . a) vals
-                    getBranchings (Ordinal a) = undefined
+
+                    getBranchings (Ordinal a) =
+                      best $ listMap (\v -> [(<=v) . a, (>v) . a]) vals
+
                     vals = uniq' $ fmap attr' dat
                     attr' = case attr of Categorical f -> f
                                          Ordinal f -> f
