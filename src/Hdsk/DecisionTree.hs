@@ -23,7 +23,7 @@ import Control.Monad (MonadPlus, mfilter)
 import Data.Function (on)
 import Data.List (find, maximumBy)
 import Hdsk.DecisionTree.Information (infoGain)
-import Hdsk.Util (head', listMap, majorityLabel, nuniq, uniq')
+import Hdsk.Util (head', majorityLabel, nuniq, uniqList)
 
 -- | Representation of a decision tree's structure. Non-leaf nodes are
 -- encoded with a predicate over the tuple type (this function signals
@@ -98,44 +98,42 @@ id3 = id3' undefined (const True)
         -> f tup
         -> DecisionTree tup label
     id3' fallback prop getLabel unused dat
-      | homogenous  = Decision prop (getLabel $ head' dat)
+      | homogenous getLabel dat = Decision prop (getLabel $ head' dat)
       | null unused = Decision prop (majorityLabel getLabel dat)
       | null dat    = Decision prop fallback
       | otherwise   = Branches prop
                     $ let (unused', branching) = bestBranching
-                       in map (mkTree unused') branching
-      where homogenous = nuniq (fmap getLabel dat) == 1
+                       in map (recur unused') branching
 
-            bestBranching :: ([Attribute tup v], [tup -> Bool])
-            bestBranching = maximumBy
-                              (compare `on` infoGain getLabel dat . snd)
-                              branchings
+      where bestBranching :: ([Attribute tup v], [tup -> Bool])
+            bestBranching = best snd branchings
+            best f = maximumBy (compare `on` infoGain getLabel dat . f)
 
             branchings :: [([Attribute tup v], [tup -> Bool])]
             branchings = map (mkTests . (`splitAt` unused))
                              [0..length unused - 1]
 
-            best :: [[tup -> Bool]] -> [tup -> Bool]
-            best = maximumBy (compare `on` infoGain getLabel dat)
 
             mkTests :: ([Attribute tup v], [Attribute tup v])
                     -> ([Attribute tup v], [tup -> Bool])
             mkTests (_, []) = undefined
-            mkTests (u1, attr:u2) =
-              (u1 ++ u2, getBranchings attr)
-
+            mkTests (u1, attr:u2) = (u1 ++ u2, getBranchings attr vals)
               where getBranchings (Categorical a) =
-                      listMap (\v -> (==v) . a) vals
-
+                      map (\v -> (==v) . a)
                     getBranchings (Ordinal a) =
-                      best $ listMap (\v -> [(<=v) . a, (>v) . a]) vals
-
-                    vals = uniq' $ fmap attr' dat
+                      best id . map (\v -> [(<=v) . a, (>v) . a])
+                    vals = uniqList $ fmap attr' dat
                     attr' = case attr of Categorical f -> f
                                          Ordinal f -> f
 
-            mkTree :: [Attribute tup v]
-                   -> (tup -> Bool)
-                   -> DecisionTree tup label
-            mkTree unused' p = id3' (majorityLabel getLabel dat)
-                                 p getLabel unused' (mfilter p dat)
+            recur :: [Attribute tup v]
+                  -> (tup -> Bool) -> DecisionTree tup label
+            recur unused' p = id3' (majorityLabel getLabel dat)
+                                p getLabel unused' (mfilter p dat)
+
+-- | Construct a decision tree using the C4.5 algorithm.
+
+-- | Signal whether a dataset is single-classed.
+homogenous :: (Functor f, Foldable f, Ord label)
+           => (tup -> label) -> f tup -> Bool
+homogenous = (((==1) . nuniq) .) . fmap
