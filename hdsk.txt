@@ -455,6 +455,10 @@ uniq :: Ord a => [a] -> [a]
 --   duplicates out of a <tt>Foldable</tt>, <tt>Alternative</tt> container.
 uniq' :: (Foldable f, Alternative f, Ord a) => f a -> f a
 
+-- | <i>O(n log n)</i> Gather the unique elements of a foldable into a
+--   list.
+uniqList :: (Foldable f, Ord a) => f a -> [a]
+
 -- | <i>O(n)</i> Return the number of uniq values in the container.
 nuniq :: (Foldable f, Ord a) => f a -> Int
 
