@@ -108,16 +108,15 @@ id3 = id3' undefined (const True)
 
             bestBranching :: ([Attribute tup v], [tup -> Bool])
             bestBranching = maximumBy
-                              (compare `on`
-                                \ ~(_, b) -> infoGain getLabel dat b)
+                              (compare `on` infoGain getLabel dat . snd)
                               branchings
-
-            best :: [[tup -> Bool]] -> [tup -> Bool]
-            best = maximumBy (compare `on` infoGain getLabel dat)
 
             branchings :: [([Attribute tup v], [tup -> Bool])]
             branchings = map (mkTests . (`splitAt` unused))
                              [0..length unused - 1]
+
+            best :: [[tup -> Bool]] -> [tup -> Bool]
+            best = maximumBy (compare `on` infoGain getLabel dat)
 
             mkTests :: ([Attribute tup v], [Attribute tup v])
                     -> ([Attribute tup v], [tup -> Bool])
