@@ -17,6 +17,7 @@ module Hdsk.Util
 , countBy'
 , countHT
 , countElemHT
+, countElemHT'
 , length'
 , lg
 , uniq
@@ -79,6 +80,10 @@ countHT = foldr count' H.new
 -- element from a container.
 countElemHT :: (Foldable f, Eq k, Hashable k) => f k -> k -> Int
 countElemHT xs x = fromMaybe 0 $ runST $ (`H.lookup` x) =<< countHT xs
+
+-- | /O(n)/ Generic version of 'countElemHT'.
+countElemHT' :: (Foldable f, Eq k, Hashable k, Num a) => f k -> k -> a
+countElemHT' = (fromIntegral .) . countElemHT
 
 -- | /O(n)/ Shorthand for 'genericLength' which works on all foldables.
 length' :: (Num a, Foldable f) => f b -> a

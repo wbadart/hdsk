@@ -77,3 +77,10 @@ spec = do
 
     it "finds the euclidean distance for p=2" $
       minkowski 2 [0, 0] [10, 10] `shouldBe` sqrt 200
+
+  describe "distHamming" $
+    it "passes all the scipy examples" $ do
+      distHamming [1, 0, 0] [0, 1, 0] `shouldBe` (2/3::Double)
+      distHamming [1, 0, 0] [1, 1, 0] `shouldBe` (1/3::Double)
+      distHamming [1, 0, 0] [2, 0, 0] `shouldBe` (1/3::Double)
+      distHamming [1, 0, 0] [3, 0, 0] `shouldBe` (1/3::Double)

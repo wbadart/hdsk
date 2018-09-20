@@ -23,8 +23,10 @@ module Hdsk.Cluster
 , minkowski
 , distManhattan
 , distEuclidean
+, distHamming
 ) where
 
+import Control.Monad.Zip (MonadZip, mzipWith)
 import Data.Function (on)
 import Data.List (elemIndex, minimumBy, transpose)
 import Data.Maybe (fromMaybe)
@@ -32,6 +34,7 @@ import qualified Data.Vector as V
 
 import Hdsk.Description (mean)
 import Hdsk.Numerical (terminate)
+import Hdsk.Util (countElemHT', length')
 
 -- | /O(inkD)/ Run the kmeans clustering algorithm over the given
 -- dataset. Returns a list of cluster labels which corresponds 1-1 with
@@ -132,3 +135,8 @@ distManhattan = minkowski 1
 -- | Common case of 'minkowski' is with /p = 2/ for Euclidean distance.
 distEuclidean :: Floating a => [a] -> [a] -> a
 distEuclidean = minkowski 2
+
+-- | /O(n)/ Compute the Hamming distance between to vectors.
+distHamming :: (MonadZip f, Foldable f, Eq a, Floating d)
+            => f a -> f a -> d
+distHamming u v = countElemHT' (mzipWith (/=) u v) True / length' u
