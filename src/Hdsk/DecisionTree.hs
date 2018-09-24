@@ -131,6 +131,12 @@ id3 = id3' undefined (const True)
                                 p getLabel unused' (mfilter p dat)
 
 -- | Construct a decision tree using the C4.5 algorithm.
+-- c45 :: Foldable f
+--     => (tup -> Bool) -> (tup -> label) -> [Attribute tup v] -> f tup
+--     -> DecisionTree tup label
+-- c45 prop getLabel unused dat
+--   | homogenous getLabel dat = Decision prop (getLabel $ head' dat)
+--   | all (==0) (map infoGain unused) = undefined -- "Create decision node higher up using expected value of the class"
 
 -- | Signal whether a dataset is single-classed.
 homogenous :: (Functor f, Foldable f, Ord label)
