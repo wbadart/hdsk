@@ -7,7 +7,4 @@ pipeline {
       }
     }
   }
-  environment {
-    PATH = '$HOME/.local/bin:$PATH'
-  }
 }
